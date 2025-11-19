@@ -56,10 +56,10 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
     toast.success("Step 1 completed!");
   };
 
-  const copyPrompt = (prompt: string, phase: number) => {
+  const copyPrompt = (prompt: string, phaseIndex: number, stepNumber: number) => {
     navigator.clipboard.writeText(prompt);
-    setCopiedPhase(phase);
-    markStepComplete(phase + 1); // phase 0 = step 2, phase 1 = step 3, etc.
+    setCopiedPhase(phaseIndex);
+    markStepComplete(stepNumber);
     toast.success("Prompt copied and step marked complete!");
     setTimeout(() => setCopiedPhase(null), 2000);
   };
@@ -161,7 +161,7 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
                   <h4 className="text-lg font-semibold">{phase.title}</h4>
                 </div>
                 <Button
-                  onClick={() => copyPrompt(phase.prompt, phase.phase)}
+                  onClick={() => copyPrompt(phase.prompt, phase.phase, stepNumber)}
                   variant="outline"
                   size="sm"
                   className={`border-border hover:bg-secondary ${

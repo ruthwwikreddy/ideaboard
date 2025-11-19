@@ -76,24 +76,100 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Sparkles className="w-8 h-8 text-primary" />
-              <div className="absolute inset-0 blur-lg bg-primary/30"></div>
+      {stage === "input" ? (
+        <section className="hero">
+          <div className="hero-grid">
+            <div className="hero-left">
+              <div className="hero-eyebrow">IdeaBoard AI · Execution in one sweep</div>
+              <h1>What's your idea?</h1>
+              <p className="hero-copy">
+                Drop your concept and watch IdeaBoard AI spin up research, competitor analysis, demand scoring, and the
+                prompts you need to ship faster than ever.
+              </p>
+              <div className="hero-pills">
+                <span>Market intelligence</span>
+                <span>Founder-grade prompts</span>
+                <span>Affiliate-ready flows</span>
+              </div>
+              <div className="hero-cta">
+                <button
+                  className="primary"
+                  onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  Start mapping now
+                </button>
+                <span>Avg. time-to-plan: 38 seconds</span>
+              </div>
+              <div className="hero-metrics">
+                <div>
+                  <span className="metric-label">Builders live</span>
+                  <strong className="metric-value">4 partners</strong>
+                </div>
+                <div>
+                  <span className="metric-label">Phases auto-generated</span>
+                  <strong className="metric-value">3 per plan</strong>
+                </div>
+                <div>
+                  <span className="metric-label">Ideas mapped</span>
+                  <strong className="metric-value">Realtime</strong>
+                </div>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">IdeaBoard AI</h1>
+            <div className="hero-right">
+              <div className="hero-visual">
+                <div className="hero-visual-header">
+                  <span>Execution radar</span>
+                  <strong>Live</strong>
+                </div>
+                <ul className="hero-visual-list">
+                  <li>
+                    <span>Problem clarity</span>
+                    <div className="hero-bar">
+                      <div style={{ width: "92%" }} />
+                    </div>
+                    <span className="hero-score">92%</span>
+                  </li>
+                  <li>
+                    <span>Demand probability</span>
+                    <div className="hero-bar">
+                      <div style={{ width: "84%" }} />
+                    </div>
+                    <span className="hero-score">84%</span>
+                  </li>
+                  <li>
+                    <span>Prompt coverage</span>
+                    <div className="hero-bar">
+                      <div style={{ width: "100%" }} />
+                    </div>
+                    <span className="hero-score">3 phases</span>
+                  </li>
+                </ul>
+                <div className="hero-visual-footer">
+                  <p>IdeaBoard stitches research + tooling + prompts into a single move.</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <p className="text-muted-foreground mt-2">Transform ideas into execution-ready build plans</p>
-        </div>
-      </header>
+        </section>
+      ) : (
+        <header className="border-b border-border">
+          <div className="container mx-auto px-6 py-6">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Sparkles className="w-8 h-8 text-primary" />
+                <div className="absolute inset-0 blur-lg bg-primary/30"></div>
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight">IdeaBoard AI</h1>
+            </div>
+            <p className="text-muted-foreground mt-2">Transform ideas into execution-ready build plans</p>
+          </div>
+        </header>
+      )}
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12 max-w-5xl">
         {stage === "input" && (
-          <Card className="p-8 bg-card border-border shadow-lg">
+          <Card id="idea-panel" className="p-8 bg-card border-border shadow-lg scroll-mt-28">
             <div className="space-y-6">
               <div>
                 <h2 className="text-2xl font-semibold mb-2">What's your idea?</h2>

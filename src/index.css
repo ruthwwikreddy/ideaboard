@@ -56,3 +56,174 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer base {
+  .hero {
+    width: 100%;
+    padding: 4rem 1.5rem 2rem;
+    background: radial-gradient(circle at top left, hsl(var(--primary) / 0.15), transparent 60%),
+      radial-gradient(circle at top right, hsl(var(--accent) / 0.12), transparent 50%);
+  }
+
+  .hero-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .hero-left h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .hero-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.8rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .hero-copy {
+    color: hsl(var(--foreground) / 0.8);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 620px;
+  }
+
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .hero-pills span {
+    border: 1px solid hsl(var(--border));
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    background: hsl(var(--secondary));
+  }
+
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-cta .primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    color: hsl(var(--primary-foreground));
+    padding: 0.9rem 2rem;
+    border-radius: 999px;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 10px 35px hsl(var(--primary) / 0.2);
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .hero-cta .primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 45px hsl(var(--accent) / 0.25);
+  }
+
+  .hero-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+  }
+
+  .hero-metrics .metric-label {
+    font-size: 0.85rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .hero-metrics .metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .hero-visual {
+    border-radius: 1.5rem;
+    border: 1px solid hsl(var(--border));
+    background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--background)));
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px hsl(var(--primary) / 0.08);
+  }
+
+  .hero-visual-header {
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-visual-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .hero-visual-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .hero-bar {
+    flex: 1;
+    height: 6px;
+    background: hsl(var(--border));
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .hero-bar div {
+    height: 100%;
+    background: linear-gradient(90deg, hsl(var(--accent)), hsl(var(--primary)));
+    border-radius: 999px;
+  }
+
+  .hero-score {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  .hero-visual-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid hsl(var(--border));
+    font-size: 0.9rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      padding: 3rem 1rem 1rem;
+    }
+
+    .hero-cta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+  }
+}
