@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Loader2, ArrowRight } from "lucide-react";
+import { Wand, Loader2, ArrowRight } from "lucide-react";
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
@@ -80,10 +80,10 @@ const Index = () => {
         <section className="hero">
           <div className="hero-grid">
             <div className="hero-left">
-              <div className="hero-eyebrow">IdeaBoard AI · Execution in one sweep</div>
+              <div className="hero-eyebrow">DevPlan AI · From Concept to Code</div>
               <h1>What's your idea?</h1>
               <p className="hero-copy">
-                Drop your concept and watch IdeaBoard AI spin up research, competitor analysis, demand scoring, and the
+                Drop your concept and watch DevPlan AI spin up research, competitor analysis, demand scoring, and the
                 prompts you need to ship faster than ever.
               </p>
               <div className="hero-pills">
@@ -156,12 +156,12 @@ const Index = () => {
           <div className="container mx-auto px-6 py-6">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Sparkles className="w-8 h-8 text-primary" />
+                <Wand className="w-8 h-8 text-primary" />
                 <div className="absolute inset-0 blur-lg bg-primary/30"></div>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight">IdeaBoard AI</h1>
+              <h1 className="text-3xl font-bold tracking-tight">DevPlan AI</h1>
             </div>
-            <p className="text-muted-foreground mt-2">Transform ideas into execution-ready build plans</p>
+            <p className="text-muted-foreground mt-2">From concept to code, instantly.</p>
           </div>
         </header>
       )}

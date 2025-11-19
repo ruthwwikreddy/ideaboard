@@ -26,7 +26,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         </div>
         <Badge
           variant={research.demandProbability >= 70 ? "default" : "secondary"}
-          className="text-lg px-4 py-2 bg-primary/10 text-primary border-primary/20"
+          className="text-lg px-4 py-2 bg-gray-200 text-black"
         >
           {research.demandProbability}% Demand Probability
         </Badge>

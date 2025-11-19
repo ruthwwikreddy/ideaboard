@@ -47,11 +47,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        neon: {
-          cyan: "hsl(var(--neon-cyan))",
-          purple: "hsl(var(--neon-purple))",
-          green: "hsl(var(--neon-green))",
-        },
+        success: "hsl(var(--success))",
       },
       boxShadow: {
         'neon-cyan': 'var(--glow-cyan)',

@@ -31,24 +31,14 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
   const [copiedPhase, setCopiedPhase] = useState<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
 
-  // Load completed steps from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem(`buildplan-${platform}-completed`);
-    if (saved) {
-      setCompletedSteps(new Set(JSON.parse(saved)));
-    }
-  }, [platform]);
 
-  // Save completed steps to localStorage
-  const saveCompletedSteps = (steps: Set<number>) => {
-    localStorage.setItem(`buildplan-${platform}-completed`, JSON.stringify([...steps]));
-  };
+
+
 
   const markStepComplete = (step: number) => {
     const newCompleted = new Set(completedSteps);
     newCompleted.add(step);
     setCompletedSteps(newCompleted);
-    saveCompletedSteps(newCompleted);
   };
 
   const handlePlatformLinkClick = () => {
@@ -65,7 +55,6 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
   };
 
   const resetProgress = () => {
-    localStorage.removeItem(`buildplan-${platform}-completed`);
     setCompletedSteps(new Set());
     onReset();
   };
@@ -78,7 +67,7 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground">Ready to execute with {platform}</p>
             {completedSteps.size > 0 && (
-              <Badge className="bg-neon-green/20 text-neon-green border-neon-green/30">
+              <Badge className="bg-success/20 text-success border-success/30">
                 {completedSteps.size} / {plan.phases.length + 1} Steps Complete
               </Badge>
             )}
@@ -103,13 +92,13 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
         {/* Step 1: Visit Platform */}
         <Card className={`p-6 bg-card border-l-4 transition-all ${
           completedSteps.has(1)
-            ? "border-l-neon-green bg-neon-green/5"
+            ? "border-l-success bg-success/5"
             : "border-l-primary"
         }`}>
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-3">
               {completedSteps.has(1) ? (
-                <Badge className="bg-neon-green text-background">
+                <Badge className="bg-success text-background">
                   <CheckCircle2 className="w-4 h-4 mr-1" />
                   Step 1
                 </Badge>
@@ -144,14 +133,14 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
               key={phase.phase}
               className={`p-6 bg-card border-l-4 transition-all ${
                 isCompleted
-                  ? "border-l-neon-green bg-neon-green/5"
+                  ? "border-l-success bg-success/5"
                   : "border-l-accent"
               }`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   {isCompleted ? (
-                    <Badge className="bg-neon-green text-background">
+                    <Badge className="bg-success text-background">
                       <CheckCircle2 className="w-4 h-4 mr-1" />
                       Step {stepNumber}
                     </Badge>
@@ -165,17 +154,17 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
                   variant="outline"
                   size="sm"
                   className={`border-border hover:bg-secondary ${
-                    isCompleted ? "bg-neon-green/10 border-neon-green/30" : ""
+                    isCompleted ? "bg-success/10 border-success/30" : ""
                   }`}
                 >
                   {copiedPhase === phase.phase ? (
                     <>
-                      <Check className="w-4 h-4 mr-2 text-neon-green" />
+                      <Check className="w-4 h-4 mr-2 text-success" />
                       Copied
                     </>
                   ) : isCompleted ? (
                     <>
-                      <CheckCircle2 className="w-4 h-4 mr-2 text-neon-green" />
+                      <CheckCircle2 className="w-4 h-4 mr-2 text-success" />
                       Completed
                     </>
                   ) : (
@@ -212,7 +201,7 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
       {/* Final Step */}
       <Card className="p-6 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
         <div className="flex items-center gap-3 mb-3">
-          <Badge className="bg-neon-green text-background">Final Step</Badge>
+          <Badge className="bg-success text-background">Final Step</Badge>
           <h4 className="text-lg font-semibold">Polish & Deploy</h4>
         </div>
         <p className="text-foreground/90">
