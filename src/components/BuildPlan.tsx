@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, ExternalLink, RotateCcw, Check } from "lucide-react";
-import { useState } from "react";
+import { Copy, ExternalLink, RotateCcw, Check, CheckCircle2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 interface BuildPlanProps {
@@ -29,12 +29,45 @@ const platformUrls: Record<string, string> = {
 
 export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
   const [copiedPhase, setCopiedPhase] = useState<number | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+
+  // Load completed steps from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(`buildplan-${platform}-completed`);
+    if (saved) {
+      setCompletedSteps(new Set(JSON.parse(saved)));
+    }
+  }, [platform]);
+
+  // Save completed steps to localStorage
+  const saveCompletedSteps = (steps: Set<number>) => {
+    localStorage.setItem(`buildplan-${platform}-completed`, JSON.stringify([...steps]));
+  };
+
+  const markStepComplete = (step: number) => {
+    const newCompleted = new Set(completedSteps);
+    newCompleted.add(step);
+    setCompletedSteps(newCompleted);
+    saveCompletedSteps(newCompleted);
+  };
+
+  const handlePlatformLinkClick = () => {
+    markStepComplete(1);
+    toast.success("Step 1 completed!");
+  };
 
   const copyPrompt = (prompt: string, phase: number) => {
     navigator.clipboard.writeText(prompt);
     setCopiedPhase(phase);
-    toast.success("Prompt copied to clipboard!");
+    markStepComplete(phase + 1); // phase 0 = step 2, phase 1 = step 3, etc.
+    toast.success("Prompt copied and step marked complete!");
     setTimeout(() => setCopiedPhase(null), 2000);
+  };
+
+  const resetProgress = () => {
+    localStorage.removeItem(`buildplan-${platform}-completed`);
+    setCompletedSteps(new Set());
+    onReset();
   };
 
   return (
@@ -42,9 +75,16 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold mb-2">Your Build Plan</h2>
-          <p className="text-muted-foreground">Ready to execute with {platform}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-muted-foreground">Ready to execute with {platform}</p>
+            {completedSteps.size > 0 && (
+              <Badge className="bg-neon-green/20 text-neon-green border-neon-green/30">
+                {completedSteps.size} / {plan.phases.length + 1} Steps Complete
+              </Badge>
+            )}
+          </div>
         </div>
-        <Button onClick={onReset} variant="outline" className="border-border hover:bg-secondary">
+        <Button onClick={resetProgress} variant="outline" className="border-border hover:bg-secondary">
           <RotateCcw className="mr-2 h-4 w-4" />
           New Idea
         </Button>
@@ -61,16 +101,28 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
         <h3 className="text-2xl font-semibold">Execution Steps</h3>
 
         {/* Step 1: Visit Platform */}
-        <Card className="p-6 bg-card border-border border-l-4 border-l-primary">
+        <Card className={`p-6 bg-card border-l-4 transition-all ${
+          completedSteps.has(1)
+            ? "border-l-neon-green bg-neon-green/5"
+            : "border-l-primary"
+        }`}>
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-3">
-              <Badge className="bg-primary text-primary-foreground">Step 1</Badge>
+              {completedSteps.has(1) ? (
+                <Badge className="bg-neon-green text-background">
+                  <CheckCircle2 className="w-4 h-4 mr-1" />
+                  Step 1
+                </Badge>
+              ) : (
+                <Badge className="bg-primary text-primary-foreground">Step 1</Badge>
+              )}
               <h4 className="text-lg font-semibold">Visit {platform}</h4>
             </div>
             <a
               href={platformUrls[platform]}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handlePlatformLinkClick}
               className="inline-flex items-center gap-2 text-primary hover:underline"
             >
               Open Platform
@@ -83,32 +135,57 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
         </Card>
 
         {/* Build Phases */}
-        {plan.phases.map((phase) => (
-          <Card key={phase.phase} className="p-6 bg-card border-border border-l-4 border-l-accent">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <Badge className="bg-accent text-accent-foreground">Step {phase.phase + 1}</Badge>
-                <h4 className="text-lg font-semibold">{phase.title}</h4>
+        {plan.phases.map((phase) => {
+          const stepNumber = phase.phase + 2; // phase 0 = step 2, phase 1 = step 3, etc.
+          const isCompleted = completedSteps.has(stepNumber);
+          
+          return (
+            <Card
+              key={phase.phase}
+              className={`p-6 bg-card border-l-4 transition-all ${
+                isCompleted
+                  ? "border-l-neon-green bg-neon-green/5"
+                  : "border-l-accent"
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  {isCompleted ? (
+                    <Badge className="bg-neon-green text-background">
+                      <CheckCircle2 className="w-4 h-4 mr-1" />
+                      Step {stepNumber}
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-accent text-accent-foreground">Step {stepNumber}</Badge>
+                  )}
+                  <h4 className="text-lg font-semibold">{phase.title}</h4>
+                </div>
+                <Button
+                  onClick={() => copyPrompt(phase.prompt, phase.phase)}
+                  variant="outline"
+                  size="sm"
+                  className={`border-border hover:bg-secondary ${
+                    isCompleted ? "bg-neon-green/10 border-neon-green/30" : ""
+                  }`}
+                >
+                  {copiedPhase === phase.phase ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-neon-green" />
+                      Copied
+                    </>
+                  ) : isCompleted ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2 text-neon-green" />
+                      Completed
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy Prompt
+                    </>
+                  )}
+                </Button>
               </div>
-              <Button
-                onClick={() => copyPrompt(phase.prompt, phase.phase)}
-                variant="outline"
-                size="sm"
-                className="border-border hover:bg-secondary"
-              >
-                {copiedPhase === phase.phase ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2 text-neon-green" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy Prompt
-                  </>
-                )}
-              </Button>
-            </div>
 
             <div className="space-y-3">
               <div>
@@ -128,7 +205,8 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
               </div>
             </div>
           </Card>
-        ))}
+        );
+        })}
       </div>
 
       {/* Final Step */}
