@@ -67,6 +67,12 @@ const Index = () => {
       return;
     }
 
+    if (!user) {
+      toast.info("Please sign in or sign up to generate ideas.");
+      navigate("/auth");
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("analyze-idea", {
