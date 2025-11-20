@@ -62,8 +62,12 @@ const Profile = () => {
       
       setProfile(data);
       setFullName(data.full_name || "");
-    } catch (error: any) {
-      toast.error("Failed to load profile");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to load profile");
+      }
     } finally {
       setLoading(false);
     }
@@ -83,8 +87,12 @@ const Profile = () => {
 
       toast.success("Profile updated successfully!");
       setProfile((prev) => prev ? { ...prev, full_name: fullName } : null);
-    } catch (error: any) {
-      toast.error("Failed to update profile");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setSaving(false);
     }

@@ -11,15 +11,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
 
+interface Research {
+  problem: string;
+  audience: string;
+  competitors: string[];
+  marketGaps: string[];
+  monetization: string[];
+  demandProbability: number;
+}
+
+interface BuildPhase {
+  phase: number;
+  title: string;
+  features: string[];
+  prompt: string;
+}
+
+interface BuildPlan {
+  summary: string;
+  features: string[];
+  phases: BuildPhase[];
+}
+
 type Stage = "input" | "research" | "platform" | "plan";
 
 const Index = () => {
   const navigate = useNavigate();
   const [stage, setStage] = useState<Stage>("input");
   const [idea, setIdea] = useState("");
-  const [research, setResearch] = useState<any>(null);
+  const [research, setResearch] = useState<Research | null>(null);
   const [platform, setPlatform] = useState("");
-  const [buildPlan, setBuildPlan] = useState<any>(null);
+  const [buildPlan, setBuildPlan] = useState<BuildPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -53,7 +75,7 @@ const Index = () => {
 
       if (error) throw error;
 
-      setResearch(data);
+      setResearch(data as Research);
       setStage("research");
       
       // Save project if user is logged in
@@ -69,14 +91,18 @@ const Index = () => {
           .single();
 
         if (!projectError && projectData) {
-          setCurrentProjectId(projectData.id);
+          setCurrentProjectId((projectData as { id: string }).id);
         }
       }
       
       toast.success("Research completed!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error analyzing idea:", error);
-      toast.error(error.message || "Failed to analyze idea");
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to analyze idea");
+      }
     } finally {
       setLoading(false);
     }
@@ -93,7 +119,7 @@ const Index = () => {
 
       if (error) throw error;
 
-      setBuildPlan(data);
+      setBuildPlan(data as BuildPlan);
       setStage("plan");
       
       // Update project if user is logged in
@@ -108,9 +134,13 @@ const Index = () => {
       }
       
       toast.success("Build plan generated!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error generating plan:", error);
-      toast.error(error.message || "Failed to generate build plan");
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to generate build plan");
+      }
     } finally {
       setLoading(false);
     }
@@ -149,7 +179,15 @@ const Index = () => {
                 >
                   Start mapping now
                 </button>
-                {!user && (
+                {user ? (
+                  <Button
+                    onClick={() => navigate("/dashboard")}
+                    variant="outline"
+                    className="border-border hover:bg-secondary"
+                  >
+                    Profile
+                  </Button>
+                ) : (
                   <Button
                     onClick={() => navigate("/auth")}
                     variant="outline"

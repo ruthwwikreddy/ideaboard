@@ -70,10 +70,10 @@ Be specific, actionable, and realistic. Focus on what makes this idea unique and
     return new Response(JSON.stringify(research), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in analyze-idea:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Unknown error" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

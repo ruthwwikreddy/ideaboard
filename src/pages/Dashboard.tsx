@@ -7,12 +7,21 @@ import { Wand, Plus, LogOut, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 
+interface Research {
+  problem: string;
+  audience: string;
+  competitors: string[];
+  marketGaps: string[];
+  monetization: string[];
+  demandProbability: number;
+}
+
 interface Project {
   id: string;
   idea: string;
   platform: string | null;
   created_at: string;
-  research: any;
+  research: Research | null;
 }
 
 const Dashboard = () => {
@@ -60,8 +69,12 @@ const Dashboard = () => {
 
       if (error) throw error;
       setProjects(data || []);
-    } catch (error: any) {
-      toast.error("Failed to load projects");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to load projects");
+      }
     } finally {
       setLoading(false);
     }

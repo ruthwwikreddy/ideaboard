@@ -69,8 +69,12 @@ const Auth = () => {
       }
 
       toast.success("Logged in successfully!");
-    } catch (error: any) {
-      toast.error("An unexpected error occurred");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -119,8 +123,12 @@ const Auth = () => {
       }
 
       toast.success("Account created successfully!");
-    } catch (error: any) {
-      toast.error("An unexpected error occurred");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
