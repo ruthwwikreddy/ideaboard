@@ -1,23 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Wand, Loader2, ArrowRight } from "lucide-react";
+import { Wand, Loader2, ArrowRight, LogIn } from "lucide-react";
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import type { Session, User } from "@supabase/supabase-js";
 
 type Stage = "input" | "research" | "platform" | "plan";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [stage, setStage] = useState<Stage>("input");
   const [idea, setIdea] = useState("");
   const [research, setResearch] = useState<any>(null);
   const [platform, setPlatform] = useState("");
   const [buildPlan, setBuildPlan] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleAnalyze = async () => {
     if (!idea.trim()) {
@@ -35,6 +55,24 @@ const Index = () => {
 
       setResearch(data);
       setStage("research");
+      
+      // Save project if user is logged in
+      if (user) {
+        const { data: projectData, error: projectError } = await supabase
+          .from("projects")
+          .insert({
+            user_id: user.id,
+            idea,
+            research: data,
+          })
+          .select()
+          .single();
+
+        if (!projectError && projectData) {
+          setCurrentProjectId(projectData.id);
+        }
+      }
+      
       toast.success("Research completed!");
     } catch (error: any) {
       console.error("Error analyzing idea:", error);
@@ -57,6 +95,18 @@ const Index = () => {
 
       setBuildPlan(data);
       setStage("plan");
+      
+      // Update project if user is logged in
+      if (user && currentProjectId) {
+        await supabase
+          .from("projects")
+          .update({
+            platform: selectedPlatform,
+            build_plan: data,
+          })
+          .eq("id", currentProjectId);
+      }
+      
       toast.success("Build plan generated!");
     } catch (error: any) {
       console.error("Error generating plan:", error);
@@ -72,6 +122,7 @@ const Index = () => {
     setResearch(null);
     setPlatform("");
     setBuildPlan(null);
+    setCurrentProjectId(null);
   };
 
   return (
@@ -98,7 +149,16 @@ const Index = () => {
                 >
                   Start mapping now
                 </button>
-                <span>Avg. time-to-plan: 38 seconds</span>
+                {!user && (
+                  <Button
+                    onClick={() => navigate("/auth")}
+                    variant="outline"
+                    className="border-border hover:bg-secondary"
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Login
+                  </Button>
+                )}
               </div>
               <div className="hero-metrics">
                 <div>
@@ -154,14 +214,36 @@ const Index = () => {
       ) : (
         <header className="border-b border-border">
           <div className="container mx-auto px-6 py-6">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Wand className="w-8 h-8 text-primary" />
-                <div className="absolute inset-0 blur-lg bg-primary/30"></div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Wand className="w-8 h-8 text-primary" />
+                    <div className="absolute inset-0 blur-lg bg-primary/30"></div>
+                  </div>
+                  <h1 className="text-3xl font-bold tracking-tight">DevPlan AI</h1>
+                </div>
+                <p className="text-muted-foreground mt-2">From concept to code, instantly.</p>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight">DevPlan AI</h1>
+              {user ? (
+                <Button
+                  onClick={() => navigate("/dashboard")}
+                  variant="outline"
+                  className="border-border hover:bg-secondary"
+                >
+                  Dashboard
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => navigate("/auth")}
+                  variant="outline"
+                  className="border-border hover:bg-secondary"
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login
+                </Button>
+              )}
             </div>
-            <p className="text-muted-foreground mt-2">From concept to code, instantly.</p>
           </div>
         </header>
       )}
