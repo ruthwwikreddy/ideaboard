@@ -131,21 +131,31 @@ All colors MUST be HSL.
   .hero-metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1.25rem;
-    padding: 1.5rem;
-    border-radius: 1rem;
+    gap: 1.5rem;
+    padding: 2rem;
+    border-radius: 1.5rem;
     background: hsl(var(--secondary));
     border: 1px solid hsl(var(--border));
+    box-shadow: 0 4px 12px hsl(var(--background) / 0.3);
+  }
+
+  .hero-metrics > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .hero-metrics .metric-label {
     font-size: 0.85rem;
     color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .hero-metrics .metric-value {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
+    color: hsl(var(--foreground));
   }
 
   .hero-visual {
