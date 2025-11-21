@@ -171,6 +171,19 @@ const Pricing = () => {
       <Helmet>
         <title>Pricing Plans - IdeaBoard AI</title>
         <meta name="description" content="Choose the perfect plan for your needs. From a free trial to premium features with advanced analytics, IdeaBoard AI has a plan for you." />
+        <link rel="canonical" href="https://www.ideaboard.ai/pricing" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.ideaboard.ai/pricing" />
+        <meta property="og:title" content="Pricing Plans - IdeaBoard AI" />
+        <meta property="og:description" content="Choose the perfect plan for your needs. From a free trial to premium features with advanced analytics, IdeaBoard AI has a plan for you." />
+        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.ideaboard.ai/pricing" />
+        <meta property="twitter:title" content="Pricing Plans - IdeaBoard AI" />
+        <meta property="twitter:description" content="Choose the perfect plan for your needs. From a free trial to premium features with advanced analytics, IdeaBoard AI has a plan for you." />
+        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">

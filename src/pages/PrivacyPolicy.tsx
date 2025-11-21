@@ -7,6 +7,19 @@ const PrivacyPolicy = () => {
       <Helmet>
         <title>Privacy Policy - IdeaBoard AI</title>
         <meta name="description" content="Read the IdeaBoard AI privacy policy to understand how we collect, use, and protect your personal information and data." />
+        <link rel="canonical" href="https://www.ideaboard.ai/privacy-policy" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.ideaboard.ai/privacy-policy" />
+        <meta property="og:title" content="Privacy Policy - IdeaBoard AI" />
+        <meta property="og:description" content="Read the IdeaBoard AI privacy policy to understand how we collect, use, and protect your personal information and data." />
+        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.ideaboard.ai/privacy-policy" />
+        <meta property="twitter:title" content="Privacy Policy - IdeaBoard AI" />
+        <meta property="twitter:description" content="Read the IdeaBoard AI privacy policy to understand how we collect, use, and protect your personal information and data." />
+        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
       <p className="text-lg mb-4">

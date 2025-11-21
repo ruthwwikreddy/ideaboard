@@ -15,6 +15,7 @@ const NotFound = () => {
         <title>404 Not Found - IdeaBoard AI</title>
         <meta name="description" content="The page you are looking for could not be found." />
         <meta name="robots" content="noindex" />
+        <link rel="canonical" href="https://www.ideaboard.ai/404" />
       </Helmet>
       <div className="text-center">
         <h1 className="mb-4 text-4xl font-bold">404</h1>

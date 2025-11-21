@@ -104,6 +104,7 @@ const Dashboard = () => {
         <title>Your Dashboard - IdeaBoard AI</title>
         <meta name="description" content="View and manage all your app idea projects, analyses, and build plans." />
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://www.ideaboard.ai/dashboard" />
       </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">

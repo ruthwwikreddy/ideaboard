@@ -7,6 +7,19 @@ const CancellationsAndRefunds = () => {
       <Helmet>
         <title>Cancellations and Refunds - IdeaBoard AI</title>
         <meta name="description" content="Review the IdeaBoard AI policy on subscription cancellations and refunds." />
+        <link rel="canonical" href="https://www.ideaboard.ai/cancellations-and-refunds" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.ideaboard.ai/cancellations-and-refunds" />
+        <meta property="og:title" content="Cancellations and Refunds - IdeaBoard AI" />
+        <meta property="og:description" content="Review the IdeaBoard AI policy on subscription cancellations and refunds." />
+        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.ideaboard.ai/cancellations-and-refunds" />
+        <meta property="twitter:title" content="Cancellations and Refunds - IdeaBoard AI" />
+        <meta property="twitter:description" content="Review the IdeaBoard AI policy on subscription cancellations and refunds." />
+        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <h1 className="text-4xl font-bold mb-6">Cancellations and Refunds Policy</h1>
       <p className="text-lg mb-4">

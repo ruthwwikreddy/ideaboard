@@ -140,6 +140,19 @@ const Auth = () => {
       <Helmet>
         <title>Login / Sign Up - IdeaBoard AI</title>
         <meta name="description" content="Login or create an account to start validating your app ideas and generating build plans with IdeaBoard AI." />
+        <link rel="canonical" href="https://www.ideaboard.ai/auth" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.ideaboard.ai/auth" />
+        <meta property="og:title" content="Login / Sign Up - IdeaBoard AI" />
+        <meta property="og:description" content="Login or create an account to start validating your app ideas and generating build plans with IdeaBoard AI." />
+        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.ideaboard.ai/auth" />
+        <meta property="twitter:title" content="Login / Sign Up - IdeaBoard AI" />
+        <meta property="twitter:description" content="Login or create an account to start validating your app ideas and generating build plans with IdeaBoard AI." />
+        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-3 mb-8">

@@ -101,6 +101,7 @@ const ProjectDetails = () => {
         <title>{project ? `${project.idea} - IdeaBoard AI` : 'Project Details - IdeaBoard AI'}</title>
         <meta name="description" content={`Details for the project: ${project?.idea}. View the research, analysis, and build plan.`} />
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={`https://www.ideaboard.ai/project/${id}`} />
       </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">

@@ -219,6 +219,7 @@ const Profile = () => {
         <title>Your Profile - IdeaBoard AI</title>
         <meta name="description" content="Manage your profile settings, subscription plan, and view your usage statistics on IdeaBoard AI." />
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://www.ideaboard.ai/profile" />
       </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">

@@ -168,6 +168,35 @@ const Index = () => {
         <title>IdeaBoard AI - Turn Your Idea into a Build-Ready Plan</title>
         <meta name="description" content="Validate your app idea, get in-depth market research, competitor analysis, and a step-by-step build plan with IdeaBoard AI. From concept to code, instantly." />
         <meta name="keywords" content="ai business plan, startup idea validation, market research, competitor analysis, app development plan" />
+        <link rel="canonical" href="https://www.ideaboard.ai/" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.ideaboard.ai/" />
+        <meta property="og:title" content="IdeaBoard AI - Turn Your Idea into a Build-Ready Plan" />
+        <meta property="og:description" content="Validate your app idea, get in-depth market research, competitor analysis, and a step-by-step build plan with IdeaBoard AI. From concept to code, instantly." />
+        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.ideaboard.ai/" />
+        <meta property="twitter:title" content="IdeaBoard AI - Turn Your Idea into a Build-Ready Plan" />
+        <meta property="twitter:description" content="Validate your app idea, get in-depth market research, competitor analysis, and a step-by-step build plan with IdeaBoard AI. From concept to code, instantly." />
+        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
+        <script type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "url": "https://www.ideaboard.ai",
+              "logo": "https://www.ideaboard.ai/logo.png",
+              "name": "IdeaBoard AI",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "email": "akkenapally.reddy@gmail.com",
+                "contactType": "Customer Service"
+              }
+            }
+          `}
+        </script>
       </Helmet>
       {stage === "input" ? (
         <section className="hero">
