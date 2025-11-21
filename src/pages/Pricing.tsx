@@ -78,7 +78,7 @@ const Pricing = () => {
       if (subscriptionError && subscriptionError.code !== 'PGRST116') { // PGRST116 means no rows found
         console.warn("No active subscription found for user:", currentUser.id);
       }
-      setSubscriptionDetails(subscription || { plan_id: "free", status: "active" });
+      setSubscriptionDetails((subscription as any as SubscriptionDetails) || { plan_id: "free", status: "active" } as SubscriptionDetails);
 
     } catch (error: unknown) {
       console.error("Error fetching user details:", error);

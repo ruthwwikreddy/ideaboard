@@ -100,7 +100,7 @@ const Profile = () => {
         toast.error(subscriptionError.message);
         throw subscriptionError; // Re-throw to be caught by the outer catch
       }
-      setSubscriptionDetails(subscription || { plan_id: "free", status: "active" });
+      setSubscriptionDetails((subscription as any as SubscriptionDetails) || { plan_id: "free", status: "active" } as SubscriptionDetails);
 
     } catch (error: unknown) {
       console.error("Error fetching user details:", error);
