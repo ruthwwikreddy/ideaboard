@@ -61,7 +61,7 @@ const ProjectDetails = () => {
           .single();
 
         if (error) throw error;
-        setProject(data as Project);
+        setProject(data as unknown as Project);
       } catch (error: unknown) {
         console.error("Error fetching project:", error);
         if (error instanceof Error) {
@@ -126,14 +126,22 @@ const ProjectDetails = () => {
         {project.research && (
           <div className="mb-8">
             <h3 className="text-2xl font-semibold mb-4">Research Analysis</h3>
-            <ResearchResults research={project.research} />
+            <ResearchResults 
+              research={project.research} 
+              onNext={() => {}}
+              onBack={() => {}}
+            />
           </div>
         )}
 
         {project.platform && project.build_plan && (
           <div className="mb-8">
             <h3 className="text-2xl font-semibold mb-4">Build Plan for {project.platform}</h3>
-            <BuildPlan plan={project.build_plan} platform={project.platform} />
+            <BuildPlan 
+              plan={project.build_plan} 
+              platform={project.platform}
+              onReset={() => {}}
+            />
           </div>
         )}
 

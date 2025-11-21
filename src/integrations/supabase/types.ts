@@ -20,7 +20,9 @@ export type Database = {
           created_at: string | null
           email: string | null
           full_name: string | null
+          generation_count: number | null
           id: string
+          last_generation_reset: string | null
           updated_at: string | null
         }
         Insert: {
@@ -28,7 +30,9 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name?: string | null
+          generation_count?: number | null
           id: string
+          last_generation_reset?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -36,7 +40,9 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name?: string | null
+          generation_count?: number | null
           id?: string
+          last_generation_reset?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -69,6 +75,39 @@ export type Database = {
           idea?: string
           platform?: string | null
           research?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          current_period_end: string
+          current_period_start: string
+          id: string
+          plan_id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end: string
+          current_period_start: string
+          id?: string
+          plan_id: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_id?: string
+          status?: string
           updated_at?: string | null
           user_id?: string
         }
