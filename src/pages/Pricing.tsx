@@ -98,47 +98,56 @@ const Pricing = () => {
       navigate("/auth");
       return;
     }
+
+    if (planId === "free") {
+      toast.info("You're already on the free plan. Check Profile for details.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      if (planId === "free") {
-        // For free plan, delete any existing active subscription
-        const { error } = await supabase
-          .from("subscriptions")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("status", "active");
+      // Create Razorpay order
+      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
+        body: { planId, userId: user.id }
+      });
 
-        if (error) throw error;
-        setSubscriptionDetails({ plan_id: "free", status: "active" });
-        toast.success("Switched to Free plan!");
-      } else {
-        // For paid plans, upsert or update the subscription
-        const { data, error } = await supabase
-          .from("subscriptions")
-          .upsert({
-            user_id: user.id,
-            plan_id: planId,
-            status: "active",
-            current_period_start: new Date().toISOString(),
-            current_period_end: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
-          }, { onConflict: "user_id" })
-          .select()
-          .single();
+      if (error) throw error;
 
-        if (error) throw error;
-        setSubscriptionDetails(data as SubscriptionDetails);
-        toast.success(`Subscribed to ${PLAN_DETAILS[planId].name} plan!`);
-      }
-      // Re-fetch profile to ensure generation count is reset if plan changes
-      await fetchUserDetails(user);
+      // Load Razorpay checkout
+      const options = {
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
+        name: "IdeaBoard AI",
+        description: `${PLAN_DETAILS[planId].name} Plan Subscription`,
+        prefill: {
+          email: user.email,
+        },
+        theme: {
+          color: "#000000"
+        },
+        handler: function(response: any) {
+          toast.success("Payment successful! Your subscription is now active.");
+          fetchUserDetails(user);
+        },
+        modal: {
+          ondismiss: function() {
+            setIsSubmitting(false);
+          }
+        }
+      };
+
+      // @ts-ignore - Razorpay is loaded via script
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
     } catch (error: unknown) {
-      console.error("Error updating subscription:", error);
+      console.error("Payment error:", error);
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error("Failed to update subscription");
+        toast.error("Failed to process payment. Please try again.");
       }
-    } finally {
       setIsSubmitting(false);
     }
   };
