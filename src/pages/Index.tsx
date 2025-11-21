@@ -10,6 +10,7 @@ import { BuildPlan } from "@/components/BuildPlan";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
+import { Helmet } from "react-helmet-async";
 
 interface Research {
   problem: string;
@@ -163,6 +164,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>IdeaBoard AI - Turn Your Idea into a Build-Ready Plan</title>
+        <meta name="description" content="Validate your app idea, get in-depth market research, competitor analysis, and a step-by-step build plan with IdeaBoard AI. From concept to code, instantly." />
+        <meta name="keywords" content="ai business plan, startup idea validation, market research, competitor analysis, app development plan" />
+      </Helmet>
       {stage === "input" ? (
         <section className="hero">
           <div className="hero-grid">

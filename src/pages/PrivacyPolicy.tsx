@@ -1,8 +1,13 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 
 const PrivacyPolicy = () => {
   return (
     <div className="container mx-auto px-6 py-12">
+      <Helmet>
+        <title>Privacy Policy - IdeaBoard AI</title>
+        <meta name="description" content="Read the IdeaBoard AI privacy policy to understand how we collect, use, and protect your personal information and data." />
+      </Helmet>
       <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
       <p className="text-lg mb-4">
         This Privacy Policy describes how IdeaBoard AI ("we," "us," or "our") collects, uses, and discloses your information when you use our service, ideaboard.ai (the "Service").

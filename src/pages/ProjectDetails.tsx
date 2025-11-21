@@ -7,6 +7,7 @@ import { Wand, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ResearchResults } from "@/components/ResearchResults";
 import { BuildPlan } from "@/components/BuildPlan";
+import { Helmet } from "react-helmet-async";
 
 interface Research {
   problem: string;
@@ -96,6 +97,11 @@ const ProjectDetails = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{project ? `${project.idea} - IdeaBoard AI` : 'Project Details - IdeaBoard AI'}</title>
+        <meta name="description" content={`Details for the project: ${project?.idea}. View the research, analysis, and build plan.`} />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center gap-3">

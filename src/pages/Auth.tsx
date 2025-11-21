@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Wand, Loader2 } from "lucide-react";
 import { z } from "zod";
+import { Helmet } from "react-helmet-async";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -136,6 +137,10 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Helmet>
+        <title>Login / Sign Up - IdeaBoard AI</title>
+        <meta name="description" content="Login or create an account to start validating your app ideas and generating build plans with IdeaBoard AI." />
+      </Helmet>
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="relative">

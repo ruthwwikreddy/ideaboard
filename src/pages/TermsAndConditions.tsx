@@ -1,8 +1,13 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 
 const TermsAndConditions = () => {
   return (
     <div className="container mx-auto px-6 py-12">
+      <Helmet>
+        <title>Terms and Conditions - IdeaBoard AI</title>
+        <meta name="description" content="Read the terms and conditions for using the IdeaBoard AI service." />
+      </Helmet>
       <h1 className="text-4xl font-bold mb-6">Terms and Conditions</h1>
       <p className="text-lg mb-4">
         Welcome to IdeaBoard AI! These terms and conditions outline the rules and regulations for the use of IdeaBoard AI's Website, located at ideaboard.ai.

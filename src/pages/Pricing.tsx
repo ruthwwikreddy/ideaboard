@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription }
 import { Wand, Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
+import { Helmet } from "react-helmet-async";
 
 const PLAN_DETAILS = {
   "free": { name: "Free", price: "₹0", generations: 1, features: ["1 Idea Generation", "Basic Analytics"] },
@@ -167,6 +168,10 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Pricing Plans - IdeaBoard AI</title>
+        <meta name="description" content="Choose the perfect plan for your needs. From a free trial to premium features with advanced analytics, IdeaBoard AI has a plan for you." />
+      </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center gap-3">

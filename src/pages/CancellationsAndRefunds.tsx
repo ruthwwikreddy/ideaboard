@@ -1,8 +1,13 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 
 const CancellationsAndRefunds = () => {
   return (
     <div className="container mx-auto px-6 py-12">
+      <Helmet>
+        <title>Cancellations and Refunds - IdeaBoard AI</title>
+        <meta name="description" content="Review the IdeaBoard AI policy on subscription cancellations and refunds." />
+      </Helmet>
       <h1 className="text-4xl font-bold mb-6">Cancellations and Refunds Policy</h1>
       <p className="text-lg mb-4">
         At IdeaBoard AI, we strive to provide the best service possible. This policy outlines our terms regarding cancellations and refunds for our subscription plans.

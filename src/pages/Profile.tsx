@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription }
 import { Wand, ArrowLeft, Loader2, Save, Check, X, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
+import { Helmet } from "react-helmet-async";
 
 interface ProfileData {
   id: string;
@@ -214,6 +215,11 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Your Profile - IdeaBoard AI</title>
+        <meta name="description" content="Manage your profile settings, subscription plan, and view your usage statistics on IdeaBoard AI." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center gap-3">

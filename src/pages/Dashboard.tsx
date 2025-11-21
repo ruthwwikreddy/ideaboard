@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Wand, Plus, LogOut, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
+import { Helmet } from "react-helmet-async";
 
 interface Research {
   problem: string;
@@ -99,6 +100,11 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Your Dashboard - IdeaBoard AI</title>
+        <meta name="description" content="View and manage all your app idea projects, analyses, and build plans." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <header className="border-b border-border">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
