@@ -14,6 +14,7 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Pricing from "./pages/Pricing";
+import Footer from "./components/Footer"; // Import the Footer component
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Footer /> {/* Render the Footer component here */}
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
