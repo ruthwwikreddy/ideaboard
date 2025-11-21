@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          id: string
+          payment_method: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string
+          status: string
+          subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          payment_method?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id: string
+          status: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          payment_method?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -82,31 +132,46 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean | null
           created_at: string | null
           current_period_end: string
           current_period_start: string
           id: string
+          payment_method: string | null
           plan_id: string
+          razorpay_payment_id: string | null
+          razorpay_plan_id: string | null
+          razorpay_subscription_id: string | null
           status: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean | null
           created_at?: string | null
           current_period_end: string
           current_period_start: string
           id?: string
+          payment_method?: string | null
           plan_id: string
+          razorpay_payment_id?: string | null
+          razorpay_plan_id?: string | null
+          razorpay_subscription_id?: string | null
           status?: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean | null
           created_at?: string | null
           current_period_end?: string
           current_period_start?: string
           id?: string
+          payment_method?: string | null
           plan_id?: string
+          razorpay_payment_id?: string | null
+          razorpay_plan_id?: string | null
+          razorpay_subscription_id?: string | null
           status?: string
           updated_at?: string | null
           user_id?: string

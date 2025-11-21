@@ -170,52 +170,33 @@ const Profile = () => {
       navigate("/auth");
       return;
     }
-    setIsSubmitting(true);
-    try {
-      if (planId === "free") {
-        const { error } = await supabase
-          .from("subscriptions")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("status", "active");
 
-        if (error) {
-          toast.error(error.message);
-          throw error; // Re-throw to be caught by the outer catch
-        }
-        setSubscriptionDetails({ plan_id: "free", status: "active" });
-        toast.success("Switched to Free plan!");
-      } else {
-        const { data, error } = await supabase
-          .from("subscriptions")
-          .upsert({
-            user_id: user.id,
-            plan_id: planId,
-            status: "active",
-            current_period_start: new Date().toISOString(),
-            current_period_end: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
-          }, { onConflict: "user_id" })
-          .select()
-          .single();
+    if (planId === "free") {
+      // Cancel subscription via edge function
+      setIsSubmitting(true);
+      try {
+        const { error } = await supabase.functions.invoke('cancel-subscription');
+        
+        if (error) throw error;
 
-        if (error) {
+        toast.success("Subscription will be cancelled at the end of the current period.");
+        await fetchUserDetails(user);
+      } catch (error: unknown) {
+        console.error("Error cancelling subscription:", error);
+        if (error instanceof Error) {
           toast.error(error.message);
-          throw error; // Re-throw to be caught by the outer catch
+        } else {
+          toast.error("Failed to cancel subscription");
         }
-        setSubscriptionDetails(data as SubscriptionDetails);
-        toast.success(`Subscribed to ${PLAN_DETAILS[planId].name} plan!`);
+      } finally {
+        setIsSubmitting(false);
       }
-      await fetchUserDetails(user); // Re-fetch profile to ensure generation count is reset if plan changes
-    } catch (error: unknown) {
-      console.error("Error updating subscription:", error);
-      if (error instanceof Error) {
-        toast.error(error.message); // Display specific error message
-      } else {
-        toast.error("Failed to update subscription");
-      }
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
+
+    // For paid plans, redirect to pricing page
+    toast.info("Redirecting to pricing page...");
+    navigate("/pricing");
   };
 
   if (loading) {
