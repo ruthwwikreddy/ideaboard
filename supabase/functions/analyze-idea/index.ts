@@ -8,7 +8,7 @@ const corsHeaders = {
 
 // Define plan limits
 const PLAN_LIMITS: { [key: string]: number } = {
-  "free": 5,
+  "free": 1,
   "basic": 5, // 50rs/month
   "premium": 10, // 75rs/month
 };
@@ -17,6 +17,32 @@ const PLAN_LIMITS: { [key: string]: number } = {
 function getPlanLimit(planId: string | null): number {
   return planId && PLAN_LIMITS[planId] !== undefined ? PLAN_LIMITS[planId] : PLAN_LIMITS["free"];
 }
+
+const basicPrompt = `You are a business analyst. Analyze the provided app idea and return a structured JSON response with the following fields:
+- problem: A clear 1-2 sentence description of the core problem this app solves.
+- audience: Describe the target audience in 1-2 sentences.
+- monetization: An array of 2 potential monetization strategies.
+- demandProbability: A number between 0-100 representing the likelihood of real market demand.`;
+
+const standardPrompt = `You are an expert business analyst and market researcher. Analyze the provided app idea and return a structured JSON response with the following fields:
+- problem: A clear 2-3 sentence description of the core problem this app solves
+- audience: Describe the target audience in 2-3 sentences (demographics, behaviors, pain points)
+- competitors: An array of 3-5 existing competitors or similar solutions
+- marketGaps: An array of 3-4 specific market gaps or opportunities this app could fill
+- monetization: An array of 3-4 potential monetization strategies
+- demandProbability: A number between 0-100 representing the likelihood of real market demand
+
+Be specific, actionable, and realistic. Focus on what makes this idea unique and viable.`;
+
+const advancedPrompt = `You are a world-class business strategist and market analyst. Provide a comprehensive analysis of the app idea, returning a structured JSON response with these fields:
+- problem: In-depth 3-4 sentence analysis of the core problem, including its nuances and importance.
+- audience: Detailed target audience persona (demographics, psychographics, behaviors, specific pain points, and motivations).
+- competitors: A detailed analysis of 5-7 competitors, including their strengths, weaknesses, and market share.
+- marketGaps: An array of 4-5 specific and less obvious market gaps or unique value propositions.
+- monetization: A detailed list of 4-5 potential monetization strategies, including pros and cons for each.
+- demandProbability: A number between 0-100 representing the likelihood of real market demand.
+- potentialRisks: An array of 3-4 potential business or market risks.
+- marketingStrategies: An array of 3-4 innovative marketing strategies to reach the target audience.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -68,7 +94,7 @@ serve(async (req) => {
       .eq("status", "active")
       .single();
 
-    let userPlanId: string | null = null;
+    let userPlanId: string | null = "free";
     if (subscription && !subscriptionError) {
       userPlanId = subscription.plan_id;
     }
@@ -105,18 +131,20 @@ serve(async (req) => {
       throw new Error("OPENAI_API_KEY is not configured");
     }
 
-    console.log("Analyzing idea:", idea);
+    console.log("Analyzing idea for plan:", userPlanId, "Idea:", idea);
 
-    const systemPrompt = `You are an expert business analyst and market researcher. Analyze the provided app idea and return a structured JSON response with the following fields:
-
-- problem: A clear 2-3 sentence description of the core problem this app solves
-- audience: Describe the target audience in 2-3 sentences (demographics, behaviors, pain points)
-- competitors: An array of 3-5 existing competitors or similar solutions
-- marketGaps: An array of 3-4 specific market gaps or opportunities this app could fill
-- monetization: An array of 3-4 potential monetization strategies
-- demandProbability: A number between 0-100 representing the likelihood of real market demand
-
-Be specific, actionable, and realistic. Focus on what makes this idea unique and viable.`;
+    let systemPrompt;
+    switch (userPlanId) {
+      case "premium":
+        systemPrompt = advancedPrompt;
+        break;
+      case "basic":
+        systemPrompt = standardPrompt;
+        break;
+      default:
+        systemPrompt = basicPrompt;
+        break;
+    }
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

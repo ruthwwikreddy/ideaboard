@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
 
 const PLAN_DETAILS = {
-  "free": { name: "Free", price: "₹0", generations: 5, features: ["5 Idea Generations/month", "Basic Analytics"] },
+  "free": { name: "Free", price: "₹0", generations: 1, features: ["1 Idea Generation", "Basic Analytics"] },
   "basic": { name: "Basic", price: "₹50", generations: 5, features: ["5 Idea Generations/month", "Standard Analytics", "Email Support"] },
   "premium": { name: "Premium", price: "₹75", generations: 10, features: ["10 Idea Generations/month", "Advanced Analytics", "Priority Support"] },
 };
