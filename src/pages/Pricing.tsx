@@ -9,9 +9,9 @@ import type { Session, User } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
 
 const PLAN_DETAILS = {
-  "free": { name: "Free", price: "₹0", generations: 1, features: ["1 Idea Generation", "Basic Analytics"] },
-  "basic": { name: "Basic", price: "₹50", generations: 5, features: ["5 Idea Generations/month", "Standard Analytics", "Email Support"] },
-  "premium": { name: "Premium", price: "₹75", generations: 10, features: ["10 Idea Generations/month", "Advanced Analytics", "Priority Support"] },
+  "free": { name: "Free", price: "₹0", generations: 1, features: ["1 Free Generation", "Basic Analytics"] },
+  "basic": { name: "Basic Pack", price: "₹50", generations: 5, features: ["5 AI Generations", "Standard Analytics", "Email Support"] },
+  "premium": { name: "Premium Pack", price: "₹75", generations: 10, features: ["10 AI Generations", "Advanced Analytics", "Priority Support"] },
 };
 
 type PlanId = "free" | "basic" | "premium";
@@ -101,25 +101,27 @@ const Pricing = () => {
     }
 
     if (planId === "free") {
-      toast.info("You're already on the free plan. Check Profile for details.");
+      toast.info("You already have 1 free generation. Purchase a pack for more!");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Create Razorpay subscription
+      // Create Razorpay order
       const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         body: { planId, userId: user.id }
       });
 
       if (error) throw error;
 
-      // Load Razorpay checkout for subscription
+      // Load Razorpay checkout
       const options = {
         key: data.keyId,
-        subscription_id: data.subscriptionId,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
         name: "DevPlan AI",
-        description: `${PLAN_DETAILS[planId].name} - Monthly Subscription`,
+        description: `${PLAN_DETAILS[planId].name} - ${PLAN_DETAILS[planId].generations} Credits`,
         prefill: {
           email: user.email,
         },
@@ -127,7 +129,7 @@ const Pricing = () => {
           color: "#000000"
         },
         handler: function(response: any) {
-          toast.success("Subscription activated! Your plan is now active.");
+          toast.success("Payment successful! Credits added to your account.");
           fetchUserDetails(user);
         },
         modal: {
@@ -141,11 +143,11 @@ const Pricing = () => {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error: unknown) {
-      console.error("Subscription error:", error);
+      console.error("Payment error:", error);
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error("Failed to create subscription. Please try again.");
+        toast.error("Failed to process payment. Please try again.");
       }
       setIsSubmitting(false);
     }
@@ -167,9 +169,9 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Pricing Plans - IdeaBoard AI</title>
-        <meta name="description" content="Choose the perfect plan for your needs. From a free trial to premium features with advanced analytics, IdeaBoard AI has a plan for you." />
-        <link rel="canonical" href="https://www.ideaboard.ai/pricing" />
+        <title>Buy Credits - DevPlan AI</title>
+        <meta name="description" content="Purchase credit packs for AI-powered build plans. Choose from Basic (5 credits) or Premium (10 credits) packs. Credits never expire!" />
+        <link rel="canonical" href="https://www.devplan.ai/pricing" />
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.ideaboard.ai/pricing" />
@@ -197,16 +199,17 @@ const Pricing = () => {
 
       <main className="container mx-auto px-6 py-12 max-w-4xl">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-4xl font-bold">Pricing Plans</h2>
+          <h2 className="text-4xl font-bold">Buy Credits</h2>
           <Button onClick={() => navigate("/dashboard")} variant="outline">Back to Dashboard</Button>
         </div>
+        <p className="text-muted-foreground mb-6">Purchase credit packs to generate more AI-powered build plans. Credits never expire!</p>
 
         <div className="grid gap-6 md:grid-cols-3">
           {(Object.keys(PLAN_DETAILS) as PlanId[]).map((planId) => (
             <Card key={planId} className={`flex flex-col ${currentPlanId === planId ? "border-primary ring-2 ring-primary" : ""}`}>
               <CardHeader>
-                <CardTitle className="capitalize">{PLAN_DETAILS[planId].name} Plan</CardTitle>
-                <CardDescription>{PLAN_DETAILS[planId].price}/month</CardDescription>
+                <CardTitle className="capitalize">{PLAN_DETAILS[planId].name}</CardTitle>
+                <CardDescription>{PLAN_DETAILS[planId].price} {planId !== 'free' && '(one-time)'}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow">
                 <ul className="space-y-2 text-muted-foreground">
@@ -221,14 +224,14 @@ const Pricing = () => {
                 <Button
                   className="w-full"
                   onClick={() => handlePlanSelection(planId)}
-                  disabled={currentPlanId === planId || isSubmitting}
+                  disabled={isSubmitting || planId === 'free'}
                 >
                   {isSubmitting ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : currentPlanId === planId ? (
-                    "Current Plan"
+                  ) : planId === 'free' ? (
+                    "Free"
                   ) : (
-                    "Select Plan"
+                    "Buy Now"
                   )}
                 </Button>
               </CardFooter>
@@ -238,11 +241,14 @@ const Pricing = () => {
 
         {user && (
           <Card className="mt-8 p-6">
-            <CardTitle>Your Current Usage</CardTitle>
+            <CardTitle>Your Credits</CardTitle>
             <CardContent className="mt-4 space-y-2">
-              <p>Plan: <span className="font-semibold capitalize">{currentPlanId}</span></p>
-              <p>Generations Used: <span className="font-semibold">{generationsUsed}</span> out of <span className="font-semibold">{generationsLimit}</span></p>
-              <p>Remaining: <span className="font-semibold">{remainingGenerations}</span></p>
+              <p>Last Pack Purchased: <span className="font-semibold capitalize">{PLAN_DETAILS[currentPlanId].name}</span></p>
+              <p>Credits Used: <span className="font-semibold">{generationsUsed}</span> out of <span className="font-semibold">{generationsLimit}</span></p>
+              <p>Remaining Credits: <span className="font-semibold">{remainingGenerations}</span></p>
+              {remainingGenerations === 0 && (
+                <p className="text-destructive mt-2">⚠️ Out of credits! Purchase a pack above to continue.</p>
+              )}
             </CardContent>
           </Card>
         )}
