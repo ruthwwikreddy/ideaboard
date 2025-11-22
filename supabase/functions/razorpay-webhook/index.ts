@@ -86,34 +86,66 @@ Deno.serve(async (req) => {
 
     // Handle different event types
     switch (eventType) {
-      case 'subscription.authenticated':
-      case 'subscription.activated': {
-        const subscription = payload.subscription.entity;
-        const userId = subscription.notes?.user_id;
-        const planId = subscription.notes?.plan_id;
+      case 'payment.authorized':
+      case 'payment.captured': {
+        const payment = payload.payment.entity;
+        const userId = payment.notes?.user_id;
+        const planId = payment.notes?.plan_id;
+        const credits = parseInt(payment.notes?.credits || '0');
 
-        if (!userId || !planId) {
-          console.error('Missing user_id or plan_id in subscription notes');
+        if (!userId || !planId || !credits) {
+          console.error('Missing user_id, plan_id, or credits in payment notes');
           break;
         }
 
-        // Calculate period dates from subscription
-        const currentStart = new Date(subscription.current_start * 1000);
-        const currentEnd = new Date(subscription.current_end * 1000);
+        const now = new Date();
 
-        // Create or update subscription
+        // Record payment in history
+        const { error: historyError } = await supabaseClient
+          .from('payment_history')
+          .insert({
+            user_id: userId,
+            razorpay_payment_id: payment.id,
+            razorpay_order_id: payment.order_id,
+            amount: payment.amount,
+            currency: payment.currency,
+            status: payment.status,
+            payment_method: payment.method,
+          });
+
+        if (historyError) {
+          console.error('Error recording payment history:', historyError);
+        }
+
+        // Reset generation count (giving them the purchased credits)
+        const { error: profileError } = await supabaseClient
+          .from('profiles')
+          .update({
+            generation_count: 0,
+            last_generation_reset: now.toISOString(),
+          })
+          .eq('id', userId);
+
+        if (profileError) {
+          console.error('Error resetting generation count:', profileError);
+        }
+
+        // Update or create subscription record to track last purchase
+        const periodEnd = new Date(now);
+        periodEnd.setDate(periodEnd.getDate() + 365); // 1 year validity
+
         const { error: subError } = await supabaseClient
           .from('subscriptions')
           .upsert({
             user_id: userId,
             plan_id: planId,
             status: 'active',
-            razorpay_subscription_id: subscription.id,
-            razorpay_plan_id: subscription.plan_id,
+            razorpay_payment_id: payment.id,
+            razorpay_order_id: payment.order_id,
             payment_method: 'razorpay',
-            current_period_start: currentStart.toISOString(),
-            current_period_end: currentEnd.toISOString(),
-            updated_at: new Date().toISOString(),
+            current_period_start: now.toISOString(),
+            current_period_end: periodEnd.toISOString(),
+            updated_at: now.toISOString(),
           }, {
             onConflict: 'user_id',
           });
@@ -122,127 +154,13 @@ Deno.serve(async (req) => {
           console.error('Error updating subscription:', subError);
         }
 
-        // Reset generation count
-        const { error: profileError } = await supabaseClient
-          .from('profiles')
-          .update({
-            generation_count: 0,
-            last_generation_reset: new Date().toISOString(),
-          })
-          .eq('id', userId);
-
-        if (profileError) {
-          console.error('Error resetting generation count:', profileError);
-        }
-
-        console.log('Subscription activated for user:', userId);
-        break;
-      }
-
-      case 'subscription.charged': {
-        const payment = payload.payment.entity;
-        const subscription = payload.subscription?.entity;
-        const userId = subscription?.notes?.user_id;
-
-        if (!userId) {
-          console.error('Missing user_id in subscription notes');
-          break;
-        }
-
-        // Record payment in history
-        const { error: historyError } = await supabaseClient
-          .from('payment_history')
-          .insert({
-            user_id: userId,
-            razorpay_payment_id: payment.id,
-            amount: payment.amount,
-            currency: payment.currency,
-            status: 'captured',
-            payment_method: payment.method,
-          });
-
-        if (historyError) {
-          console.error('Error recording payment history:', historyError);
-        }
-
-        // Reset generation count on successful payment
-        const { error: profileError } = await supabaseClient
-          .from('profiles')
-          .update({
-            generation_count: 0,
-            last_generation_reset: new Date().toISOString(),
-          })
-          .eq('id', userId);
-
-        if (profileError) {
-          console.error('Error resetting generation count:', profileError);
-        }
-
-        console.log('Subscription payment charged for user:', userId);
-        break;
-      }
-
-      case 'subscription.cancelled':
-      case 'subscription.completed':
-      case 'subscription.halted': {
-        const subscription = payload.subscription.entity;
-        const userId = subscription.notes?.user_id;
-
-        if (!userId) {
-          console.error('Missing user_id in subscription notes');
-          break;
-        }
-
-        // Update subscription status
-        const { error: subError } = await supabaseClient
-          .from('subscriptions')
-          .update({
-            status: eventType.split('.')[1], // 'cancelled', 'completed', or 'halted'
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', userId)
-          .eq('razorpay_subscription_id', subscription.id);
-
-        if (subError) {
-          console.error('Error updating subscription status:', subError);
-        }
-
-        console.log(`Subscription ${eventType} for user:`, userId);
-        break;
-      }
-
-      case 'subscription.paused':
-      case 'subscription.resumed': {
-        const subscription = payload.subscription.entity;
-        const userId = subscription.notes?.user_id;
-
-        if (!userId) {
-          console.error('Missing user_id in subscription notes');
-          break;
-        }
-
-        // Update subscription status
-        const { error: subError } = await supabaseClient
-          .from('subscriptions')
-          .update({
-            status: eventType === 'subscription.paused' ? 'paused' : 'active',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', userId)
-          .eq('razorpay_subscription_id', subscription.id);
-
-        if (subError) {
-          console.error('Error updating subscription status:', subError);
-        }
-
-        console.log(`Subscription ${eventType} for user:`, userId);
+        console.log(`Credits purchased successfully for user ${userId}: ${credits} credits`);
         break;
       }
 
       case 'payment.failed': {
         const payment = payload.payment.entity;
-        const subscription = payload.subscription?.entity;
-        const userId = subscription?.notes?.user_id;
+        const userId = payment.notes?.user_id;
 
         if (userId) {
           // Record failed payment
@@ -251,6 +169,7 @@ Deno.serve(async (req) => {
             .insert({
               user_id: userId,
               razorpay_payment_id: payment.id,
+              razorpay_order_id: payment.order_id,
               amount: payment.amount,
               currency: payment.currency,
               status: 'failed',
@@ -261,7 +180,7 @@ Deno.serve(async (req) => {
             console.error('Error recording failed payment:', error);
           }
         }
-        console.log('Subscription payment failed:', payment.id);
+        console.log('Payment failed for order:', payment.order_id);
         break;
       }
 

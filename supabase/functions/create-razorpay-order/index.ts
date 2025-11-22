@@ -5,26 +5,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface SubscriptionRequest {
+interface OrderRequest {
   planId: 'basic' | 'premium';
   userId: string;
 }
 
-// Razorpay plan IDs (create these in Razorpay Dashboard first)
-// After creating plans in Razorpay Dashboard, update these IDs
-const RAZORPAY_PLAN_IDS = {
-  basic: 'plan_XXXXXXXXXXXXX', // Replace with actual Razorpay Plan ID for Basic
-  premium: 'plan_XXXXXXXXXXXXX', // Replace with actual Razorpay Plan ID for Premium
-};
-
-const PLAN_CONFIG = {
+// Credit packs (INR pricing)
+const CREDIT_PACKS = {
   basic: {
-    name: 'Basic Plan',
-    description: '5 AI generations/month',
+    amount: 5000, // ₹50 in paise
+    credits: 5,
+    name: 'Basic Pack',
+    description: '5 AI Generations',
   },
   premium: {
-    name: 'Premium Plan',
-    description: '10 AI generations/month',
+    amount: 7500, // ₹75 in paise
+    credits: 10,
+    name: 'Premium Pack',
+    description: '10 AI Generations',
   },
 };
 
@@ -58,7 +56,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { planId, userId }: SubscriptionRequest = await req.json();
+    const { planId, userId }: OrderRequest = await req.json();
 
     if (userId !== user.id) {
       return new Response(
@@ -67,10 +65,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const planConfig = PLAN_CONFIG[planId];
-    if (!planConfig) {
+    const creditPack = CREDIT_PACKS[planId];
+    if (!creditPack) {
       return new Response(
-        JSON.stringify({ error: 'Invalid plan' }),
+        JSON.stringify({ error: 'Invalid credit pack' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -87,32 +85,23 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get Razorpay Plan ID
-    const razorpayPlanId = RAZORPAY_PLAN_IDS[planId];
-    if (!razorpayPlanId || razorpayPlanId.includes('XXX')) {
-      console.error('Razorpay Plan ID not configured for:', planId);
-      return new Response(
-        JSON.stringify({ error: 'Subscription plan not configured. Please contact support.' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const auth = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
     
-    // Create Razorpay Subscription
-    const razorpayResponse = await fetch('https://api.razorpay.com/v1/subscriptions', {
+    // Create Razorpay Order
+    const razorpayResponse = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${auth}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        plan_id: razorpayPlanId,
-        total_count: 12, // 12 months
-        customer_notify: 1,
+        amount: creditPack.amount,
+        currency: 'INR',
+        receipt: `credits_${userId}_${Date.now()}`,
         notes: {
           user_id: userId,
           plan_id: planId,
+          credits: creditPack.credits,
         },
       }),
     });
@@ -121,18 +110,19 @@ Deno.serve(async (req) => {
       const errorText = await razorpayResponse.text();
       console.error('Razorpay API error:', errorText);
       return new Response(
-        JSON.stringify({ error: 'Failed to create subscription' }),
+        JSON.stringify({ error: 'Failed to create order' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const subscription = await razorpayResponse.json();
-    console.log('Razorpay subscription created:', subscription.id);
+    const order = await razorpayResponse.json();
+    console.log('Razorpay order created:', order.id);
 
     return new Response(
       JSON.stringify({
-        subscriptionId: subscription.id,
-        planId: razorpayPlanId,
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
         keyId: RAZORPAY_KEY_ID,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
