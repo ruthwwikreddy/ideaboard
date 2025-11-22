@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         amount: creditPack.amount,
         currency: 'INR',
-        receipt: `order_${Date.now()}`,
+        receipt: crypto.randomUUID(),
         notes: {
           user_id: userId,
           plan_id: planId,
