@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .single();
 
     if (subError || !subscription) {

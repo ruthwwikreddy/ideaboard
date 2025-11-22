@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
       const errorText = await razorpayResponse.text();
       console.error('Razorpay API error:', errorText);
       return new Response(
-        JSON.stringify({ error: 'Failed to create order' }),
+        JSON.stringify({ error: `Failed to create order: ${errorText}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
