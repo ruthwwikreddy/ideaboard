@@ -107,21 +107,19 @@ const Pricing = () => {
 
     setIsSubmitting(true);
     try {
-      // Create Razorpay order
+      // Create Razorpay subscription
       const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         body: { planId, userId: user.id }
       });
 
       if (error) throw error;
 
-      // Load Razorpay checkout
+      // Load Razorpay checkout for subscription
       const options = {
         key: data.keyId,
-        amount: data.amount,
-        currency: data.currency,
-        order_id: data.orderId,
-        name: "IdeaBoard AI",
-        description: `${PLAN_DETAILS[planId].name} Plan Subscription`,
+        subscription_id: data.subscriptionId,
+        name: "DevPlan AI",
+        description: `${PLAN_DETAILS[planId].name} - Monthly Subscription`,
         prefill: {
           email: user.email,
         },
@@ -129,7 +127,7 @@ const Pricing = () => {
           color: "#000000"
         },
         handler: function(response: any) {
-          toast.success("Payment successful! Your subscription is now active.");
+          toast.success("Subscription activated! Your plan is now active.");
           fetchUserDetails(user);
         },
         modal: {
@@ -143,11 +141,11 @@ const Pricing = () => {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error: unknown) {
-      console.error("Payment error:", error);
+      console.error("Subscription error:", error);
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error("Failed to process payment. Please try again.");
+        toast.error("Failed to create subscription. Please try again.");
       }
       setIsSubmitting(false);
     }
