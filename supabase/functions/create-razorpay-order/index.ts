@@ -5,24 +5,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface OrderRequest {
+interface SubscriptionRequest {
   planId: 'basic' | 'premium';
   userId: string;
 }
 
-// Razorpay plan configurations (INR pricing)
+// Razorpay plan IDs (create these in Razorpay Dashboard first)
+// After creating plans in Razorpay Dashboard, update these IDs
+const RAZORPAY_PLAN_IDS = {
+  basic: 'plan_XXXXXXXXXXXXX', // Replace with actual Razorpay Plan ID for Basic
+  premium: 'plan_XXXXXXXXXXXXX', // Replace with actual Razorpay Plan ID for Premium
+};
+
 const PLAN_CONFIG = {
   basic: {
-    amount: 49900, // ₹499 in paise
     name: 'Basic Plan',
-    description: '100 AI generations/month',
-    period: 'monthly',
+    description: '5 AI generations/month',
   },
   premium: {
-    amount: 99900, // ₹999 in paise
     name: 'Premium Plan',
-    description: 'Unlimited AI generations',
-    period: 'monthly',
+    description: '10 AI generations/month',
   },
 };
 
@@ -56,7 +58,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { planId, userId }: OrderRequest = await req.json();
+    const { planId, userId }: SubscriptionRequest = await req.json();
 
     if (userId !== user.id) {
       return new Response(
@@ -73,7 +75,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create Razorpay order
+    // Get Razorpay credentials
     const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID');
     const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET');
 
@@ -85,18 +87,29 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Get Razorpay Plan ID
+    const razorpayPlanId = RAZORPAY_PLAN_IDS[planId];
+    if (!razorpayPlanId || razorpayPlanId.includes('XXX')) {
+      console.error('Razorpay Plan ID not configured for:', planId);
+      return new Response(
+        JSON.stringify({ error: 'Subscription plan not configured. Please contact support.' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const auth = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
     
-    const razorpayResponse = await fetch('https://api.razorpay.com/v1/orders', {
+    // Create Razorpay Subscription
+    const razorpayResponse = await fetch('https://api.razorpay.com/v1/subscriptions', {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${auth}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount: planConfig.amount,
-        currency: 'INR',
-        receipt: `order_${userId}_${Date.now()}`,
+        plan_id: razorpayPlanId,
+        total_count: 12, // 12 months
+        customer_notify: 1,
         notes: {
           user_id: userId,
           plan_id: planId,
@@ -108,19 +121,18 @@ Deno.serve(async (req) => {
       const errorText = await razorpayResponse.text();
       console.error('Razorpay API error:', errorText);
       return new Response(
-        JSON.stringify({ error: 'Failed to create order' }),
+        JSON.stringify({ error: 'Failed to create subscription' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const order = await razorpayResponse.json();
-    console.log('Razorpay order created:', order.id);
+    const subscription = await razorpayResponse.json();
+    console.log('Razorpay subscription created:', subscription.id);
 
     return new Response(
       JSON.stringify({
-        orderId: order.id,
-        amount: order.amount,
-        currency: order.currency,
+        subscriptionId: subscription.id,
+        planId: razorpayPlanId,
         keyId: RAZORPAY_KEY_ID,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
