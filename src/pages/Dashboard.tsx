@@ -88,7 +88,7 @@ const Dashboard = () => {
   };
 
   const handleNewIdea = () => {
-    navigate("/");
+    navigate("/new-project");
   };
 
   if (loading) {

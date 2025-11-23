@@ -15,7 +15,10 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Pricing from "./pages/Pricing";
-import Footer from "./components/Footer"; // Import the Footer component
+import NewProject from "./pages/NewProject";
+import Blog from "./pages/Blog";
+import AboutUs from "./pages/AboutUs";
+import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -37,10 +40,13 @@ const App = () => (
             <Route path="/cancellations-and-refunds" element={<CancellationsAndRefunds />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/new-project" element={<NewProject />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/faq" element={<FAQ />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <Footer /> {/* Render the Footer component here */}
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

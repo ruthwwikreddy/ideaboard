@@ -7,10 +7,25 @@ import { Wand, Loader2, ArrowRight, LogIn } from "lucide-react";
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
+import { HowItWorks } from "@/components/HowItWorks";
+import { Features } from "@/components/Features";
+import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
+import { Testimonials } from "@/components/Testimonials";
+import { CheckCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Lovable from "@/assets/lovable.svg";
+import Bolt from "@/assets/bolt.svg";
+import V0 from "@/assets/v0.svg";
+import Replit from "@/assets/replit.svg";
 
 interface Research {
   problem: string;
@@ -35,6 +50,110 @@ interface BuildPlan {
 }
 
 type Stage = "input" | "research" | "platform" | "plan";
+
+const caseStudies = [
+  {
+    title: "SaaS for Photographers",
+    description:
+      "A solo founder used DevPlan AI to identify a niche market for a SaaS platform that helps photographers manage their client workflows. The AI-generated build plan saved them weeks of research and development time.",
+    results: [
+      "Identified a profitable niche in a crowded market.",
+      "Saved over 40 hours of manual research.",
+      "Launched a successful MVP in under 3 months.",
+    ],
+  },
+  {
+    title: "Mobile App for Local Farmers",
+    description:
+      "A small team of developers wanted to build an app to connect local farmers with consumers. DevPlan AI helped them validate their idea, understand their target audience, and create a feature roadmap.",
+    results: [
+      "Validated the demand for their app with a high demand score.",
+      "Gained insights into the needs of their target audience.",
+      "Secured seed funding with a solid business and development plan.",
+    ],
+  },
+];
+
+const CaseStudies = () => (
+  <section className="py-20">
+    <div className="container mx-auto px-6">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold">Case Studies</h2>
+        <p className="text-muted-foreground mt-2">
+          See how others have used DevPlan AI to bring their ideas to life.
+        </p>
+      </div>
+      <div className="grid gap-12 md:grid-cols-2">
+        {caseStudies.map((study) => (
+          <Card key={study.title}>
+            <CardHeader>
+              <CardTitle>{study.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">{study.description}</p>
+              <ul className="space-y-2">
+                {study.results.map((result) => (
+                  <li key={result} className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                    <span>{result}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Affiliates = () => (
+  <section className="bg-background py-12">
+    <div className="container mx-auto px-6">
+      <div className="text-center mb-8">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          Affiliated with
+        </h3>
+      </div>
+      <TooltipProvider>
+        <div className="flex justify-center items-center space-x-8 md:space-x-12">
+          <Tooltip>
+            <TooltipTrigger>
+              <img src={Lovable} alt="Lovable" className="h-6" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Lovable</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <img src={Bolt} alt="Bolt" className="h-6" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Bolt</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <img src={V0} alt="V0" className="h-6" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>V0</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <img src={Replit} alt="Replit" className="h-6" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Replit</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
+    </div>
+  </section>
+);
 
 const Index = () => {
   const navigate = useNavigate();
@@ -199,97 +318,100 @@ const Index = () => {
         </script>
       </Helmet>
       {stage === "input" ? (
-        <section className="hero">
-          <div className="hero-grid">
-            <div className="hero-left">
-              <div className="hero-eyebrow">DevPlan AI · From Concept to Code</div>
-              <h1>What's your idea?</h1>
-              <p className="hero-copy">
-                Drop your concept and watch DevPlan AI spin up research, competitor analysis, demand scoring, and the
-                prompts you need to ship faster than ever.
-              </p>
-              <div className="hero-pills">
-                <span>Market intelligence</span>
-                <span>Founder-grade prompts</span>
-                <span>Affiliate-ready flows</span>
-              </div>
-              <div className="hero-cta">
-                <button
-                  className="primary"
-                  onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  Start mapping now
-                </button>
-                {user ? (
-                  <Button
-                    onClick={() => navigate("/dashboard")}
-                    variant="outline"
-                    className="border-border hover:bg-secondary"
-                  >
-                    Profile
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => navigate("/auth")}
-                    variant="outline"
-                    className="border-border hover:bg-secondary"
-                  >
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Login
-                  </Button>
-                )}
-              </div>
-              <div className="hero-metrics">
-                <div>
-                  <span className="metric-label">Builders live</span>
-                  <strong className="metric-value">4 partners</strong>
+        <>
+          <section className="hero">
+            <div className="hero-grid">
+              <div className="hero-left">
+                <div className="hero-eyebrow">DevPlan AI · From Concept to Code</div>
+                <h1>What's your idea?</h1>
+                <p className="hero-copy">
+                  Drop your concept and watch DevPlan AI spin up research, competitor analysis, demand scoring, and the
+                  prompts you need to ship faster than ever.
+                </p>
+                <div className="hero-pills">
+                  <span>Market intelligence</span>
+                  <span>Founder-grade prompts</span>
+                  <span>Affiliate-ready flows</span>
                 </div>
-                <div>
-                  <span className="metric-label">Phases auto-generated</span>
-                  <strong className="metric-value">3 per plan</strong>
+                <div className="hero-cta">
+                  <button
+                    className="primary"
+                    onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    Start mapping now
+                  </button>
+                  {user ? (
+                    <Button
+                      onClick={() => navigate("/dashboard")}
+                      variant="outline"
+                      className="border-border hover:bg-secondary"
+                    >
+                      Profile
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => navigate("/auth")}
+                      variant="outline"
+                      className="border-border hover:bg-secondary"
+                    >
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Login
+                    </Button>
+                  )}
                 </div>
-                <div>
-                  <span className="metric-label">Ideas mapped</span>
-                  <strong className="metric-value">Realtime</strong>
+                <div className="hero-metrics">
+                  <div>
+                    <span className="metric-label">Builders live</span>
+                    <strong className="metric-value">4 partners</strong>
+                  </div>
+                  <div>
+                    <span className="metric-label">Phases auto-generated</span>
+                    <strong className="metric-value">3 per plan</strong>
+                  </div>
+                  <div>
+                    <span className="metric-label">Ideas mapped</span>
+                    <strong className="metric-value">Realtime</strong>
+                  </div>
+                </div>
+              </div>
+              <div className="hero-right">
+                <div className="hero-visual">
+                  <div className="hero-visual-header">
+                    <span>Execution radar</span>
+                    <strong>Live</strong>
+                  </div>
+                  <ul className="hero-visual-list">
+                    <li>
+                      <span>Problem clarity</span>
+                      <div className="hero-bar">
+                        <div style={{ width: "92%" }} />
+                      </div>
+                      <span className="hero-score">92%</span>
+                    </li>
+                    <li>
+                      <span>Demand probability</span>
+                      <div className="hero-bar">
+                        <div style={{ width: "84%" }} />
+                      </div>
+                      <span className="hero-score">84%</span>
+                    </li>
+                    <li>
+                      <span>Prompt coverage</span>
+                      <div className="hero-bar">
+                        <div style={{ width: "100%" }} />
+                      </div>
+                      <span className="hero-score">3 phases</span>
+                    </li>
+                  </ul>
+                  <div className="hero-visual-footer">
+                    <p>IdeaBoard stitches research + tooling + prompts into a single move.</p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="hero-right">
-              <div className="hero-visual">
-                <div className="hero-visual-header">
-                  <span>Execution radar</span>
-                  <strong>Live</strong>
-                </div>
-                <ul className="hero-visual-list">
-                  <li>
-                    <span>Problem clarity</span>
-                    <div className="hero-bar">
-                      <div style={{ width: "92%" }} />
-                    </div>
-                    <span className="hero-score">92%</span>
-                  </li>
-                  <li>
-                    <span>Demand probability</span>
-                    <div className="hero-bar">
-                      <div style={{ width: "84%" }} />
-                    </div>
-                    <span className="hero-score">84%</span>
-                  </li>
-                  <li>
-                    <span>Prompt coverage</span>
-                    <div className="hero-bar">
-                      <div style={{ width: "100%" }} />
-                    </div>
-                    <span className="hero-score">3 phases</span>
-                  </li>
-                </ul>
-                <div className="hero-visual-footer">
-                  <p>IdeaBoard stitches research + tooling + prompts into a single move.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+          <Affiliates />
+        </>
       ) : (
         <header className="border-b border-border">
           <div className="container mx-auto px-6 py-6">
@@ -379,6 +501,18 @@ const Index = () => {
           <BuildPlan plan={buildPlan} platform={platform} onReset={handleReset} />
         )}
       </main>
+
+      {/* Additional sections */}
+      {stage === "input" && (
+        <>
+          <HowItWorks />
+          <Features />
+          <CaseStudies />
+          <Testimonials />
+        </>
+      )}
+
+      <Footer />
     </div>
   );
 };
