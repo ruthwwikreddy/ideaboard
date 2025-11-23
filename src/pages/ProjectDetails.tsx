@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Wand, ArrowLeft, Loader2, Download } from "lucide-react";
 import { toast } from "sonner";
 import { ResearchResults } from "@/components/ResearchResults";
+import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
 import { Helmet } from "react-helmet-async";
 import html2canvas from "html2canvas";
@@ -43,12 +44,16 @@ interface Project {
   created_at: string;
 }
 
+type ViewMode = "research" | "platform" | "plan";
+
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("research");
+  const [generatingPlan, setGeneratingPlan] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -66,7 +71,17 @@ const ProjectDetails = () => {
           .single();
 
         if (error) throw error;
-        setProject(data as unknown as Project);
+        const projectData = data as unknown as Project;
+        setProject(projectData);
+
+        // Determine initial view mode
+        if (projectData.platform && projectData.build_plan) {
+          setViewMode("plan");
+        } else if (projectData.research && !projectData.platform) {
+          setViewMode("research");
+        } else if (projectData.research && projectData.platform && !projectData.build_plan) {
+          setViewMode("platform");
+        }
       } catch (error: unknown) {
         console.error("Error fetching project:", error);
         if (error instanceof Error) {
@@ -81,6 +96,49 @@ const ProjectDetails = () => {
 
     fetchProject();
   }, [id]);
+
+  const handlePlatformSelect = async (selectedPlatform: string) => {
+    if (!project || !project.research) return;
+
+    setGeneratingPlan(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-build-plan", {
+        body: { idea: project.idea, research: project.research, platform: selectedPlatform },
+      });
+
+      if (error) throw error;
+
+      // Update project in database
+      const { error: updateError } = await supabase
+        .from("projects")
+        .update({
+          platform: selectedPlatform,
+          build_plan: data,
+        })
+        .eq("id", id);
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setProject({
+        ...project,
+        platform: selectedPlatform,
+        build_plan: data as BuildPlan,
+      });
+
+      setViewMode("plan");
+      toast.success("Build plan generated!");
+    } catch (error: unknown) {
+      console.error("Error generating plan:", error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to generate build plan");
+      }
+    } finally {
+      setGeneratingPlan(false);
+    }
+  };
 
   const handleExportPDF = async () => {
     const element = document.getElementById("project-content");
@@ -163,42 +221,50 @@ const ProjectDetails = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
-          <Button onClick={handleExportPDF} disabled={exporting}>
-            {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-            Export PDF
-          </Button>
+          {(project.research || project.build_plan) && (
+            <Button onClick={handleExportPDF} disabled={exporting}>
+              {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+              Export PDF
+            </Button>
+          )}
         </div>
 
         <div id="project-content" className="bg-background p-4 rounded-lg">
-          <h2 className="text-4xl font-bold mb-4">{project.research?.name}</h2>
+          <h2 className="text-4xl font-bold mb-4">{project.research?.name || "Untitled Project"}</h2>
           <p className="text-muted-foreground text-lg mb-4">{project.idea}</p>
           <p className="text-muted-foreground text-lg mb-8">
             Created on: {new Date(project.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
           </p>
 
-          {project.research && (
+          {viewMode === "research" && project.research && (
             <div className="mb-8">
               <h3 className="text-2xl font-semibold mb-4">Research Analysis</h3>
-              <div className="pointer-events-none">
-                <ResearchResults
-                  research={project.research}
-                  onNext={() => { }}
-                  onBack={() => { }}
-                />
-              </div>
+              <ResearchResults
+                research={project.research}
+                onNext={() => setViewMode("platform")}
+                onBack={() => navigate("/dashboard")}
+              />
             </div>
           )}
 
-          {project.platform && project.build_plan && (
+          {viewMode === "platform" && (
+            <div className="mb-8">
+              <PlatformSelector
+                onSelect={handlePlatformSelect}
+                loading={generatingPlan}
+                onBack={() => setViewMode("research")}
+              />
+            </div>
+          )}
+
+          {viewMode === "plan" && project.platform && project.build_plan && (
             <div className="mb-8">
               <h3 className="text-2xl font-semibold mb-4">Build Plan for {project.platform}</h3>
-              <div className="pointer-events-none">
-                <BuildPlan
-                  plan={project.build_plan}
-                  platform={project.platform}
-                  onReset={() => { }}
-                />
-              </div>
+              <BuildPlan
+                plan={project.build_plan}
+                platform={project.platform}
+                onReset={() => navigate("/dashboard")}
+              />
             </div>
           )}
 
