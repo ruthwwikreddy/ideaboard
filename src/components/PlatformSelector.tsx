@@ -6,25 +6,23 @@ const platforms = [
   {
     name: "Lovable",
     description: "AI-powered React builder with instant deployment",
-    url: "https://lovable.dev?ref=ideaboard",
-    color: "primary",
+          url: "https://lovable.dev/invite/E51RSFR",    color: "primary",
   },
   {
     name: "Bolt",
     description: "Full-stack web development with AI assistance",
-    url: "https://bolt.new?ref=ideaboard",
-    color: "accent",
+          url: "https://bolt.new/?rid=z600g1",    color: "accent",
   },
   {
     name: "Replit",
     description: "Collaborative browser-based IDE with AI",
-    url: "https://replit.com?ref=ideaboard",
+    url: "https://replit.com/refer/akkenapallyredd",
     color: "neon-green",
   },
   {
-    name: "FlutterFlow",
-    description: "Visual builder for mobile and web apps",
-    url: "https://flutterflow.io?ref=ideaboard",
+    name: "v0",
+    description: "AI-powered frontend components and UI generation",
+    url: "https://v0.app/ref/38YXBK",
     color: "neon-purple",
   },
 ];

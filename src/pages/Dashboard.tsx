@@ -9,6 +9,7 @@ import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
 
 interface Research {
+  name: string;
   problem: string;
   audience: string;
   competitors: string[];
@@ -183,7 +184,7 @@ const Dashboard = () => {
                 onClick={() => navigate(`/project/${project.id}`)}
               >
                 <CardHeader>
-                  <CardTitle className="line-clamp-2">{project.idea}</CardTitle>
+                  <CardTitle className="line-clamp-2">{project.research?.name || project.idea}</CardTitle>
                   <CardDescription>
                     {new Date(project.created_at).toLocaleDateString("en-US", {
                       year: "numeric",

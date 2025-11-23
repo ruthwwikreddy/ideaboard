@@ -21,10 +21,10 @@ interface BuildPlanProps {
 }
 
 const platformUrls: Record<string, string> = {
-  Lovable: "https://lovable.dev?ref=ideaboard",
-  Bolt: "https://bolt.new?ref=ideaboard",
-  Replit: "https://replit.com?ref=ideaboard",
-  FlutterFlow: "https://flutterflow.io?ref=ideaboard",
+  Lovable: "https://lovable.dev/invite/E51RSFR",
+  Bolt: "https://bolt.new/?rid=z600g1",
+  Replit: "https://replit.com/refer/akkenapallyredd",
+  v0: "https://v0.app/ref/38YXBK",
 };
 
 export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {

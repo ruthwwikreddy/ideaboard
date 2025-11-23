@@ -125,7 +125,8 @@ const ProjectDetails = () => {
           Back to Dashboard
         </Button>
 
-        <h2 className="text-4xl font-bold mb-4">{project.idea}</h2>
+        <h2 className="text-4xl font-bold mb-4">{project.research?.name}</h2>
+        <p className="text-muted-foreground text-lg mb-4">{project.idea}</p>
         <p className="text-muted-foreground text-lg mb-8">
           Created on: {new Date(project.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
         </p>
