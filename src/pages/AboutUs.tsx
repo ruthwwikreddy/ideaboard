@@ -48,10 +48,13 @@ const AboutUs = () => {
           <div className="grid gap-10 md:grid-cols-2 justify-center">
             {teamMembers.map((member) => (
               <div key={member.name} className="text-center">
-                <Avatar className="w-24 h-24 mx-auto mb-4">
-                  <AvatarImage src={member.avatar} alt={member.name} />
-                  <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <div className="mb-6 flex justify-center">
+                  <img
+                    src={member.avatar}
+                    alt={member.name}
+                    className="w-48 h-auto rounded-xl shadow-md object-cover"
+                  />
+                </div>
                 <h3 className="text-xl font-semibold">{member.name}</h3>
                 <p className="text-primary mb-2">{member.role}</p>
                 <p className="text-muted-foreground text-sm mb-4">{member.bio}</p>

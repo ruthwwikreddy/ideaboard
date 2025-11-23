@@ -52,8 +52,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    const { idea } = await req.json();
+    const body = await req.json();
+    const { idea } = body;
 
     if (!idea) {
       throw new Error("Idea is required");
@@ -73,10 +81,18 @@ serve(async (req) => {
     if (!supabaseAccessToken) {
       throw new Error("Supabase access token is missing.");
     }
-    
+
+    const sbUrl = Deno.env.get("SUPABASE_URL");
+    const sbKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!sbUrl || !sbKey) {
+      console.error("Missing Supabase environment variables");
+      throw new Error("Configuration error: Missing Supabase URL or Key");
+    }
+
     const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      sbUrl,
+      sbKey,
       {
         global: { headers: { Authorization: `Bearer ${supabaseAccessToken}` } },
         auth: {
@@ -89,7 +105,7 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) {
       console.error("User authentication error:", userError);
-      throw new Error("User not authenticated.");
+      throw new Error(`User not authenticated: ${userError?.message || "No user found"}`);
     }
 
     // Fetch user profile
