@@ -12,10 +12,10 @@ import { Helmet } from "react-helmet-async";
 interface Research {
   name: string;
   problem: string;
-  audience: string;
+  audience: string | any;
   competitors: string[];
   marketGaps: string[];
-  monetization: string[];
+  monetization: Array<string | any>;
   demandProbability: number;
 }
 
