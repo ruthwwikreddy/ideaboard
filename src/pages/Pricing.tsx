@@ -93,6 +93,26 @@ const Pricing = () => {
     }
   };
 
+  // Show low credit warning
+  useEffect(() => {
+    if (profileDetails && subscriptionDetails) {
+      const currentPlanId = subscriptionDetails.plan_id || "free";
+      const generationsUsed = profileDetails.generation_count || 0;
+      const generationsLimit = getPlanLimit(currentPlanId);
+      const remaining = generationsLimit - generationsUsed;
+
+      if (remaining === 2) {
+        toast.warning("⚠️ Only 2 credits remaining! Consider purchasing more credits to continue.", {
+          duration: 5000,
+        });
+      } else if (remaining === 1) {
+        toast.warning("⚠️ Only 1 credit remaining! Purchase credits now to avoid interruption.", {
+          duration: 5000,
+        });
+      }
+    }
+  }, [profileDetails, subscriptionDetails]);
+
   const handlePlanSelection = async (planId: PlanId) => {
     if (!user) {
       toast.info("Please sign in to manage subscriptions.");
