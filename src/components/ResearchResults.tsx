@@ -6,10 +6,10 @@ import { ArrowRight, ArrowLeft, Target, Users, TrendingUp, DollarSign, BarChart 
 interface ResearchResultsProps {
   research: {
     problem: string;
-    audience: string;
+    audience: string | any;
     competitors: string[];
     marketGaps: string[];
-    monetization: string[];
+    monetization: Array<string | any>;
     demandProbability: number;
   };
   onNext: () => void;
@@ -17,6 +17,59 @@ interface ResearchResultsProps {
 }
 
 export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsProps) => {
+  const renderAudience = (audience: string | any) => {
+    if (typeof audience === 'string') {
+      return <p className="text-foreground/90 leading-relaxed">{audience}</p>;
+    }
+    return (
+      <div className="space-y-3">
+        {audience.demographics && (
+          <div>
+            <h4 className="font-medium text-sm mb-1">Demographics</h4>
+            <p className="text-foreground/90 text-sm">{audience.demographics}</p>
+          </div>
+        )}
+        {audience.psychographics && (
+          <div>
+            <h4 className="font-medium text-sm mb-1">Psychographics</h4>
+            <p className="text-foreground/90 text-sm">{audience.psychographics}</p>
+          </div>
+        )}
+        {audience.behaviors && (
+          <div>
+            <h4 className="font-medium text-sm mb-1">Behaviors</h4>
+            <p className="text-foreground/90 text-sm">{audience.behaviors}</p>
+          </div>
+        )}
+        {audience['specific pain points'] && (
+          <div>
+            <h4 className="font-medium text-sm mb-1">Pain Points</h4>
+            <p className="text-foreground/90 text-sm">{audience['specific pain points']}</p>
+          </div>
+        )}
+        {audience.motivations && (
+          <div>
+            <h4 className="font-medium text-sm mb-1">Motivations</h4>
+            <p className="text-foreground/90 text-sm">{audience.motivations}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderMonetization = (method: string | any) => {
+    if (typeof method === 'string') {
+      return method;
+    }
+    return (
+      <div className="space-y-1">
+        <p className="font-medium">{method.strategy}</p>
+        {method.pros && <p className="text-xs text-foreground/70">✓ {method.pros}</p>}
+        {method.cons && <p className="text-xs text-foreground/70">✗ {method.cons}</p>}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between">
@@ -52,7 +105,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-semibold mb-2">Target Audience</h3>
-              <p className="text-foreground/90 leading-relaxed">{research.audience}</p>
+              {renderAudience(research.audience)}
             </div>
           </div>
         </Card>
@@ -102,10 +155,10 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold mb-3">Monetization</h3>
-                <ul className="space-y-1.5">
+                <ul className="space-y-2">
                   {research.monetization.map((method, index) => (
                     <li key={index} className="text-foreground/90 text-sm">
-                      {method}
+                      {renderMonetization(method)}
                     </li>
                   ))}
                 </ul>
