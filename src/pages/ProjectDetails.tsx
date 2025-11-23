@@ -10,6 +10,7 @@ import { BuildPlan } from "@/components/BuildPlan";
 import { Helmet } from "react-helmet-async";
 
 interface Research {
+  name: string;
   problem: string;
   audience: string;
   competitors: string[];
