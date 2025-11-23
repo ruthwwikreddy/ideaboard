@@ -3,11 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Wand, ArrowLeft, Loader2 } from "lucide-react";
+import { Wand, ArrowLeft, Loader2, Download } from "lucide-react";
 import { toast } from "sonner";
 import { ResearchResults } from "@/components/ResearchResults";
 import { BuildPlan } from "@/components/BuildPlan";
 import { Helmet } from "react-helmet-async";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface Research {
   name: string;
@@ -46,6 +48,7 @@ const ProjectDetails = () => {
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -78,6 +81,40 @@ const ProjectDetails = () => {
 
     fetchProject();
   }, [id]);
+
+  const handleExportPDF = async () => {
+    const element = document.getElementById("project-content");
+    if (!element) return;
+
+    setExporting(true);
+    toast.info("Generating PDF...");
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height]
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(`${project?.research?.name || "project"}-plan.pdf`);
+      toast.success("PDF downloaded successfully!");
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+      toast.error("Failed to export PDF");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -117,51 +154,63 @@ const ProjectDetails = () => {
       </header>
 
       <main className="container mx-auto px-6 py-12 max-w-5xl">
-        <Button
-          onClick={() => navigate("/dashboard")}
-          variant="outline"
-          className="mb-6 border-border hover:bg-secondary"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            onClick={() => navigate("/dashboard")}
+            variant="outline"
+            className="border-border hover:bg-secondary"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          <Button onClick={handleExportPDF} disabled={exporting}>
+            {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            Export PDF
+          </Button>
+        </div>
 
-        <h2 className="text-4xl font-bold mb-4">{project.research?.name}</h2>
-        <p className="text-muted-foreground text-lg mb-4">{project.idea}</p>
-        <p className="text-muted-foreground text-lg mb-8">
-          Created on: {new Date(project.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-        </p>
+        <div id="project-content" className="bg-background p-4 rounded-lg">
+          <h2 className="text-4xl font-bold mb-4">{project.research?.name}</h2>
+          <p className="text-muted-foreground text-lg mb-4">{project.idea}</p>
+          <p className="text-muted-foreground text-lg mb-8">
+            Created on: {new Date(project.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+          </p>
 
-        {project.research && (
-          <div className="mb-8">
-            <h3 className="text-2xl font-semibold mb-4">Research Analysis</h3>
-            <ResearchResults 
-              research={project.research} 
-              onNext={() => {}}
-              onBack={() => {}}
-            />
-          </div>
-        )}
+          {project.research && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-semibold mb-4">Research Analysis</h3>
+              <div className="pointer-events-none">
+                <ResearchResults
+                  research={project.research}
+                  onNext={() => { }}
+                  onBack={() => { }}
+                />
+              </div>
+            </div>
+          )}
 
-        {project.platform && project.build_plan && (
-          <div className="mb-8">
-            <h3 className="text-2xl font-semibold mb-4">Build Plan for {project.platform}</h3>
-            <BuildPlan 
-              plan={project.build_plan} 
-              platform={project.platform}
-              onReset={() => {}}
-            />
-          </div>
-        )}
+          {project.platform && project.build_plan && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-semibold mb-4">Build Plan for {project.platform}</h3>
+              <div className="pointer-events-none">
+                <BuildPlan
+                  plan={project.build_plan}
+                  platform={project.platform}
+                  onReset={() => { }}
+                />
+              </div>
+            </div>
+          )}
 
-        {!project.research && !project.build_plan && (
-          <Card className="p-8 text-center">
-            <CardTitle className="text-2xl">No Details Available</CardTitle>
-            <CardDescription className="mt-2">
-              This project does not yet have research or a build plan.
-            </CardDescription>
-          </Card>
-        )}
+          {!project.research && !project.build_plan && (
+            <Card className="p-8 text-center">
+              <CardTitle className="text-2xl">No Details Available</CardTitle>
+              <CardDescription className="mt-2">
+                This project does not yet have research or a build plan.
+              </CardDescription>
+            </Card>
+          )}
+        </div>
       </main>
     </div>
   );

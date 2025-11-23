@@ -7,7 +7,7 @@ interface ResearchResultsProps {
   research: {
     problem: string;
     audience: string | any;
-    competitors: string[];
+    competitors: Array<string | any>;
     marketGaps: string[];
     monetization: Array<string | any>;
     demandProbability: number;
@@ -21,7 +21,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
     if (typeof audience === 'string') {
       return <p className="text-foreground/90 leading-relaxed">{audience}</p>;
     }
-    
+
     const renderDemographics = (demographics: any) => {
       if (typeof demographics === 'string') {
         return <p className="text-foreground/90 text-sm">{demographics}</p>;
@@ -35,7 +35,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         </ul>
       );
     };
-    
+
     const renderPsychographics = (psychographics: any) => {
       if (typeof psychographics === 'string') {
         return <p className="text-foreground/90 text-sm">{psychographics}</p>;
@@ -47,7 +47,6 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         </ul>
       );
     };
-    
     const renderBehaviors = (behaviors: any) => {
       if (typeof behaviors === 'string') {
         return <p className="text-foreground/90 text-sm">{behaviors}</p>;
@@ -62,7 +61,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         </ul>
       );
     };
-    
+
     return (
       <div className="space-y-3">
         {audience.demographics && (
@@ -108,6 +107,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         <p className="font-medium">{competitor.name}</p>
         {competitor.strengths && <p className="text-xs text-foreground/70">✓ {competitor.strengths}</p>}
         {competitor.weaknesses && <p className="text-xs text-foreground/70">✗ {competitor.weaknesses}</p>}
+        {competitor.marketPositioning && <p className="text-xs text-foreground/70">⌖ {competitor.marketPositioning}</p>}
       </div>
     );
   };

@@ -29,7 +29,7 @@ const standardPrompt = `You are an expert business analyst and market researcher
 - name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'devplan' or 'ideaboard'. The name must be a single word and lowercase.
 - problem: A clear 2-3 sentence description of the core problem this app solves
 - audience: Describe the target audience in 2-3 sentences (demographics, behaviors, pain points)
-- competitors: An array of 3-5 existing competitors or similar solutions
+- competitors: An array of 3-5 existing competitors or similar solutions, with their strengths, weaknesses, and market positioning.
 - marketGaps: An array of 3-4 specific market gaps or opportunities this app could fill
 - monetization: An array of 3-4 potential monetization strategies
 - demandProbability: A number between 0-100 representing the likelihood of real market demand
@@ -40,7 +40,7 @@ const advancedPrompt = `You are a world-class business strategist and market ana
 - name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'devplan' or 'ideaboard'. The name must be a single word and lowercase.
 - problem: In-depth 3-4 sentence analysis of the core problem, including its nuances and importance.
 - audience: Detailed target audience persona (demographics, psychographics, behaviors, specific pain points, and motivations).
-- competitors: A detailed analysis of 5-7 competitors, including their strengths, weaknesses, and market share.
+- competitors: A detailed analysis of 5-7 competitors, including their strengths, weaknesses, market share, and market positioning.
 - marketGaps: An array of 4-5 specific and less obvious market gaps or unique value propositions.
 - monetization: A detailed list of 4-5 potential monetization strategies, including pros and cons for each.
 - demandProbability: A number between 0-100 representing the likelihood of real market demand.
@@ -73,10 +73,10 @@ serve(async (req) => {
     if (tokenParts.length !== 3) {
       throw new Error("Invalid token format");
     }
-    
+
     const payload = JSON.parse(atob(tokenParts[1]));
     const userId = payload.sub;
-    
+
     if (!userId) {
       throw new Error("User ID not found in token");
     }

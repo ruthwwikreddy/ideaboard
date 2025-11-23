@@ -29,10 +29,10 @@ import Replit from "@/assets/replit.svg";
 
 interface Research {
   problem: string;
-  audience: string;
-  competitors: string[];
+  audience: string | any;
+  competitors: Array<string | any>;
   marketGaps: string[];
-  monetization: string[];
+  monetization: Array<string | any>;
   demandProbability: number;
 }
 
