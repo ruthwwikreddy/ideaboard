@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Wand, Loader2, ArrowRight, LogIn } from "lucide-react";
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
@@ -203,7 +203,7 @@ const Index = () => {
 
       setResearch(data as Research);
       setStage("research");
-      
+
       // Save project if user is logged in
       if (user) {
         const { data: projectData, error: projectError } = await supabase
@@ -220,7 +220,7 @@ const Index = () => {
           setCurrentProjectId((projectData as { id: string }).id);
         }
       }
-      
+
       toast.success("Research completed!");
     } catch (error: unknown) {
       console.error("Error analyzing idea:", error);
@@ -247,7 +247,7 @@ const Index = () => {
 
       setBuildPlan(data as BuildPlan);
       setStage("plan");
-      
+
       // Update project if user is logged in
       if (user && currentProjectId) {
         await supabase
@@ -258,7 +258,7 @@ const Index = () => {
           })
           .eq("id", currentProjectId);
       }
-      
+
       toast.success("Build plan generated!");
     } catch (error: unknown) {
       console.error("Error generating plan:", error);
