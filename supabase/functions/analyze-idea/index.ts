@@ -69,6 +69,7 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false }
     });
 
     // Get User
