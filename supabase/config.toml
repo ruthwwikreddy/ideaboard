@@ -1,7 +1,7 @@
 project_id = "zhcgwkkozdipqkdiksod"
 
 [functions.analyze-idea]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-build-plan]
 verify_jwt = false
