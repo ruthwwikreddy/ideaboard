@@ -67,17 +67,24 @@ serve(async (req) => {
       throw new Error("Missing Authorization header");
     }
 
+    // Extract user ID from JWT token
+    const token = authHeader.replace("Bearer ", "");
+    const tokenParts = token.split(".");
+    if (tokenParts.length !== 3) {
+      throw new Error("Invalid token format");
+    }
+    
+    const payload = JSON.parse(atob(tokenParts[1]));
+    const userId = payload.sub;
+    
+    if (!userId) {
+      throw new Error("User ID not found in token");
+    }
+
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
       auth: { persistSession: false }
     });
-
-    // Get User
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      console.error("Auth error:", userError);
-      throw new Error("Unauthorized");
-    }
 
     // Parse Request Body
     let idea;
@@ -96,7 +103,7 @@ serve(async (req) => {
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", user.id)
+      .eq("id", userId)
       .single();
 
     if (profileError || !profile) {
@@ -108,7 +115,7 @@ serve(async (req) => {
     const { data: subscription } = await supabase
       .from("subscriptions")
       .select("plan_id")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("status", "active")
       .single();
 
@@ -138,7 +145,7 @@ serve(async (req) => {
     if (planId === "premium") systemPrompt = advancedPrompt;
     else if (planId === "basic") systemPrompt = standardPrompt;
 
-    console.log(`Analyzing idea for user ${user.id} with plan ${planId}`);
+    console.log(`Analyzing idea for user ${userId} with plan ${planId}`);
 
     // Call OpenAI
     const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -176,7 +183,7 @@ serve(async (req) => {
         generation_count: isNewMonth ? 1 : generation_count + 1,
         last_generation_reset: isNewMonth ? now.toISOString() : last_generation_reset
       })
-      .eq("id", user.id);
+      .eq("id", userId);
 
     if (updateError) {
       console.error("Failed to update usage:", updateError);
