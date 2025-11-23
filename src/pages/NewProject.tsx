@@ -45,10 +45,27 @@ const NewProject = () => {
       return;
     }
 
+    if (!session) {
+      toast.error("Please log in to analyze your idea");
+      navigate("/auth");
+      return;
+    }
+
     setLoading(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (!sessionData.session) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/auth");
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("analyze-idea", {
         body: { idea },
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
       });
 
       if (error) throw error;
