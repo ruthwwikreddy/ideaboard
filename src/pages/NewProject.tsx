@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
-import { Footer } from "@/components/Footer";
+import { GenerationLimitWarning } from "@/components/GenerationLimitWarning";
+import { useGenerationLimit } from "@/hooks/useGenerationLimit";
 
 const NewProject = () => {
   const navigate = useNavigate();
@@ -16,6 +17,17 @@ const NewProject = () => {
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  const {
+    generationsUsed,
+    generationsLimit,
+    currentPlan,
+    isAtLimit,
+    showWarning,
+    setShowWarning,
+    checkAndShowWarning,
+    fetchLimits,
+  } = useGenerationLimit();
 
   useEffect(() => {
     const {
@@ -51,10 +63,17 @@ const NewProject = () => {
       return;
     }
 
+    // Check if user is at generation limit
+    if (isAtLimit) {
+      checkAndShowWarning();
+      toast.error(`You've reached your ${currentPlan} plan limit of ${generationsLimit} generations this month. Please upgrade to continue.`);
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      
+
       if (!sessionData.session) {
         toast.error("Session expired. Please log in again.");
         navigate("/auth");
@@ -68,7 +87,13 @@ const NewProject = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if error is due to limit
+        if (error.message && error.message.includes("Limit reached")) {
+          checkAndShowWarning();
+        }
+        throw error;
+      }
 
       // Save project if user is logged in
       if (user) {
@@ -83,6 +108,9 @@ const NewProject = () => {
           .single();
 
         if (projectError) throw projectError;
+
+        // Refresh the generation limits after successful generation
+        await fetchLimits();
 
         if (projectData) {
           navigate(`/project/${(projectData as { id: string }).id}`);
@@ -189,7 +217,15 @@ const NewProject = () => {
           </div>
         </Card>
       </main>
-      <Footer />
+
+      <GenerationLimitWarning
+        open={showWarning}
+        onOpenChange={setShowWarning}
+        currentPlan={currentPlan}
+        generationsUsed={generationsUsed}
+        generationsLimit={generationsLimit}
+        isAtLimit={isAtLimit}
+      />
     </div>
   );
 };
