@@ -128,9 +128,12 @@ const Pricing = () => {
         theme: {
           color: "#000000"
         },
-        handler: function(response: any) {
+        handler: async function(response: any) {
           toast.success("Payment successful! Credits added to your account.");
-          fetchUserDetails(user);
+          // Wait a bit for webhook to process, then refetch
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          await fetchUserDetails(user);
+          window.location.reload();
         },
         modal: {
           ondismiss: function() {
