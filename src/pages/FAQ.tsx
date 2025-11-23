@@ -8,14 +8,14 @@ import {
 
 const faqItems = [
   {
-    question: "What is DevPlan AI?",
+    question: "What is IdeaBoard?",
     answer:
-      "DevPlan AI is an AI-powered platform that helps you validate your startup ideas, conduct market research, analyze competitors, and generate a comprehensive build plan for your app.",
+      "IdeaBoard is an AI-powered platform that helps you validate your startup ideas, conduct market research, analyze competitors, and generate a comprehensive build plan for your app.",
   },
   {
     question: "Who is this for?",
     answer:
-      "DevPlan AI is for aspiring entrepreneurs, indie hackers, product managers, and developers who want to build successful products by making data-driven decisions from the very beginning.",
+      "IdeaBoard is for aspiring entrepreneurs, indie hackers, product managers, and developers who want to build successful products by making data-driven decisions from the very beginning.",
   },
   {
     question: "How does the AI analysis work?",
@@ -43,8 +43,8 @@ const FAQ = () => {
   return (
     <>
       <Helmet>
-        <title>FAQ - DevPlan AI</title>
-        <meta name="description" content="Frequently asked questions about DevPlan AI." />
+        <title>FAQ - IdeaBoard</title>
+        <meta name="description" content="Frequently asked questions about IdeaBoard." />
       </Helmet>
       <div className="container mx-auto px-6 py-12 max-w-3xl">
         <header className="text-center mb-12">

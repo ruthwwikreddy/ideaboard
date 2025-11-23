@@ -140,7 +140,7 @@ const Pricing = () => {
         amount: data.amount,
         currency: data.currency,
         order_id: data.orderId,
-        name: "DevPlan AI",
+        name: "IdeaBoard",
         description: `${PLAN_DETAILS[planId].name} - ${PLAN_DETAILS[planId].generations} Credits`,
         prefill: {
           email: user.email,
@@ -192,7 +192,7 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Buy Credits - DevPlan AI</title>
+        <title>Buy Credits - IdeaBoard</title>
         <meta name="description" content="Purchase credit packs for AI-powered build plans. Choose from Basic (5 credits) or Premium (10 credits) packs. Credits never expire!" />
         <link rel="canonical" href="https://www.devplan.ai/pricing" />
         {/* Open Graph / Facebook */}
@@ -215,7 +215,7 @@ const Pricing = () => {
               <Wand className="w-8 h-8 text-primary" />
               <div className="absolute inset-0 blur-lg bg-primary/30"></div>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">DevPlan AI</h1>
+            <h1 className="text-3xl font-bold tracking-tight">IdeaBoard</h1>
           </div>
         </div>
       </header>

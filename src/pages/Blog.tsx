@@ -14,7 +14,7 @@ const blogPosts = [
   },
   {
     id: 2,
-    title: "A Deep Dive into Market Research with DevPlan AI",
+    title: "A Deep Dive into Market Research with IdeaBoard",
     description: "Uncover market gaps and audience needs with the power of AI-driven research.",
     date: "November 15, 2025",
     author: "John Smith",
@@ -34,8 +34,8 @@ const Blog = () => {
   return (
     <>
       <Helmet>
-        <title>Blog - DevPlan AI</title>
-        <meta name="description" content="Articles and insights on startups, idea validation, and AI-powered development from the DevPlan AI team." />
+        <title>Blog - IdeaBoard</title>
+        <meta name="description" content="Articles and insights on startups, idea validation, and AI-powered development from the IdeaBoard team." />
       </Helmet>
       <div className="container mx-auto px-6 py-12 max-w-5xl">
         <header className="text-center mb-12">

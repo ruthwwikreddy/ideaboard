@@ -228,7 +228,7 @@ const Profile = () => {
               <Wand className="w-8 h-8 text-primary" />
               <div className="absolute inset-0 blur-lg bg-primary/30"></div>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">DevPlan AI</h1>
+            <h1 className="text-3xl font-bold tracking-tight">IdeaBoard</h1>
           </div>
         </div>
       </header>

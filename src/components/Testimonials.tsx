@@ -34,7 +34,7 @@ export const Testimonials = () => {
             Loved by builders
           </h2>
           <p className="text-muted-foreground mt-2 text-lg">
-            Hear what successful founders are saying about DevPlan AI.
+            Hear what successful founders are saying about IdeaBoard.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

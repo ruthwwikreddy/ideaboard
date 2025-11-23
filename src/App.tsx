@@ -17,7 +17,6 @@ import CancellationsAndRefunds from "./pages/CancellationsAndRefunds";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Pricing from "./pages/Pricing";
 import NewProject from "./pages/NewProject";
-import Blog from "./pages/Blog";
 import AboutUs from "./pages/AboutUs";
 import FAQ from "./pages/FAQ";
 
@@ -43,7 +42,6 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/new-project" element={<NewProject />} />
-            <Route path="/blog" element={<Blog />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/faq" element={<FAQ />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

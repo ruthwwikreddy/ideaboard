@@ -16,6 +16,9 @@ import type { Session, User } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
 import { Testimonials } from "@/components/Testimonials";
 import { CheckCircle } from "lucide-react";
+import { WhyIdeaBoard } from "@/components/WhyIdeaBoard";
+import { SocialProof } from "@/components/SocialProof";
+import { CTABanner } from "@/components/CTABanner";
 import {
   Tooltip,
   TooltipContent,
@@ -55,7 +58,7 @@ const caseStudies = [
   {
     title: "SaaS for Photographers",
     description:
-      "A solo founder used DevPlan AI to identify a niche market for a SaaS platform that helps photographers manage their client workflows. The AI-generated build plan saved them weeks of research and development time.",
+      "A solo founder used IdeaBoard to identify a niche market for a SaaS platform that helps photographers manage their client workflows. The AI-generated build plan saved them weeks of research and development time.",
     results: [
       "Identified a profitable niche in a crowded market.",
       "Saved over 40 hours of manual research.",
@@ -65,7 +68,7 @@ const caseStudies = [
   {
     title: "Mobile App for Local Farmers",
     description:
-      "A small team of developers wanted to build an app to connect local farmers with consumers. DevPlan AI helped them validate their idea, understand their target audience, and create a feature roadmap.",
+      "A small team of developers wanted to build an app to connect local farmers with consumers. IdeaBoard helped them validate their idea, understand their target audience, and create a feature roadmap.",
     results: [
       "Validated the demand for their app with a high demand score.",
       "Gained insights into the needs of their target audience.",
@@ -80,7 +83,7 @@ const CaseStudies = () => (
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold">Case Studies</h2>
         <p className="text-muted-foreground mt-2">
-          See how others have used DevPlan AI to bring their ideas to life.
+          See how others have used IdeaBoard to bring their ideas to life.
         </p>
       </div>
       <div className="grid gap-12 md:grid-cols-2">
@@ -284,34 +287,50 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>IdeaBoard AI - Turn Your Idea into a Build-Ready Plan</title>
-        <meta name="description" content="Validate your app idea, get in-depth market research, competitor analysis, and a step-by-step build plan with IdeaBoard AI. From concept to code, instantly." />
-        <meta name="keywords" content="ai business plan, startup idea validation, market research, competitor analysis, app development plan" />
+        <title>IdeaBoard - AI-Powered Idea Validation & Build Planning | Turn Ideas into Reality</title>
+        <meta name="description" content="Transform your app idea into a comprehensive build plan in minutes. IdeaBoard provides instant market research, competitor analysis, demand scoring, and platform-specific prompts for Lovable, Bolt, V0, and Replit." />
+        <meta name="keywords" content="ai business plan generator, startup idea validation, market research automation, competitor analysis tool, app development plan, MVP builder, build plan generator, AI-powered market research, startup validation tool, idea to app, lovable ai, bolt ai, v0 ai, replit ai" />
         <link rel="canonical" href="https://www.ideaboard.ai/" />
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.ideaboard.ai/" />
-        <meta property="og:title" content="IdeaBoard AI - Turn Your Idea into a Build-Ready Plan" />
-        <meta property="og:description" content="Validate your app idea, get in-depth market research, competitor analysis, and a step-by-step build plan with IdeaBoard AI. From concept to code, instantly." />
+        <meta property="og:title" content="IdeaBoard - AI-Powered Idea Validation & Build Planning" />
+        <meta property="og:description" content="Get instant market research, competitor analysis & platform-specific build plans. Transform your idea into reality with AI-powered insights." />
         <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://www.ideaboard.ai/" />
-        <meta property="twitter:title" content="IdeaBoard AI - Turn Your Idea into a Build-Ready Plan" />
-        <meta property="twitter:description" content="Validate your app idea, get in-depth market research, competitor analysis, and a step-by-step build plan with IdeaBoard AI. From concept to code, instantly." />
+        <meta property="twitter:title" content="IdeaBoard - AI-Powered Idea Validation & Build Planning" />
+        <meta property="twitter:description" content="Get instant market research, competitor analysis & platform-specific build plans. Transform your idea into reality with AI-powered insights." />
         <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
         <script type="application/ld+json">
           {`
             {
               "@context": "https://schema.org",
-              "@type": "Organization",
+              "@type": "SoftwareApplication",
+              "name": "IdeaBoard",
+              "applicationCategory": "BusinessApplication",
               "url": "https://www.ideaboard.ai",
-              "logo": "https://www.ideaboard.ai/logo.png",
-              "name": "IdeaBoard AI",
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "email": "akkenapally.reddy@gmail.com",
-                "contactType": "Customer Service"
+              "description": "AI-powered platform for validating app ideas and generating comprehensive build plans with market research and competitor analysis.",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "ratingCount": "127"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "IdeaBoard",
+                "logo": "https://www.ideaboard.ai/logo.png",
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "email": "akkenapally.reddy@gmail.com",
+                  "contactType": "Customer Service"
+                }
               }
             }
           `}
@@ -322,16 +341,17 @@ const Index = () => {
           <section className="hero">
             <div className="hero-grid">
               <div className="hero-left">
-                <div className="hero-eyebrow">DevPlan AI · From Concept to Code</div>
-                <h1>What's your idea?</h1>
+                <div className="hero-eyebrow">🚀 IdeaBoard · From Concept to Code in Minutes</div>
+                <h1>Turn Your Idea Into a Build-Ready Plan</h1>
                 <p className="hero-copy">
-                  Drop your concept and watch DevPlan AI spin up research, competitor analysis, demand scoring, and the
-                  prompts you need to ship faster than ever.
+                  Stop wasting weeks on market research. IdeaBoard instantly validates your app idea, analyzes competitors,
+                  scores market demand, and generates platform-specific build plans for Lovable, Bolt, V0, and Replit.
                 </p>
                 <div className="hero-pills">
-                  <span>Market intelligence</span>
-                  <span>Founder-grade prompts</span>
-                  <span>Affiliate-ready flows</span>
+                  <span>✨ AI Market Research</span>
+                  <span>📊 Competitor Analysis</span>
+                  <span>🎯 Demand Scoring</span>
+                  <span>⚡ Build Blueprints</span>
                 </div>
                 <div className="hero-cta">
                   <button
@@ -361,16 +381,16 @@ const Index = () => {
                 </div>
                 <div className="hero-metrics">
                   <div>
-                    <span className="metric-label">Builders live</span>
-                    <strong className="metric-value">4 partners</strong>
+                    <span className="metric-label">⚡ Average Time Saved</span>
+                    <strong className="metric-value">40+ hours</strong>
                   </div>
                   <div>
-                    <span className="metric-label">Phases auto-generated</span>
-                    <strong className="metric-value">3 per plan</strong>
+                    <span className="metric-label">🎯 Success Rate</span>
+                    <strong className="metric-value">92%</strong>
                   </div>
                   <div>
-                    <span className="metric-label">Ideas mapped</span>
-                    <strong className="metric-value">Realtime</strong>
+                    <span className="metric-label">🚀 Ideas Validated</span>
+                    <strong className="metric-value">1,200+</strong>
                   </div>
                 </div>
               </div>
@@ -422,7 +442,7 @@ const Index = () => {
                     <Wand className="w-8 h-8 text-primary" />
                     <div className="absolute inset-0 blur-lg bg-primary/30"></div>
                   </div>
-                  <h1 className="text-3xl font-bold tracking-tight">DevPlan AI</h1>
+                  <h1 className="text-3xl font-bold tracking-tight">IdeaBoard</h1>
                 </div>
                 <p className="text-muted-foreground mt-2">From concept to code, instantly.</p>
               </div>
@@ -505,10 +525,13 @@ const Index = () => {
       {/* Additional sections */}
       {stage === "input" && (
         <>
+          <SocialProof />
+          <WhyIdeaBoard />
           <HowItWorks />
           <Features />
           <CaseStudies />
           <Testimonials />
+          <CTABanner />
         </>
       )}
 

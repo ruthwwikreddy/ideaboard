@@ -32,8 +32,8 @@ const AboutUs = () => {
   return (
     <>
       <Helmet>
-        <title>About Us - DevPlan AI</title>
-        <meta name="description" content="Learn about the team and mission behind DevPlan AI." />
+        <title>About Us - IdeaBoard</title>
+        <meta name="description" content="Learn about the team and mission behind IdeaBoard." />
       </Helmet>
       <div className="container mx-auto px-6 py-12 max-w-5xl">
         <header className="text-center mb-12">

@@ -160,7 +160,7 @@ const Auth = () => {
             <Wand className="w-10 h-10 text-primary" />
             <div className="absolute inset-0 blur-lg bg-primary/30"></div>
           </div>
-          <h1 className="text-4xl font-bold">DevPlan AI</h1>
+          <h1 className="text-4xl font-bold">IdeaBoard</h1>
         </div>
 
         <Card className="p-8">

@@ -9,7 +9,7 @@ export const Footer = () => {
           <div className="md:col-span-1">
             <div className="flex items-center gap-3">
               <Wand className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold tracking-tight">DevPlan AI</h1>
+              <h1 className="text-2xl font-bold tracking-tight">IdeaBoard</h1>
             </div>
             <p className="text-muted-foreground mt-4">
               From concept to code, instantly.
@@ -17,21 +17,36 @@ export const Footer = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:col-span-3">
             <div>
-              <h3 className="font-semibold mb-4">Company</h3>
+              <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2">
                 <li>
-                  <NavLink to="/about-us" className="text-muted-foreground hover:text-primary">
-                    About Us
+                  <NavLink to="/" className="text-muted-foreground hover:text-primary">
+                    How It Works
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/blog" className="text-muted-foreground hover:text-primary">
-                    Blog
+                  <NavLink to="/pricing" className="text-muted-foreground hover:text-primary">
+                    Pricing
                   </NavLink>
                 </li>
                 <li>
                   <NavLink to="/faq" className="text-muted-foreground hover:text-primary">
                     FAQ
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/new-project" className="text-muted-foreground hover:text-primary">
+                    Start Building
+                  </NavLink>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li>
+                  <NavLink to="/about-us" className="text-muted-foreground hover:text-primary">
+                    About Us
                   </NavLink>
                 </li>
                 <li>
@@ -65,7 +80,7 @@ export const Footer = () => {
               <h3 className="font-semibold mb-4">Social</h3>
               <div className="flex items-center gap-4">
                 <a
-                  href="https://twitter.com/devplan_ai"
+                  href="https://twitter.com/ideaboard_ai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary"
@@ -73,7 +88,7 @@ export const Footer = () => {
                   <Twitter className="w-6 h-6" />
                 </a>
                 <a
-                  href="https://github.com/devplan-ai"
+                  href="https://github.com/ideaboard-ai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary"
@@ -81,7 +96,7 @@ export const Footer = () => {
                   <Github className="w-6 h-6" />
                 </a>
                 <a
-                  href="https://linkedin.com/company/devplan-ai"
+                  href="https://linkedin.com/company/ideaboard-ai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary"
@@ -94,7 +109,7 @@ export const Footer = () => {
         </div>
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-muted-foreground">
-            &copy; {new Date().getFullYear()} DevPlan AI. All rights reserved.
+            &copy; {new Date().getFullYear()} IdeaBoard. All rights reserved.
           </p>
         </div>
       </div>

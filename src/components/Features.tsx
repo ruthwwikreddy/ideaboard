@@ -62,7 +62,7 @@ export const Features = () => {
             Everything you need to ship
           </h2>
           <p className="text-muted-foreground mt-2 text-lg">
-            From idea to launch, DevPlan AI has you covered.
+            From idea to launch, IdeaBoard has you covered.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
