@@ -48,6 +48,21 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
       );
     };
     
+    const renderBehaviors = (behaviors: any) => {
+      if (typeof behaviors === 'string') {
+        return <p className="text-foreground/90 text-sm">{behaviors}</p>;
+      }
+      return (
+        <ul className="space-y-1 text-foreground/90 text-sm">
+          {Object.entries(behaviors).map(([key, value]) => (
+            <li key={key}>
+              {key.charAt(0).toUpperCase() + key.slice(1)}: {String(value)}
+            </li>
+          ))}
+        </ul>
+      );
+    };
+    
     return (
       <div className="space-y-3">
         {audience.demographics && (
@@ -65,7 +80,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         {audience.behaviors && (
           <div>
             <h4 className="font-medium text-sm mb-1">Behaviors</h4>
-            <p className="text-foreground/90 text-sm">{audience.behaviors}</p>
+            {renderBehaviors(audience.behaviors)}
           </div>
         )}
         {audience['specific pain points'] && (
