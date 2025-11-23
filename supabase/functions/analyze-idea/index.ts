@@ -48,194 +48,148 @@ const advancedPrompt = `You are a world-class business strategist and market ana
 - marketingStrategies: An array of 3-4 innovative marketing strategies to reach the target audience.`;
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   try {
-    const body = await req.json();
-    const { idea } = body;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const openAiApiKey = Deno.env.get("OPENAI_API_KEY");
+
+    if (!supabaseUrl || !supabaseAnonKey || !openAiApiKey) {
+      throw new Error("Missing environment variables");
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("Missing Authorization header");
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Get User
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error("Auth error:", userError);
+      throw new Error("Unauthorized");
+    }
+
+    // Parse Request Body
+    let idea;
+    try {
+      const body = await req.json();
+      idea = body.idea;
+    } catch {
+      throw new Error("Invalid request body");
+    }
 
     if (!idea) {
       throw new Error("Idea is required");
     }
 
-    const authorization = req.headers.get("Authorization");
-    if (!authorization) {
-      throw new Error("Authorization header is missing.");
-    }
-
-    const tokenParts = authorization.split(" ");
-    if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
-      throw new Error("Invalid Authorization header format. Expected 'Bearer <token>'.");
-    }
-    const supabaseAccessToken = tokenParts[1];
-
-    if (!supabaseAccessToken) {
-      throw new Error("Supabase access token is missing.");
-    }
-
-    const sbUrl = Deno.env.get("SUPABASE_URL");
-    const sbKey = Deno.env.get("SUPABASE_ANON_KEY");
-
-    if (!sbUrl || !sbKey) {
-      console.error("Missing Supabase environment variables");
-      throw new Error("Configuration error: Missing Supabase URL or Key");
-    }
-
-    const supabaseClient = createClient(
-      sbUrl,
-      sbKey,
-      {
-        global: { headers: { Authorization: `Bearer ${supabaseAccessToken}` } },
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-        }
-      }
-    );
-
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      console.error("User authentication error:", userError);
-      throw new Error(`User not authenticated: ${userError?.message || "No user found"}`);
-    }
-
-    // Fetch user profile
-    const { data: profile, error: profileError } = await supabaseClient
+    // Fetch Profile
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("generation_count, last_generation_reset")
+      .select("*")
       .eq("id", user.id)
       .single();
 
     if (profileError || !profile) {
-      throw new Error("User profile not found.");
+      console.error("Profile error:", profileError);
+      throw new Error("Profile not found");
     }
 
-    // Fetch user subscription
-    const { data: subscription, error: subscriptionError } = await supabaseClient
+    // Fetch Subscription
+    const { data: subscription } = await supabase
       .from("subscriptions")
-      .select("plan_id, status")
+      .select("plan_id")
       .eq("user_id", user.id)
       .eq("status", "active")
       .single();
 
-    let userPlanId: string | null = "free";
-    if (subscription && !subscriptionError) {
-      userPlanId = subscription.plan_id;
-    }
+    const planId = subscription?.plan_id || "free";
+    const limit = PLAN_LIMITS[planId] || PLAN_LIMITS["free"];
 
-    const currentGenerationLimit = getPlanLimit(userPlanId);
-
+    // Check Limits
     let { generation_count, last_generation_reset } = profile;
     const now = new Date();
-    const lastResetDate = new Date(last_generation_reset);
+    const lastReset = new Date(last_generation_reset || 0);
 
-    // Check if a new month has started or if the user downgraded their plan and exceeded new limit
-    if (
-      now.getMonth() !== lastResetDate.getMonth() ||
-      now.getFullYear() !== lastResetDate.getFullYear() ||
-      generation_count > currentGenerationLimit // If plan downgraded and already exceeded, reset
-    ) {
+    const isNewMonth = now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear();
+
+    if (isNewMonth) {
       generation_count = 0;
-      last_generation_reset = now.toISOString();
     }
 
-    // Enforce generation limit
-    if (generation_count >= currentGenerationLimit) {
+    if (generation_count >= limit) {
       return new Response(
-        JSON.stringify({ error: `You have reached your limit of ${currentGenerationLimit} idea generations per month. Please upgrade your plan.` }),
-        {
-          status: 403, // Forbidden
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        JSON.stringify({ error: `Limit reached for ${planId} plan (${limit}/month). Upgrade for more.` }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is not configured");
-    }
+    // Select Prompt
+    let systemPrompt = basicPrompt;
+    if (planId === "premium") systemPrompt = advancedPrompt;
+    else if (planId === "basic") systemPrompt = standardPrompt;
 
-    console.log("Analyzing idea for plan:", userPlanId, "Idea:", idea);
+    console.log(`Analyzing idea for user ${user.id} with plan ${planId}`);
 
-    let systemPrompt;
-    switch (userPlanId) {
-      case "premium":
-        systemPrompt = advancedPrompt;
-        break;
-      case "basic":
-        systemPrompt = standardPrompt;
-        break;
-      default:
-        systemPrompt = basicPrompt;
-        break;
-    }
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Call OpenAI
+    const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
+        "Authorization": `Bearer ${openAiApiKey}`,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "gpt-4o",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Analyze this app idea: ${idea}` },
+          { role: "user", content: `Analyze this app idea: ${idea}` }
         ],
-        response_format: { type: "json_object" },
-      }),
+        response_format: { type: "json_object" }
+      })
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI API error:", response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+    if (!openAiResponse.ok) {
+      const err = await openAiResponse.text();
+      console.error("OpenAI Error:", err);
+      throw new Error("Failed to analyze idea");
     }
 
-    const data = await response.json();
-    console.log("AI response received");
+    const aiData = await openAiResponse.json();
+    const content = aiData.choices[0]?.message?.content;
+    if (!content) throw new Error("No analysis returned");
 
-    const content = data.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error("No content in AI response");
-    }
+    const analysis = JSON.parse(content);
 
-    const research = JSON.parse(content);
-
-    // Increment generation count and update reset timestamp
-    const { error: updateError } = await supabaseClient
+    // Update Usage
+    const { error: updateError } = await supabase
       .from("profiles")
       .update({
-        generation_count: generation_count + 1,
-        last_generation_reset: last_generation_reset,
+        generation_count: isNewMonth ? 1 : generation_count + 1,
+        last_generation_reset: isNewMonth ? now.toISOString() : last_generation_reset
       })
       .eq("id", user.id);
 
     if (updateError) {
-      console.error("Error updating generation count:", updateError);
-      throw new Error("Failed to update generation count.");
+      console.error("Failed to update usage:", updateError);
     }
 
-    return new Response(JSON.stringify(research), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify(analysis), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
-  } catch (error: unknown) {
-    console.error("Error in analyze-idea:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+
+  } catch (error: any) {
+    console.error("Edge Function Error:", error);
+    return new Response(JSON.stringify({ error: error.message || "Internal Server Error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
   }
 });
