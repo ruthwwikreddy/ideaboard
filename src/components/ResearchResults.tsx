@@ -36,6 +36,18 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
       );
     };
     
+    const renderPsychographics = (psychographics: any) => {
+      if (typeof psychographics === 'string') {
+        return <p className="text-foreground/90 text-sm">{psychographics}</p>;
+      }
+      return (
+        <ul className="space-y-1 text-foreground/90 text-sm">
+          {psychographics.values && <li>Values: {psychographics.values}</li>}
+          {psychographics.lifestyle && <li>Lifestyle: {psychographics.lifestyle}</li>}
+        </ul>
+      );
+    };
+    
     return (
       <div className="space-y-3">
         {audience.demographics && (
@@ -47,7 +59,7 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         {audience.psychographics && (
           <div>
             <h4 className="font-medium text-sm mb-1">Psychographics</h4>
-            <p className="text-foreground/90 text-sm">{audience.psychographics}</p>
+            {renderPsychographics(audience.psychographics)}
           </div>
         )}
         {audience.behaviors && (
