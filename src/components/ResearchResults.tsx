@@ -99,6 +99,19 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
     );
   };
 
+  const renderCompetitor = (competitor: string | any) => {
+    if (typeof competitor === 'string') {
+      return competitor;
+    }
+    return (
+      <div className="space-y-1">
+        <p className="font-medium">{competitor.name}</p>
+        {competitor.strengths && <p className="text-xs text-foreground/70">✓ {competitor.strengths}</p>}
+        {competitor.weaknesses && <p className="text-xs text-foreground/70">✗ {competitor.weaknesses}</p>}
+      </div>
+    );
+  };
+
   const renderMonetization = (method: string | any) => {
     if (typeof method === 'string') {
       return method;
@@ -179,10 +192,10 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold mb-3">Competitors</h3>
-                <ul className="space-y-1.5">
+                <ul className="space-y-2">
                   {research.competitors.map((competitor, index) => (
                     <li key={index} className="text-foreground/90 text-sm">
-                      {competitor}
+                      {renderCompetitor(competitor)}
                     </li>
                   ))}
                 </ul>
