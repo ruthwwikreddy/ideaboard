@@ -21,12 +21,27 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
     if (typeof audience === 'string') {
       return <p className="text-foreground/90 leading-relaxed">{audience}</p>;
     }
+    
+    const renderDemographics = (demographics: any) => {
+      if (typeof demographics === 'string') {
+        return <p className="text-foreground/90 text-sm">{demographics}</p>;
+      }
+      return (
+        <ul className="space-y-1 text-foreground/90 text-sm">
+          {demographics.age && <li>Age: {demographics.age}</li>}
+          {demographics.gender && <li>Gender: {demographics.gender}</li>}
+          {demographics.location && <li>Location: {demographics.location}</li>}
+          {demographics.income && <li>Income: {demographics.income}</li>}
+        </ul>
+      );
+    };
+    
     return (
       <div className="space-y-3">
         {audience.demographics && (
           <div>
             <h4 className="font-medium text-sm mb-1">Demographics</h4>
-            <p className="text-foreground/90 text-sm">{audience.demographics}</p>
+            {renderDemographics(audience.demographics)}
           </div>
         )}
         {audience.psychographics && (
