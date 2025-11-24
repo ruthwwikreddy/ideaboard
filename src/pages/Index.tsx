@@ -393,7 +393,7 @@ const Index = () => {
                     className="primary"
                     onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
                   >
-                    Start mapping now
+                    Start Building
                   </button>
                 </div>
 
