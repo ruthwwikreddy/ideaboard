@@ -18,7 +18,7 @@ const blogPosts = [
     description: "Uncover market gaps and audience needs with the power of AI-driven research.",
     date: "November 15, 2025",
     author: "John Smith",
-    slug: "deep-dive-market-research-devplan-ai",
+    slug: "deep-dive-market-research-ideaboard-ai",
   },
   {
     id: 3,

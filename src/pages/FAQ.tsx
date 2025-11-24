@@ -45,6 +45,19 @@ const FAQ = () => {
       <Helmet>
         <title>FAQ - IdeaBoard</title>
         <meta name="description" content="Frequently asked questions about IdeaBoard." />
+        <link rel="canonical" href="https://www.ideaboard.ai/faq" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.ideaboard.ai/faq" />
+        <meta property="og:title" content="FAQ - IdeaBoard" />
+        <meta property="og:description" content="Frequently asked questions about IdeaBoard." />
+        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.ideaboard.ai/faq" />
+        <meta property="twitter:title" content="FAQ - IdeaBoard" />
+        <meta property="twitter:description" content="Frequently asked questions about IdeaBoard." />
+        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <div className="container mx-auto px-6 py-12 max-w-3xl">
         <header className="text-center mb-12">

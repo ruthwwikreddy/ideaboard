@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ArrowLeft, Target, Users, TrendingUp, DollarSign, BarChart } from "lucide-react";
+import { ArrowRight, ArrowLeft, Target, Users, TrendingUp, DollarSign, BarChart, ThumbsUp, ThumbsDown } from "lucide-react";
 
 interface ResearchResultsProps {
   research: {
@@ -132,12 +132,22 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
           <h2 className="text-3xl font-bold">Research Results</h2>
           <p className="text-muted-foreground mt-1">AI-powered market analysis for your idea</p>
         </div>
-        <Badge
-          variant={research.demandProbability >= 70 ? "default" : "secondary"}
-          className="text-lg px-4 py-2 bg-gray-200 text-black"
-        >
-          {research.demandProbability}% Demand Probability
-        </Badge>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-green-500/10 hover:text-green-500">
+              <ThumbsUp className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-500/10 hover:text-red-500">
+              <ThumbsDown className="h-4 w-4" />
+            </Button>
+          </div>
+          <Badge
+            variant={research.demandProbability >= 70 ? "default" : "secondary"}
+            className="text-lg px-4 py-2 bg-gray-200 text-black"
+          >
+            {research.demandProbability}% Demand Probability
+          </Badge>
+        </div>
       </div>
 
       <div className="grid gap-6">

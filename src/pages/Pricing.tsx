@@ -148,7 +148,7 @@ const Pricing = () => {
         theme: {
           color: "#000000"
         },
-        handler: async function(response: any) {
+        handler: async function (response: any) {
           toast.success("Payment successful! Credits added to your account.");
           // Wait a bit for webhook to process, then refetch
           await new Promise(resolve => setTimeout(resolve, 2000));
@@ -156,7 +156,7 @@ const Pricing = () => {
           window.location.reload();
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setIsSubmitting(false);
           }
         }
@@ -194,7 +194,7 @@ const Pricing = () => {
       <Helmet>
         <title>Buy Credits - IdeaBoard</title>
         <meta name="description" content="Purchase credit packs for AI-powered build plans. Choose from Basic (5 credits) or Premium (10 credits) packs. Credits never expire!" />
-        <link rel="canonical" href="https://www.devplan.ai/pricing" />
+        <link rel="canonical" href="https://www.ideaboard.ai/pricing" />
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.ideaboard.ai/pricing" />

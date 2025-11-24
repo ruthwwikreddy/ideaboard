@@ -338,20 +338,55 @@ const Index = () => {
       </Helmet>
       {stage === "input" ? (
         <>
-          <section className="hero">
+          <header className="absolute top-0 left-0 right-0 z-50">
+            <div className="container mx-auto px-6 py-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Wand className="w-6 h-6 text-primary" />
+                <span className="font-bold text-xl tracking-tight">IdeaBoard</span>
+              </div>
+              <div className="flex items-center gap-4">
+                {user ? (
+                  <Button
+                    onClick={() => navigate("/dashboard")}
+                    variant="ghost"
+                    className="hover:bg-white/10"
+                  >
+                    Dashboard
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      onClick={() => navigate("/auth")}
+                      variant="ghost"
+                      className="hover:bg-white/10"
+                    >
+                      Login
+                    </Button>
+                    <Button
+                      onClick={() => navigate("/auth")}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      Sign Up
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </header>
+          <section className="hero pt-32">
             <div className="hero-grid">
               <div className="hero-left">
-                <div className="hero-eyebrow">🚀 IdeaBoard · From Concept to Code in Minutes</div>
+                <div className="hero-eyebrow">IdeaBoard · From Concept to Code in Minutes</div>
                 <h1>Turn Your Idea Into a Build-Ready Plan</h1>
                 <p className="hero-copy">
                   Stop wasting weeks on market research. IdeaBoard instantly validates your app idea, analyzes competitors,
                   scores market demand, and generates platform-specific build plans for Lovable, Bolt, V0, and Replit.
                 </p>
                 <div className="hero-pills">
-                  <span>✨ AI Market Research</span>
-                  <span>📊 Competitor Analysis</span>
-                  <span>🎯 Demand Scoring</span>
-                  <span>⚡ Build Blueprints</span>
+                  <span>AI Market Research</span>
+                  <span>Competitor Analysis</span>
+                  <span>Demand Scoring</span>
+                  <span>Build Blueprints</span>
                 </div>
                 <div className="hero-cta">
                   <button
@@ -360,41 +395,10 @@ const Index = () => {
                   >
                     Start mapping now
                   </button>
-                  {user ? (
-                    <Button
-                      onClick={() => navigate("/dashboard")}
-                      variant="outline"
-                      className="border-border hover:bg-secondary"
-                    >
-                      Profile
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => navigate("/auth")}
-                      variant="outline"
-                      className="border-border hover:bg-secondary"
-                    >
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Login
-                    </Button>
-                  )}
                 </div>
-                <div className="hero-metrics">
-                  <div>
-                    <span className="metric-label">⚡ Average Time Saved</span>
-                    <strong className="metric-value">40+ hours</strong>
-                  </div>
-                  <div>
-                    <span className="metric-label">🎯 Success Rate</span>
-                    <strong className="metric-value">92%</strong>
-                  </div>
-                  <div>
-                    <span className="metric-label">🚀 Ideas Validated</span>
-                    <strong className="metric-value">1,200+</strong>
-                  </div>
-                </div>
+
               </div>
-              <div className="hero-right">
+              <div className="hero-right space-y-6">
                 <div className="hero-visual">
                   <div className="hero-visual-header">
                     <span>Execution radar</span>
@@ -425,6 +429,21 @@ const Index = () => {
                   </ul>
                   <div className="hero-visual-footer">
                     <p>IdeaBoard stitches research + tooling + prompts into a single move.</p>
+                  </div>
+                </div>
+
+                <div className="hero-metrics">
+                  <div>
+                    <span className="metric-label">Average Time Saved</span>
+                    <strong className="metric-value">40+ hours</strong>
+                  </div>
+                  <div>
+                    <span className="metric-label">Success Rate</span>
+                    <strong className="metric-value">92%</strong>
+                  </div>
+                  <div>
+                    <span className="metric-label">Ideas Validated</span>
+                    <strong className="metric-value">1,200+</strong>
                   </div>
                 </div>
               </div>
@@ -467,7 +486,8 @@ const Index = () => {
             </div>
           </div>
         </header>
-      )}
+      )
+      }
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12 max-w-5xl">
@@ -523,20 +543,22 @@ const Index = () => {
       </main>
 
       {/* Additional sections */}
-      {stage === "input" && (
-        <>
-          <SocialProof />
-          <WhyIdeaBoard />
-          <HowItWorks />
-          <Features />
-          <CaseStudies />
-          <Testimonials />
-          <CTABanner />
-        </>
-      )}
+      {
+        stage === "input" && (
+          <>
+            <SocialProof />
+            <WhyIdeaBoard />
+            <HowItWorks />
+            <Features />
+            <CaseStudies />
+            <Testimonials />
+            <CTABanner />
+          </>
+        )
+      }
 
       <Footer />
-    </div>
+    </div >
   );
 };
 

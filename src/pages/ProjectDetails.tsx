@@ -16,7 +16,7 @@ interface Research {
   name: string;
   problem: string;
   audience: string | any;
-  competitors: string[];
+  competitors: Array<string | any>;
   marketGaps: string[];
   monetization: Array<string | any>;
   demandProbability: number;
@@ -141,19 +141,78 @@ const ProjectDetails = () => {
   };
 
   const handleExportPDF = async () => {
-    const element = document.getElementById("project-content");
-    if (!element) return;
+    // Create a temporary container for the PDF content
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '800px';
+    container.style.backgroundColor = '#ffffff';
+    container.style.color = '#000000';
+    container.style.padding = '40px';
+
+    // Construct the HTML content for the PDF
+    const content = `
+      <div style="font-family: Arial, sans-serif;">
+        <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">${project?.research?.name || "Project Research"}</h1>
+        <p style="font-size: 14px; color: #666; margin-bottom: 10px;">${project?.idea}</p>
+        <p style="font-size: 12px; color: #999; margin-bottom: 30px;">
+          Created on: ${new Date(project?.created_at || "").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+        </p>
+
+        <div style="margin-bottom: 25px;">
+          <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Problem Definition</h2>
+          <p style="font-size: 14px; line-height: 1.5;">${project?.research?.problem}</p>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Target Audience</h2>
+          <div style="font-size: 14px; line-height: 1.5;">
+            ${typeof project?.research?.audience === 'string'
+        ? project?.research?.audience
+        : JSON.stringify(project?.research?.audience, null, 2)}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Market Gaps</h2>
+          <ul style="font-size: 14px; line-height: 1.5; padding-left: 20px;">
+            ${project?.research?.marketGaps.map(gap => `<li>${gap}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Competitors</h2>
+          <ul style="font-size: 14px; line-height: 1.5; padding-left: 20px;">
+            ${project?.research?.competitors.map(comp =>
+          `<li>${typeof comp === 'string' ? comp : comp.name}</li>`
+        ).join('')}
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Monetization</h2>
+          <ul style="font-size: 14px; line-height: 1.5; padding-left: 20px;">
+            ${project?.research?.monetization.map(mon =>
+          `<li>${typeof mon === 'string' ? mon : mon.strategy}</li>`
+        ).join('')}
+          </ul>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = content;
+    document.body.appendChild(container);
 
     setExporting(true);
     toast.info("Generating PDF...");
 
     try {
-      const canvas = await html2canvas(element, {
+      const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
+        windowWidth: 800,
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -164,14 +223,54 @@ const ProjectDetails = () => {
       });
 
       pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save(`${project?.research?.name || "project"}-plan.pdf`);
+      pdf.save(`${project?.research?.name || "project"}-research.pdf`);
       toast.success("PDF downloaded successfully!");
     } catch (error) {
       console.error("PDF Export Error:", error);
       toast.error("Failed to export PDF");
     } finally {
+      document.body.removeChild(container);
       setExporting(false);
     }
+  };
+
+  const handleExportMarkdown = () => {
+    if (!project || !project.research) return;
+
+    const { name, problem, audience, competitors, marketGaps, monetization } = project.research;
+
+    const markdownContent = `
+# ${name || "Project Research"}
+
+**Idea:** ${project.idea}
+**Date:** ${new Date(project.created_at).toLocaleDateString()}
+
+## Problem Definition
+${problem}
+
+## Target Audience
+${typeof audience === 'string' ? audience : JSON.stringify(audience, null, 2)}
+
+## Market Gaps
+${marketGaps.map(gap => `- ${gap}`).join('\n')}
+
+## Competitors
+${competitors.map(comp => `- ${typeof comp === 'string' ? comp : comp.name}`).join('\n')}
+
+## Monetization
+${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).join('\n')}
+    `.trim();
+
+    const blob = new Blob([markdownContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${name || "project"}-research.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Markdown downloaded successfully!");
   };
 
   if (loading) {
@@ -222,10 +321,16 @@ const ProjectDetails = () => {
             Back to Dashboard
           </Button>
           {(project.research || project.build_plan) && (
-            <Button onClick={handleExportPDF} disabled={exporting}>
-              {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-              Export PDF
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleExportMarkdown} variant="outline" className="border-border hover:bg-secondary">
+                <Download className="mr-2 h-4 w-4" />
+                Export Markdown
+              </Button>
+              <Button onClick={handleExportPDF} disabled={exporting}>
+                {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                Export PDF
+              </Button>
+            </div>
           )}
         </div>
 

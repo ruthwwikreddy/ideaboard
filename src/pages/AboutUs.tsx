@@ -34,6 +34,19 @@ const AboutUs = () => {
       <Helmet>
         <title>About Us - IdeaBoard</title>
         <meta name="description" content="Learn about the team and mission behind IdeaBoard." />
+        <link rel="canonical" href="https://www.ideaboard.ai/about-us" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.ideaboard.ai/about-us" />
+        <meta property="og:title" content="About Us - IdeaBoard" />
+        <meta property="og:description" content="Learn about the team and mission behind IdeaBoard." />
+        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.ideaboard.ai/about-us" />
+        <meta property="twitter:title" content="About Us - IdeaBoard" />
+        <meta property="twitter:description" content="Learn about the team and mission behind IdeaBoard." />
+        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <div className="container mx-auto px-6 py-12 max-w-5xl">
         <header className="text-center mb-12">
