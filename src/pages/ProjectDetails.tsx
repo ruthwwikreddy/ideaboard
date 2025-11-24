@@ -302,7 +302,7 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Wand className="w-8 h-8 text-primary" />
+              <img src="/logo.png" alt="IdeaBoard Logo" className="w-10 h-10" />
               <div className="absolute inset-0 blur-lg bg-primary/30"></div>
             </div>
             <h1 className="text-3xl font-bold tracking-tight">IdeaBoard</h1>

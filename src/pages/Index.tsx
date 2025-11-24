@@ -341,7 +341,7 @@ const Index = () => {
           <header className="absolute top-0 left-0 right-0 z-50">
             <div className="container mx-auto px-6 py-6 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Wand className="w-6 h-6 text-primary" />
+                <img src="/logo.png" alt="IdeaBoard Logo" className="w-8 h-8" />
                 <span className="font-bold text-xl tracking-tight">IdeaBoard</span>
               </div>
               <div className="flex items-center gap-4">
@@ -458,7 +458,7 @@ const Index = () => {
               <div>
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Wand className="w-8 h-8 text-primary" />
+                    <img src="/logo.png" alt="IdeaBoard Logo" className="w-10 h-10" />
                     <div className="absolute inset-0 blur-lg bg-primary/30"></div>
                   </div>
                   <h1 className="text-3xl font-bold tracking-tight">IdeaBoard</h1>
