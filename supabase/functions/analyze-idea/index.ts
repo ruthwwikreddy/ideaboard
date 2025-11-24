@@ -19,14 +19,14 @@ function getPlanLimit(planId: string | null): number {
 }
 
 const basicPrompt = `You are a business analyst. Analyze the provided app idea and return a structured JSON response with the following fields:
-- name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'devplan' or 'ideaboard'. The name must be a single word and lowercase.
+- name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'DevPlan' or 'IdeaBoard'. The name must be a single word with the first letter capitalized.
 - problem: A clear 1-2 sentence description of the core problem this app solves.
 - audience: Describe the target audience in 1-2 sentences.
 - monetization: An array of 2 potential monetization strategies.
 - demandProbability: A number between 0-100 representing the likelihood of real market demand.`;
 
 const standardPrompt = `You are an expert business analyst and market researcher. Analyze the provided app idea and return a structured JSON response with the following fields:
-- name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'devplan' or 'ideaboard'. The name must be a single word and lowercase.
+- name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'DevPlan' or 'IdeaBoard'. The name must be a single word with the first letter capitalized.
 - problem: A clear 2-3 sentence description of the core problem this app solves
 - audience: Describe the target audience in 2-3 sentences (demographics, behaviors, pain points)
 - competitors: An array of 3-5 existing competitors or similar solutions, with their strengths, weaknesses, and market positioning.
@@ -37,7 +37,7 @@ const standardPrompt = `You are an expert business analyst and market researcher
 Be specific, actionable, and realistic. Focus on what makes this idea unique and viable.`;
 
 const advancedPrompt = `You are a world-class business strategist and market analyst. Provide a comprehensive analysis of the app idea, returning a structured JSON response with these fields:
-- name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'devplan' or 'ideaboard'. The name must be a single word and lowercase.
+- name: A catchy, one-word name for the app. It can be a compound word or a creative blend of words. For example, for an app that helps plan development projects, the name could be 'DevPlan' or 'IdeaBoard'. The name must be a single word with the first letter capitalized.
 - problem: In-depth 3-4 sentence analysis of the core problem, including its nuances and importance.
 - audience: Detailed target audience persona (demographics, psychographics, behaviors, specific pain points, and motivations).
 - competitors: A detailed analysis of 5-7 competitors, including their strengths, weaknesses, market share, and market positioning.
