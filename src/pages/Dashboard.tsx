@@ -8,8 +8,6 @@ import { Wand, Plus, LogOut, User, Loader2, ArrowRightLeft } from "lucide-react"
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
-import { GenerationLimitWarning } from "@/components/GenerationLimitWarning";
-import { useGenerationLimit } from "@/hooks/useGenerationLimit";
 
 interface Research {
   name: string;
@@ -36,16 +34,6 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
-
-  const {
-    generationsUsed,
-    generationsLimit,
-    currentPlan,
-    isAtLimit,
-    showWarning,
-    setShowWarning,
-    checkAndShowWarning,
-  } = useGenerationLimit();
 
   useEffect(() => {
     // Set up auth listener first
@@ -123,12 +111,6 @@ const Dashboard = () => {
   };
 
   const handleNewIdea = () => {
-    // Check if user has reached their generation limit
-    if (isAtLimit) {
-      checkAndShowWarning();
-      toast.error(`You've reached your ${currentPlan} plan limit of ${generationsLimit} generations this month. Please upgrade to continue.`);
-      return;
-    }
     navigate("/new-project");
   };
 
@@ -292,18 +274,8 @@ const Dashboard = () => {
           </div>
         )}
       </main>
-
-      <GenerationLimitWarning
-        open={showWarning}
-        onOpenChange={setShowWarning}
-        currentPlan={currentPlan}
-        generationsUsed={generationsUsed}
-        generationsLimit={generationsLimit}
-        isAtLimit={isAtLimit}
-      />
     </div>
   );
 };
 
 export default Dashboard;
-

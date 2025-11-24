@@ -121,9 +121,8 @@ serve(async (req) => {
 
     const planId = subscription?.plan_id || "free";
     const limit = PLAN_LIMITS[planId] || PLAN_LIMITS["free"];
-    const isAdmin = profile.is_admin || false;
 
-    // Check Limits (skip for admins)
+    // Check Limits
     let { generation_count, last_generation_reset } = profile;
     const now = new Date();
     const lastReset = new Date(last_generation_reset || 0);
@@ -134,8 +133,7 @@ serve(async (req) => {
       generation_count = 0;
     }
 
-    // Skip limit check for admin users
-    if (!isAdmin && generation_count >= limit) {
+    if (generation_count >= limit) {
       return new Response(
         JSON.stringify({ error: `Limit reached for ${planId} plan (${limit}/month). Upgrade for more.` }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
