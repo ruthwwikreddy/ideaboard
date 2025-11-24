@@ -389,12 +389,12 @@ const Index = () => {
                   <span>Build Blueprints</span>
                 </div>
                 <div className="hero-cta">
-                  <button
-                    className="primary"
+                  <Button
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg font-semibold rounded-full"
                     onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
                   >
                     Start Building
-                  </button>
+                  </Button>
                 </div>
 
               </div>
