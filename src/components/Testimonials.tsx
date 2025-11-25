@@ -7,21 +7,21 @@ const testimonials = [
     role: "Founder, Acquisition.com",
     testimonial:
       "This is the first time I have seen an AI tool that actually helps you build a business. It's not just a toy, it's a real tool.",
-    avatar: "https://github.com/shadcn.png",
+    avatar: "https://pbs.twimg.com/profile_images/1830673307471872000/vQfAIN-C_400x400.jpg",
   },
   {
     name: "Sahil Lavingia",
     role: "Founder, Gumroad",
     testimonial:
       "IdeaBoard is like having a co-founder that does all the boring work for you. It's a game-changer for solo founders.",
-    avatar: "https://github.com/shadcn.png",
+    avatar: "https://pbs.twimg.com/profile_images/1581068822411542528/F5hjdc3v_400x400.jpg",
   },
   {
     name: "Naval Ravikant",
     role: "Founder, AngelList",
     testimonial:
       "The quality of the research and the build plan is surprisingly good. It's a great starting point for any new project.",
-    avatar: "https://github.com/shadcn.png",
+    avatar: "https://pbs.twimg.com/profile_images/1631943118198706176/S2NegEQ9_400x400.jpg",
   },
 ];
 
