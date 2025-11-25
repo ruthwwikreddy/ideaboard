@@ -402,6 +402,22 @@ const Index = () => {
                   >
                     Start Building
                   </Button>
+                  <div className="mt-6">
+                    <a
+                      href="https://www.producthunt.com/products/ideaboard?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-ideaboard"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block hover:opacity-90 transition-opacity"
+                    >
+                      <img
+                        src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1042389&theme=dark&t=1764089243094"
+                        alt="IdeaBoard - Turn any idea into a build-ready plan in minutes. | Product Hunt"
+                        style={{ width: '250px', height: '54px' }}
+                        width="250"
+                        height="54"
+                      />
+                    </a>
+                  </div>
                 </div>
 
               </div>
