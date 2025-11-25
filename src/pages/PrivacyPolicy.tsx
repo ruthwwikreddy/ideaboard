@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import BackToHome from "@/components/BackToHome";
 
 const PrivacyPolicy = () => {
   return (
@@ -21,6 +22,7 @@ const PrivacyPolicy = () => {
         <meta property="twitter:description" content="Read the IdeaBoard AI privacy policy to understand how we collect, use, and protect your personal information and data." />
         <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
+      <BackToHome />
       <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
       <p className="text-lg mb-4">
         This Privacy Policy describes how IdeaBoard AI ("we," "us," or "our") collects, uses, and discloses your information when you use our service, ideaboard.ai (the "Service").

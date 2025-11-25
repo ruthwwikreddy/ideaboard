@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import BackToHome from "@/components/BackToHome";
 
 const ContactUs = () => {
   return (
@@ -21,6 +22,7 @@ const ContactUs = () => {
         <meta property="twitter:description" content="Get in touch with the IdeaBoard AI team for support, feedback, or any questions." />
         <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
+      <BackToHome />
       <h1 className="text-4xl font-bold mb-6">Contact Us</h1>
       <p className="text-lg mb-4">
         We'd love to hear from you! Please reach out to us with any questions, feedback, or support requests.

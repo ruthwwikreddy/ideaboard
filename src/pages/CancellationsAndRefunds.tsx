@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import BackToHome from "@/components/BackToHome";
 
 const CancellationsAndRefunds = () => {
   return (
@@ -21,11 +22,12 @@ const CancellationsAndRefunds = () => {
         <meta property="twitter:description" content="Review the IdeaBoard AI policy on subscription cancellations and refunds." />
         <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
+      <BackToHome />
       <h1 className="text-4xl font-bold mb-6">Cancellations and Refunds Policy</h1>
       <p className="text-lg mb-4">
         At IdeaBoard AI, we strive to provide the best service possible. This policy outlines our terms regarding cancellations and refunds for our subscription plans.
       </p>
-      
+
       <h2 className="text-2xl font-semibold mb-4 mt-8">1. Subscription Cancellation</h2>
       <p className="mb-4">
         You can cancel your IdeaBoard AI subscription at any time. Upon cancellation, your subscription will remain active until the end of your current billing period. You will not be charged for the next billing cycle.

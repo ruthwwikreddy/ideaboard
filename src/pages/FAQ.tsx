@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import BackToHome from "@/components/BackToHome";
 
 const faqItems = [
   {
@@ -60,6 +61,7 @@ const FAQ = () => {
         <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <div className="container mx-auto px-6 py-12 max-w-3xl">
+        <BackToHome />
         <header className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tight">Frequently Asked Questions</h1>
           <p className="text-muted-foreground mt-2 text-lg">

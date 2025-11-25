@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Github, Linkedin, Twitter } from "lucide-react";
 import RuthwikAvatar from "@/assets/ruthwik.png";
+import BackToHome from "@/components/BackToHome";
 
 const teamMembers = [
   {
@@ -49,6 +50,7 @@ const AboutUs = () => {
         <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
       </Helmet>
       <div className="container mx-auto px-6 py-12 max-w-5xl">
+        <BackToHome />
         <header className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tight">Our Mission</h1>
           <p className="text-muted-foreground mt-4 text-lg max-w-3xl mx-auto">

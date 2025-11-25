@@ -19,12 +19,6 @@ import { CheckCircle } from "lucide-react";
 import { WhyIdeaBoard } from "@/components/WhyIdeaBoard";
 import { SocialProof } from "@/components/SocialProof";
 import { CTABanner } from "@/components/CTABanner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import Lovable from "@/assets/lovable.svg";
 import Bolt from "@/assets/bolt.svg";
 import V0 from "@/assets/v0.svg";
@@ -111,49 +105,62 @@ const CaseStudies = () => (
 );
 
 const Affiliates = () => (
-  <section className="bg-background py-12">
+  <section className="bg-gradient-to-b from-background to-secondary/20 py-20">
     <div className="container mx-auto px-6">
-      <div className="text-center mb-8">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-          Affiliated with
-        </h3>
+      <div className="text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          Trusted Platform Partners
+        </h2>
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          We're affiliated with the industry's leading AI development platforms to help you build faster and smarter
+        </p>
       </div>
-      <TooltipProvider>
-        <div className="flex justify-center items-center space-x-8 md:space-x-12">
-          <Tooltip>
-            <TooltipTrigger>
-              <img src={Lovable} alt="Lovable" className="h-6" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Lovable</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              <img src={Bolt} alt="Bolt" className="h-6" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Bolt</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              <img src={V0} alt="V0" className="h-6" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>V0</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              <img src={Replit} alt="Replit" className="h-6" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Replit</p>
-            </TooltipContent>
-          </Tooltip>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-5xl mx-auto">
+        <div className="group flex flex-col items-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img
+              src={Lovable}
+              alt="Lovable"
+              className="h-16 w-auto relative z-10 group-hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <p className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">Lovable</p>
         </div>
-      </TooltipProvider>
+        <div className="group flex flex-col items-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img
+              src={Bolt}
+              alt="Bolt"
+              className="h-16 w-auto relative z-10 group-hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <p className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">Bolt</p>
+        </div>
+        <div className="group flex flex-col items-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img
+              src={V0}
+              alt="V0"
+              className="h-16 w-auto relative z-10 group-hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <p className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">V0</p>
+        </div>
+        <div className="group flex flex-col items-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img
+              src={Replit}
+              alt="Replit"
+              className="h-16 w-auto relative z-10 group-hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <p className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">Replit</p>
+        </div>
+      </div>
     </div>
   </section>
 );
