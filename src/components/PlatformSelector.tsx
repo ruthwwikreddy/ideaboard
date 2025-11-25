@@ -1,29 +1,39 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ExternalLink, Loader2 } from "lucide-react";
+import Lovable from "@/assets/lovable.svg";
+import Bolt from "@/assets/bolt.svg";
+import V0 from "@/assets/v0.svg";
+import Replit from "@/assets/replit.svg";
 
 const platforms = [
   {
     name: "Lovable",
     description: "AI-powered React builder with instant deployment",
-          url: "https://lovable.dev/invite/E51RSFR",    color: "primary",
+    url: "https://lovable.dev/invite/E51RSFR",
+    color: "primary",
+    logo: Lovable,
   },
   {
     name: "Bolt",
     description: "Full-stack web development with AI assistance",
-          url: "https://bolt.new/?rid=z600g1",    color: "accent",
+    url: "https://bolt.new/?rid=z600g1",
+    color: "accent",
+    logo: Bolt,
   },
   {
     name: "Replit",
     description: "Collaborative browser-based IDE with AI",
     url: "https://replit.com/refer/akkenapallyredd",
     color: "neon-green",
+    logo: Replit,
   },
   {
     name: "v0",
     description: "AI-powered frontend components and UI generation",
     url: "https://v0.app/ref/38YXBK",
     color: "neon-purple",
+    logo: V0,
   },
 ];
 
@@ -45,12 +55,24 @@ export const PlatformSelector = ({ onSelect, loading, onBack }: PlatformSelector
         {platforms.map((platform) => (
           <Card
             key={platform.name}
-            className="p-6 bg-card border-border hover:border-primary/50 transition-all cursor-pointer group"
+            className="p-6 bg-card border-border hover:border-primary/50 transition-all cursor-pointer group hover:shadow-lg"
             onClick={() => !loading && onSelect(platform.name)}
           >
-            <div className="flex items-start justify-between mb-3">
-              <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">{platform.name}</h3>
-              <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <div className="flex items-center gap-4 mb-4">
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <img
+                  src={platform.logo}
+                  alt={platform.name}
+                  className="h-12 w-auto relative z-10 group-hover:scale-110 transition-transform duration-300"
+                />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between">
+                  <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">{platform.name}</h3>
+                  <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                </div>
+              </div>
             </div>
             <p className="text-muted-foreground mb-4">{platform.description}</p>
             {loading ? (
