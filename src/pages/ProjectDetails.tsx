@@ -27,6 +27,10 @@ import { Helmet } from "react-helmet-async";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import Lovable from "@/assets/lovable.svg";
+import Bolt from "@/assets/bolt.svg";
+import V0 from "@/assets/v0.svg";
+import Replit from "@/assets/replit.svg";
 
 interface Research {
   name: string;
@@ -61,10 +65,10 @@ interface Project {
 }
 
 const PLATFORMS = [
-  { id: "lovable", name: "Lovable", icon: "💜", description: "Full-stack web apps with AI" },
-  { id: "bolt", name: "Bolt", icon: "⚡", description: "Fast web development" },
-  { id: "v0", name: "V0", icon: "🎨", description: "UI components with AI" },
-  { id: "replit", name: "Replit", icon: "🔧", description: "Collaborative coding" },
+  { id: "lovable", name: "Lovable", icon: Lovable, description: "Full-stack web apps with AI" },
+  { id: "bolt", name: "Bolt", icon: Bolt, description: "Fast web development" },
+  { id: "v0", name: "V0", icon: V0, description: "UI components with AI" },
+  { id: "replit", name: "Replit", icon: Replit, description: "Collaborative coding" },
 ];
 
 const ProjectDetails = () => {
@@ -701,14 +705,23 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
                     <button
                       key={platform.id}
                       onClick={() => setSelectedPlatform(platform.id)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${selectedPlatform === platform.id
-                          ? "border-primary bg-primary/10 shadow-lg"
-                          : "border-border hover:border-primary/50 bg-card"
+                      className={`p-4 rounded-xl border-2 transition-all text-left group ${selectedPlatform === platform.id
+                        ? "border-primary bg-primary/10 shadow-lg"
+                        : "border-border hover:border-primary/50 bg-card hover:shadow-md"
                         }`}
                     >
-                      <div className="text-3xl mb-2">{platform.icon}</div>
-                      <div className="font-semibold mb-1">{platform.name}</div>
-                      <div className="text-xs text-muted-foreground">{platform.description}</div>
+                      <div className="flex items-center justify-center mb-3">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <img
+                            src={platform.icon}
+                            alt={platform.name}
+                            className="h-10 w-auto relative z-10 group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                      </div>
+                      <div className="font-semibold mb-1 text-center">{platform.name}</div>
+                      <div className="text-xs text-muted-foreground text-center">{platform.description}</div>
                     </button>
                   ))}
                 </div>
