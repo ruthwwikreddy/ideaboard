@@ -310,41 +310,72 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
   // Helper functions for rendering research data
   const renderAudience = (audience: string | any) => {
     if (typeof audience === 'string') {
-      return <p className="text-foreground/90 leading-relaxed">{audience}</p>;
+      return <p className="text-foreground/70 leading-relaxed">{audience}</p>;
     }
 
+    // Try to render structured data
+    const hasDemographics = audience.demographics && (
+      audience.demographics.age || 
+      audience.demographics.gender || 
+      audience.demographics.location ||
+      audience.demographics.income ||
+      audience.demographics['education level'] ||
+      audience.demographics.occupation
+    );
+
     return (
-      <div className="space-y-4">
-        {audience.demographics && (
-          <div className="p-4 rounded-lg bg-secondary/30 border border-border/50">
-            <h4 className="font-semibold text-sm mb-2 text-primary">Demographics</h4>
-            <ul className="space-y-2 text-foreground/90 text-sm">
+      <div className="space-y-3">
+        {hasDemographics && (
+          <div className="p-4 rounded-lg bg-muted/30 border border-border/30">
+            <h4 className="font-semibold text-sm mb-3 text-foreground/90">Demographics</h4>
+            <ul className="space-y-2 text-foreground/70 text-sm">
               {audience.demographics.age && (
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span><span className="font-medium">Age:</span> {audience.demographics.age}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-2 flex-shrink-0"></span>
+                  <span><span className="font-medium text-foreground/90">Age:</span> {audience.demographics.age}</span>
                 </li>
               )}
               {audience.demographics.gender && (
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span><span className="font-medium">Gender:</span> {audience.demographics.gender}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-2 flex-shrink-0"></span>
+                  <span><span className="font-medium text-foreground/90">Gender:</span> {audience.demographics.gender}</span>
                 </li>
               )}
               {audience.demographics.location && (
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span><span className="font-medium">Location:</span> {audience.demographics.location}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-2 flex-shrink-0"></span>
+                  <span><span className="font-medium text-foreground/90">Location:</span> {audience.demographics.location}</span>
+                </li>
+              )}
+              {audience.demographics.income && (
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-2 flex-shrink-0"></span>
+                  <span><span className="font-medium text-foreground/90">Income:</span> {audience.demographics.income}</span>
+                </li>
+              )}
+              {audience.demographics['education level'] && (
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-2 flex-shrink-0"></span>
+                  <span><span className="font-medium text-foreground/90">Education:</span> {audience.demographics['education level']}</span>
+                </li>
+              )}
+              {audience.demographics.occupation && (
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-2 flex-shrink-0"></span>
+                  <span><span className="font-medium text-foreground/90">Occupation:</span> {audience.demographics.occupation}</span>
                 </li>
               )}
             </ul>
           </div>
         )}
         {audience['specific pain points'] && (
-          <div className="p-4 rounded-lg bg-secondary/30 border border-border/50">
-            <h4 className="font-semibold text-sm mb-2 text-primary">Pain Points</h4>
-            <p className="text-foreground/90 text-sm leading-relaxed">{audience['specific pain points']}</p>
+          <div className="p-4 rounded-lg bg-muted/30 border border-border/30">
+            <h4 className="font-semibold text-sm mb-2 text-foreground/90">Pain Points</h4>
+            <p className="text-foreground/70 text-sm leading-relaxed">{audience['specific pain points']}</p>
           </div>
+        )}
+        {!hasDemographics && !audience['specific pain points'] && (
+          <p className="text-foreground/70 leading-relaxed">{JSON.stringify(audience, null, 2)}</p>
         )}
       </div>
     );
