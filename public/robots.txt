@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.ideaboard.ai/sitemap.xml
+Sitemap: https://ideaboard.live/sitemap.xml

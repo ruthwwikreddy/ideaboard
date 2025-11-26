@@ -13,7 +13,7 @@ const routes = [
 ];
 
 const generateSitemap = () => {
-  const baseUrl = "https://www.ideaboard.ai";
+  const baseUrl = "https://ideaboard.live";
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${routes
