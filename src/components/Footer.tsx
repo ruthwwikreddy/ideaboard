@@ -9,7 +9,7 @@ export const Footer = () => {
           <div className="md:col-span-1">
             <div className="flex items-center gap-3">
               <Wand className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold tracking-tight">IdeaBoard</h1>
+              <span className="text-2xl font-bold tracking-tight">IdeaBoard</span>
             </div>
             <p className="text-muted-foreground mt-4">
               From concept to code, instantly.
