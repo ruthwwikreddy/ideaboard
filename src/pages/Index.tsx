@@ -294,22 +294,24 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>IdeaBoard - AI-Powered Idea Validation & Build Planning | Turn Ideas into Reality</title>
-        <meta name="description" content="Transform your app idea into a comprehensive build plan in minutes. IdeaBoard provides instant market research, competitor analysis, demand scoring, and platform-specific prompts for Lovable, Bolt, V0, and Replit." />
-        <meta name="keywords" content="ai business plan generator, startup idea validation, market research automation, competitor analysis tool, app development plan, MVP builder, build plan generator, AI-powered market research, startup validation tool, idea to app, lovable ai, bolt ai, v0 ai, replit ai" />
-        <link rel="canonical" href="https://www.ideaboard.ai/" />
+        <title>IdeaBoard - AI Idea Validation & Build Planning</title>
+        <meta name="description" content="Transform your app idea into a build plan in minutes. Get AI-powered market research, competitor analysis, and platform-specific development plans." />
+        <meta name="keywords" content="ai business plan generator, startup idea validation, market research automation, competitor analysis tool, app development plan, MVP builder, build plan generator" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://ideaboard.live/" />
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.ideaboard.ai/" />
-        <meta property="og:title" content="IdeaBoard - AI-Powered Idea Validation & Build Planning" />
-        <meta property="og:description" content="Get instant market research, competitor analysis & platform-specific build plans. Transform your idea into reality with AI-powered insights." />
-        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        <meta property="og:url" content="https://ideaboard.live/" />
+        <meta property="og:title" content="IdeaBoard - AI Idea Validation & Build Plans" />
+        <meta property="og:description" content="Get AI-powered market research, competitor analysis & platform-specific build plans in minutes. Save 40+ hours of validation." />
+        <meta property="og:image" content="https://ideaboard.live/logo.png" />
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://www.ideaboard.ai/" />
-        <meta property="twitter:title" content="IdeaBoard - AI-Powered Idea Validation & Build Planning" />
-        <meta property="twitter:description" content="Get instant market research, competitor analysis & platform-specific build plans. Transform your idea into reality with AI-powered insights." />
-        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
+        <meta property="twitter:url" content="https://ideaboard.live/" />
+        <meta property="twitter:title" content="IdeaBoard - AI Idea Validation & Build Plans" />
+        <meta property="twitter:description" content="AI-powered market research, competitor analysis, and build plans - all in minutes. Stop wasting weeks on validation." />
+        <meta property="twitter:image" content="https://ideaboard.live/logo.png" />
+        <meta name="twitter:site" content="@ideaboard_ai" />
         <script type="application/ld+json">
           {`
             {
@@ -317,7 +319,7 @@ const Index = () => {
               "@type": "SoftwareApplication",
               "name": "IdeaBoard",
               "applicationCategory": "BusinessApplication",
-              "url": "https://www.ideaboard.ai",
+              "url": "https://ideaboard.live",
               "description": "AI-powered platform for validating app ideas and generating comprehensive build plans with market research and competitor analysis.",
               "offers": {
                 "@type": "Offer",
@@ -332,7 +334,7 @@ const Index = () => {
               "publisher": {
                 "@type": "Organization",
                 "name": "IdeaBoard",
-                "logo": "https://www.ideaboard.ai/logo.png",
+                "logo": "https://ideaboard.live/logo.png",
                 "contactPoint": {
                   "@type": "ContactPoint",
                   "email": "akkenapally.reddy@gmail.com",
@@ -484,7 +486,7 @@ const Index = () => {
                     <img src="/logo.png" alt="IdeaBoard Logo" className="w-10 h-10" />
                     <div className="absolute inset-0 blur-lg bg-primary/30"></div>
                   </div>
-                  <h1 className="text-3xl font-bold tracking-tight">IdeaBoard</h1>
+                  <span className="text-3xl font-bold tracking-tight">IdeaBoard</span>
                 </div>
                 <p className="text-muted-foreground mt-2">From concept to code, instantly.</p>
               </div>
