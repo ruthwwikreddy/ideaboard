@@ -176,11 +176,22 @@ const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      // If user just signed in and has saved idea, restore it
+      if (session?.user) {
+        const savedIdea = localStorage.getItem('pendingIdea');
+        if (savedIdea) {
+          setIdea(savedIdea);
+          localStorage.removeItem('pendingIdea');
+          toast.success("Welcome back! Your idea has been restored.");
+        }
+      }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -190,6 +201,46 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Check authentication when user tries to interact with textarea
+  const handleTextareaFocus = () => {
+    if (!user) {
+      setShowAuthPrompt(true);
+      // Save any existing input
+      if (idea.trim()) {
+        localStorage.setItem('pendingIdea', idea);
+      }
+      toast.info("Please sign in to use IdeaBoard", {
+        action: {
+          label: "Sign In",
+          onClick: () => navigate("/auth")
+        },
+        duration: 5000
+      });
+    }
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (!user) {
+      // Save to localStorage in case they sign in later
+      localStorage.setItem('pendingIdea', e.target.value);
+      setIdea(e.target.value);
+
+      // Show auth prompt after a few characters
+      if (e.target.value.length > 10 && !showAuthPrompt) {
+        setShowAuthPrompt(true);
+        toast.info("Sign in to analyze your idea", {
+          action: {
+            label: "Sign In",
+            onClick: () => navigate("/auth")
+          },
+          duration: 5000
+        });
+      }
+    } else {
+      setIdea(e.target.value);
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!idea.trim()) {
@@ -526,10 +577,37 @@ const Index = () => {
                 </p>
               </div>
 
+              {!user && (
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 flex items-start gap-3">
+                  <LogIn className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-primary mb-1">Sign in required</p>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Please sign in or create an account to analyze your idea and generate a build plan.
+                    </p>
+                    <Button
+                      onClick={() => {
+                        // Save current idea if any
+                        if (idea.trim()) {
+                          localStorage.setItem('pendingIdea', idea);
+                        }
+                        navigate("/auth");
+                      }}
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Sign In / Sign Up
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <Textarea
                 placeholder="Example: A mobile app that helps freelancers track time and generate invoices automatically..."
                 value={idea}
-                onChange={(e) => setIdea(e.target.value)}
+                onChange={handleTextareaChange}
+                onFocus={handleTextareaFocus}
                 className="min-h-[200px] text-lg bg-secondary border-border focus:border-primary transition-colors resize-none"
               />
 
