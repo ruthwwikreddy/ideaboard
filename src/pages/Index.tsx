@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,22 +7,24 @@ import { Wand, Loader2, ArrowRight, LogIn } from "lucide-react";
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
-import { HowItWorks } from "@/components/HowItWorks";
-import { Features } from "@/components/Features";
-import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
-import { Testimonials } from "@/components/Testimonials";
 import { CheckCircle } from "lucide-react";
-import { WhyIdeaBoard } from "@/components/WhyIdeaBoard";
-import { SocialProof } from "@/components/SocialProof";
-import { CTABanner } from "@/components/CTABanner";
 import Lovable from "@/assets/lovable.svg";
 import Bolt from "@/assets/bolt.svg";
 import V0 from "@/assets/v0.svg";
 import Replit from "@/assets/replit.svg";
+
+// Lazy load heavy marketing components to improve INP
+const HowItWorks = lazy(() => import("@/components/HowItWorks").then(m => ({ default: m.HowItWorks })));
+const Features = lazy(() => import("@/components/Features").then(m => ({ default: m.Features })));
+const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
+const Testimonials = lazy(() => import("@/components/Testimonials").then(m => ({ default: m.Testimonials })));
+const WhyIdeaBoard = lazy(() => import("@/components/WhyIdeaBoard").then(m => ({ default: m.WhyIdeaBoard })));
+const SocialProof = lazy(() => import("@/components/SocialProof").then(m => ({ default: m.SocialProof })));
+const CTABanner = lazy(() => import("@/components/CTABanner").then(m => ({ default: m.CTABanner })));
 
 interface Research {
   problem: string;
@@ -69,9 +71,9 @@ const caseStudies = [
       "Secured seed funding with a solid business and development plan.",
     ],
   },
-];
+] as const;
 
-const CaseStudies = () => (
+const CaseStudies = React.memo(() => (
   <section className="py-20">
     <div className="container mx-auto px-6">
       <div className="text-center mb-12">
@@ -102,10 +104,11 @@ const CaseStudies = () => (
       </div>
     </div>
   </section>
-);
+));
+CaseStudies.displayName = 'CaseStudies';
 
-const Affiliates = () => (
-  <section className="bg-gradient-to-b from-background to-secondary/20 py-20">
+const Affiliates = React.memo(() => (
+  <section className="bg-black py-20">
     <div className="container mx-auto px-6">
       <div className="text-center mb-16">
         <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -163,7 +166,8 @@ const Affiliates = () => (
       </div>
     </div>
   </section>
-);
+));
+Affiliates.displayName = 'Affiliates';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -194,10 +198,13 @@ const Index = () => {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
+    // Defer session check to not block initial render
+    setTimeout(() => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      });
+    }, 0);
 
     return () => subscription.unsubscribe();
   }, []);
@@ -648,7 +655,7 @@ const Index = () => {
       {/* Additional sections */}
       {
         stage === "input" && (
-          <>
+          <Suspense fallback={<div className="min-h-[200px]" />}>
             <SocialProof />
             <WhyIdeaBoard />
             <HowItWorks />
@@ -656,11 +663,13 @@ const Index = () => {
             <CaseStudies />
             <Testimonials />
             <CTABanner />
-          </>
+          </Suspense>
         )
       }
 
-      <Footer />
+      <Suspense fallback={<div className="min-h-[100px]" />}>
+        <Footer />
+      </Suspense>
     </div >
   );
 };

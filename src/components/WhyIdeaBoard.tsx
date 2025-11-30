@@ -36,7 +36,7 @@ const benefits = [
 
 export const WhyIdeaBoard = () => {
     return (
-        <section className="py-20 bg-secondary/30">
+        <section className="py-20 bg-black">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-12">
                     <h2 className="text-4xl font-bold mb-4">Why Choose IdeaBoard?</h2>
