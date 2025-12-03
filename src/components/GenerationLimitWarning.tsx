@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -86,16 +87,24 @@ export const GenerationLimitWarning: React.FC = () => {
     <Alert variant={getWarningLevel()} className="mb-4">
       <AlertCircle className="h-4 w-4" />
       <AlertTitle>Generation Limit Warning</AlertTitle>
-      <AlertDescription className="flex items-center justify-between">
-        <span>{getWarningMessage()}</span>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => navigate("/pricing")}
-          className="ml-4"
-        >
-          Upgrade Plan
-        </Button>
+      <AlertDescription className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span>{getWarningMessage()}</span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigate("/pricing")}
+            className="ml-4"
+          >
+            Upgrade Plan
+          </Button>
+        </div>
+        <div className="space-y-1">
+          <Progress value={Math.min(percentage, 100)} className="h-2" />
+          <p className="text-xs text-muted-foreground text-right">
+            {usage} / {limit} generations used
+          </p>
+        </div>
       </AlertDescription>
     </Alert>
   );

@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
+import { GenerationLimitWarning } from "@/components/GenerationLimitWarning";
 
 interface Research {
   name: string;
@@ -253,6 +254,9 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-6 py-8 max-w-7xl">
+        {/* Generation Limit Warning */}
+        <GenerationLimitWarning />
+
         {/* Hero Section */}
         <div className="mb-12">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
