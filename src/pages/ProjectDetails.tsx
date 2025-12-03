@@ -33,11 +33,11 @@ import V0 from "@/assets/v0.svg";
 import Replit from "@/assets/replit.svg";
 
 interface Research {
-  name: string;
+  name?: string;
   problem: string;
   audience: string | any;
-  competitors: Array<string | any>;
-  marketGaps: string[];
+  competitors?: Array<string | any>;
+  marketGaps?: string[];
   monetization: Array<string | any>;
   demandProbability: number;
 }
@@ -202,19 +202,23 @@ const ProjectDetails = () => {
           </div>
         </div>
 
+        ${(project?.research?.marketGaps && project.research.marketGaps.length > 0) ? `
         <div style="margin-bottom: 25px;">
           <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Market Gaps</h2>
           <ul style="font-size: 14px; line-height: 1.5; padding-left: 20px;">
-            ${project?.research?.marketGaps.map(gap => `<li>${gap}</li>`).join('')}
+            ${project.research.marketGaps.map(gap => `<li>${gap}</li>`).join('')}
           </ul>
         </div>
+        ` : ''}
 
+        ${(project?.research?.competitors && project.research.competitors.length > 0) ? `
         <div style="margin-bottom: 25px;">
           <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Competitors</h2>
           <ul style="font-size: 14px; line-height: 1.5; padding-left: 20px;">
-            ${project?.research?.competitors.map(comp => `<li>${typeof comp === 'string' ? comp : comp.name}</li>`).join('')}
+            ${project.research.competitors.map(comp => `<li>${typeof comp === 'string' ? comp : comp.name}</li>`).join('')}
           </ul>
         </div>
+        ` : ''}
 
         <div style="margin-bottom: 25px;">
           <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">Monetization</h2>
@@ -275,11 +279,11 @@ ${problem}
 ## Target Audience
 ${typeof audience === 'string' ? audience : JSON.stringify(audience, null, 2)}
 
-## Market Gaps
-${marketGaps.map(gap => `- ${gap}`).join('\n')}
+${marketGaps && marketGaps.length > 0 ? `## Market Gaps
+${marketGaps.map(gap => `- ${gap}`).join('\n')}` : ''}
 
-## Competitors
-${competitors.map(comp => `- ${typeof comp === 'string' ? comp : comp.name}`).join('\n')}
+${competitors && competitors.length > 0 ? `## Competitors
+${competitors.map(comp => `- ${typeof comp === 'string' ? comp : comp.name}`).join('\n')}` : ''}
 
 ## Monetization
 ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).join('\n')}
@@ -652,46 +656,50 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
               </Card>
 
               {/* Market Opportunities */}
-              <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <TrendingUp className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-4">Market Opportunities</h3>
-                      <ul className="space-y-3">
-                        {project.research.marketGaps.map((gap, index) => (
-                          <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30 border border-border/50 hover:border-primary/30 transition-colors">
-                            <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                            <span className="text-foreground/90 leading-relaxed">{gap}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Competitors and Monetization */}
-              <div className="grid md:grid-cols-2 gap-6">
+              {project.research.marketGaps && project.research.marketGaps.length > 0 && (
                 <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="relative p-6">
-                    <div className="flex items-start gap-4 mb-4">
+                    <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                        <BarChart className="w-6 h-6 text-primary" />
+                        <TrendingUp className="w-6 h-6 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold">Competitors</h3>
+                        <h3 className="text-xl font-semibold mb-4">Market Opportunities</h3>
+                        <ul className="space-y-3">
+                          {project.research.marketGaps.map((gap, index) => (
+                            <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30 border border-border/50 hover:border-primary/30 transition-colors">
+                              <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                              <span className="text-foreground/90 leading-relaxed">{gap}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    </div>
-                    <div className="space-y-3">
-                      {project.research.competitors.map((competitor, index) => renderCompetitor(competitor, index))}
                     </div>
                   </div>
                 </Card>
+              )}
+
+              {/* Competitors and Monetization */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {project.research.competitors && project.research.competitors.length > 0 && (
+                  <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative p-6">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <BarChart className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold">Competitors</h3>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {project.research.competitors.map((competitor, index) => renderCompetitor(competitor, index))}
+                      </div>
+                    </div>
+                  </Card>
+                )}
 
                 <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
