@@ -17,9 +17,11 @@ import Bolt from "@/assets/bolt.svg";
 import V0 from "@/assets/v0.svg";
 import Replit from "@/assets/replit.svg";
 
+import { FloatingNavBar } from "@/components/FloatingNavBar";
+
 // Lazy load heavy marketing components to improve INP
 const HowItWorks = lazy(() => import("@/components/HowItWorks").then(m => ({ default: m.HowItWorks })));
-const Features = lazy(() => import("@/components/Features").then(m => ({ default: m.Features })));
+const FeaturesSection = lazy(() => import("@/components/Features").then(m => ({ default: m.Features })));
 const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
 const Testimonials = lazy(() => import("@/components/Testimonials").then(m => ({ default: m.Testimonials })));
 const WhyIdeaBoard = lazy(() => import("@/components/WhyIdeaBoard").then(m => ({ default: m.WhyIdeaBoard })));
@@ -351,6 +353,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <FloatingNavBar />
       <Helmet>
         <title>IdeaBoard - AI Idea Validation & Build Planning</title>
         <meta name="description" content="Transform your app idea into a build plan in minutes. Get AI-powered market research, competitor analysis, and platform-specific development plans." />
@@ -659,7 +662,7 @@ const Index = () => {
             <SocialProof />
             <WhyIdeaBoard />
             <HowItWorks />
-            <Features />
+            <FeaturesSection />
             <CaseStudies />
             <Testimonials />
             <CTABanner />
