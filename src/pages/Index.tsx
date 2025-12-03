@@ -17,7 +17,7 @@ import Bolt from "@/assets/bolt.svg";
 import V0 from "@/assets/v0.svg";
 import Replit from "@/assets/replit.svg";
 
-import { FloatingNavBar } from "@/components/FloatingNavBar";
+
 
 // Lazy load heavy marketing components to improve INP
 const HowItWorks = lazy(() => import("@/components/HowItWorks").then(m => ({ default: m.HowItWorks })));
@@ -353,7 +353,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <FloatingNavBar />
       <Helmet>
         <title>IdeaBoard - AI Idea Validation & Build Planning</title>
         <meta name="description" content="Transform your app idea into a build plan in minutes. Get AI-powered market research, competitor analysis, and platform-specific development plans." />
