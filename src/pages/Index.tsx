@@ -27,6 +27,7 @@ const Testimonials = lazy(() => import("@/components/Testimonials").then(m => ({
 const WhyIdeaBoard = lazy(() => import("@/components/WhyIdeaBoard").then(m => ({ default: m.WhyIdeaBoard })));
 const SocialProof = lazy(() => import("@/components/SocialProof").then(m => ({ default: m.SocialProof })));
 const CTABanner = lazy(() => import("@/components/CTABanner").then(m => ({ default: m.CTABanner })));
+const PricingSection = lazy(() => import("@/components/PricingSection").then(m => ({ default: m.PricingSection })));
 
 interface Research {
   problem: string;
@@ -662,6 +663,7 @@ const Index = () => {
             <WhyIdeaBoard />
             <HowItWorks />
             <FeaturesSection />
+            <PricingSection />
             <CaseStudies />
             <Testimonials />
             <CTABanner />
