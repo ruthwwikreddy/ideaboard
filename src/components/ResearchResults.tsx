@@ -19,8 +19,8 @@ interface ResearchResultsProps {
   research: {
     problem: string;
     audience: string | any;
-    competitors: Array<string | any>;
-    marketGaps: string[];
+    competitors?: Array<string | any>;
+    marketGaps?: string[];
     monetization: Array<string | any>;
     demandProbability: number;
   };
@@ -303,51 +303,55 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
         </Card>
 
         {/* Market Gaps */}
-        <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="relative p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-4">Market Opportunities</h3>
-                <ul className="space-y-3">
-                  {research.marketGaps.map((gap, index) => (
-                    <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30 border border-border/50 hover:border-primary/30 transition-colors">
-                      <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground/90 leading-relaxed">{gap}</span>
-                    </li>
-                  ))}
-                </ul>
+        {research.marketGaps && research.marketGaps.length > 0 && (
+          <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold mb-4">Market Opportunities</h3>
+                  <ul className="space-y-3">
+                    {research.marketGaps.map((gap, index) => (
+                      <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30 border border-border/50 hover:border-primary/30 transition-colors">
+                        <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span className="text-foreground/90 leading-relaxed">{gap}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         {/* Competitors and Monetization */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Competitors */}
-          <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                  <BarChart className="w-6 h-6 text-primary" />
+          {research.competitors && research.competitors.length > 0 && (
+            <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative p-6">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <BarChart className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold">Competitors</h3>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">Competitors</h3>
-                </div>
+                <ul className="space-y-3">
+                  {research.competitors.map((competitor, index) => (
+                    <li key={index}>
+                      {renderCompetitor(competitor)}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-3">
-                {research.competitors.map((competitor, index) => (
-                  <li key={index}>
-                    {renderCompetitor(competitor)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Card>
+            </Card>
+          )}
 
           {/* Monetization */}
           <Card className="relative overflow-hidden border-border hover:shadow-lg transition-all group">
