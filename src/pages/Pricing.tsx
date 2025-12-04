@@ -10,8 +10,8 @@ import { Helmet } from "react-helmet-async";
 
 const PLAN_DETAILS = {
   "free": { name: "Free", price: "₹0", generations: 1, features: ["1 Free Generation", "Basic Analytics"] },
-  "basic": { name: "Basic Pack", price: "₹50", generations: 5, features: ["5 AI Generations", "Standard Analytics", "Email Support"] },
-  "premium": { name: "Premium Pack", price: "₹75", generations: 10, features: ["10 AI Generations", "Advanced Analytics", "Priority Support"] },
+  "basic": { name: "Basic Pack", price: "₹1", generations: 5, features: ["5 AI Generations", "Standard Analytics", "Email Support"] },
+  "premium": { name: "Premium Pack", price: "₹1", generations: 10, features: ["10 AI Generations", "Advanced Analytics", "Priority Support"] },
 };
 
 type PlanId = "free" | "basic" | "premium";
