@@ -13,13 +13,13 @@ interface OrderRequest {
 // Credit packs (INR pricing)
 const CREDIT_PACKS = {
   basic: {
-    amount: 5000, // ₹50 in paise
+    amount: 1000, // ₹10 in paise
     credits: 5,
     name: 'Basic Pack',
     description: '5 AI Generations',
   },
   premium: {
-    amount: 7500, // ₹75 in paise
+    amount: 1500, // ₹15 in paise
     credits: 10,
     name: 'Premium Pack',
     description: '10 AI Generations',
