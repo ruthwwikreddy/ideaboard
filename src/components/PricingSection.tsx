@@ -16,7 +16,7 @@ const PLANS = [
   {
     id: "basic",
     name: "Basic Pack",
-    price: "₹1",
+    price: "₹50",
     description: "One-time purchase",
     features: ["5 AI Generations", "Standard Analytics", "Email Support", "Export to PDF"],
     popular: false,
@@ -24,7 +24,7 @@ const PLANS = [
   {
     id: "premium",
     name: "Premium Pack",
-    price: "₹1",
+    price: "₹75",
     description: "Best value",
     features: ["10 AI Generations", "Advanced Analytics", "Priority Support", "Export to PDF", "Compare Projects"],
     popular: true,
