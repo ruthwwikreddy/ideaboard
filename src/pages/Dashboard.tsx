@@ -18,8 +18,12 @@ import {
   Sparkles,
   ChevronRight,
   Calendar,
-  Target
+  Target,
+  CreditCard,
+  Receipt,
+  IndianRupee
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
@@ -43,11 +47,22 @@ interface Project {
   research: Research | null;
 }
 
+interface PaymentHistory {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_method: string | null;
+  razorpay_payment_id: string;
+  created_at: string;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
 
@@ -70,9 +85,10 @@ const Dashboard = () => {
       if (!session) {
         navigate("/auth");
       } else {
-        // Defer project fetching
+        // Defer data fetching
         setTimeout(() => {
           fetchProjects();
+          fetchPaymentHistory();
         }, 0);
       }
     });
@@ -97,6 +113,21 @@ const Dashboard = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPaymentHistory = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("payment_history")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setPaymentHistory((data as unknown as PaymentHistory[]) || []);
+    } catch (error: unknown) {
+      console.error("Failed to load payment history:", error);
     }
   };
 
@@ -389,6 +420,62 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Payment History Section */}
+        {paymentHistory.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Receipt className="w-6 h-6 text-primary" />
+                Payment History
+              </h2>
+            </div>
+            <Card className="border-border">
+              <CardContent className="p-0">
+                <div className="divide-y divide-border">
+                  {paymentHistory.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <CreditCard className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="font-medium flex items-center gap-2">
+                            <IndianRupee className="w-4 h-4" />
+                            {(payment.amount / 100).toFixed(0)}
+                            <Badge
+                              variant={payment.status === "captured" ? "default" : payment.status === "failed" ? "destructive" : "secondary"}
+                              className="text-xs"
+                            >
+                              {payment.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(payment.created_at).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground font-mono">
+                          {payment.razorpay_payment_id.slice(0, 20)}...
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {projects.length === 0 ? (
           <Card className="relative overflow-hidden border-border">
