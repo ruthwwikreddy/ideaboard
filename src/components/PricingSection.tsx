@@ -9,6 +9,7 @@ const PLANS = [
     id: "free",
     name: "Free",
     price: "₹0",
+    originalPrice: null,
     description: "Get started",
     features: ["1 Free Generation", "Basic Analytics", "Community Support"],
     popular: false,
@@ -17,6 +18,7 @@ const PLANS = [
     id: "basic",
     name: "Basic Pack",
     price: "₹10",
+    originalPrice: "₹75",
     description: "One-time purchase",
     features: ["5 AI Generations", "Standard Analytics", "Email Support", "Export to PDF"],
     popular: false,
@@ -25,6 +27,7 @@ const PLANS = [
     id: "premium",
     name: "Premium Pack",
     price: "₹15",
+    originalPrice: "₹100",
     description: "Best value",
     features: ["10 AI Generations", "Advanced Analytics", "Priority Support", "Export to PDF", "Compare Projects"],
     popular: true,
@@ -64,7 +67,10 @@ export const PricingSection: React.FC = React.memo(() => {
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-xl">{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
+              <div className="mt-4">
+                  {plan.originalPrice && (
+                    <span className="text-lg text-muted-foreground line-through mr-2">{plan.originalPrice}</span>
+                  )}
                   <span className="text-4xl font-bold">{plan.price}</span>
                   {plan.id !== "free" && (
                     <span className="text-muted-foreground text-sm ml-1">one-time</span>

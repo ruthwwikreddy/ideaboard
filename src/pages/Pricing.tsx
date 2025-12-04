@@ -9,9 +9,9 @@ import type { Session, User } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
 
 const PLAN_DETAILS = {
-  "free": { name: "Free", price: "₹0", generations: 1, features: ["1 Free Generation", "Basic Analytics"] },
-  "basic": { name: "Basic Pack", price: "₹10", generations: 5, features: ["5 AI Generations", "Standard Analytics", "Email Support"] },
-  "premium": { name: "Premium Pack", price: "₹15", generations: 10, features: ["10 AI Generations", "Advanced Analytics", "Priority Support"] },
+  "free": { name: "Free", price: "₹0", originalPrice: null, generations: 1, features: ["1 Free Generation", "Basic Analytics"] },
+  "basic": { name: "Basic Pack", price: "₹10", originalPrice: "₹75", generations: 5, features: ["5 AI Generations", "Standard Analytics", "Email Support"] },
+  "premium": { name: "Premium Pack", price: "₹15", originalPrice: "₹100", generations: 10, features: ["10 AI Generations", "Advanced Analytics", "Priority Support"] },
 };
 
 type PlanId = "free" | "basic" | "premium";
@@ -232,7 +232,12 @@ const Pricing = () => {
             <Card key={planId} className={`flex flex-col ${currentPlanId === planId ? "border-primary ring-2 ring-primary" : ""}`}>
               <CardHeader>
                 <CardTitle className="capitalize">{PLAN_DETAILS[planId].name}</CardTitle>
-                <CardDescription>{PLAN_DETAILS[planId].price} {planId !== 'free' && '(one-time)'}</CardDescription>
+                <CardDescription>
+                  {PLAN_DETAILS[planId].originalPrice && (
+                    <span className="line-through text-muted-foreground mr-2">{PLAN_DETAILS[planId].originalPrice}</span>
+                  )}
+                  {PLAN_DETAILS[planId].price} {planId !== 'free' && '(one-time)'}
+                </CardDescription>
               </CardHeader>
               <CardContent className="flex-grow">
                 <ul className="space-y-2 text-muted-foreground">
