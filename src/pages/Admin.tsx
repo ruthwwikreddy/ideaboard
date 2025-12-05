@@ -18,7 +18,7 @@ interface UserData {
   status: string;
 }
 
-const ADMIN_EMAILS = ["anupthedesigner@gmail.com", "akkenapally.reddy@gmail.com"];
+const ADMIN_EMAILS = ["anupthedesigner@gmail.com", "akkenapally.reddy@gmail.com", "admin@ideaboard.live"];
 
 const Admin = () => {
   const navigate = useNavigate();
