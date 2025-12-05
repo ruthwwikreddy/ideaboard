@@ -20,6 +20,7 @@ import NewProject from "./pages/NewProject";
 import AboutUs from "./pages/AboutUs";
 import FAQ from "./pages/FAQ";
 import Features from "./pages/Features";
+import Admin from "./pages/Admin";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/features" element={<Features />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

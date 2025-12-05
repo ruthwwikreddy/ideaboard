@@ -134,22 +134,33 @@ Deno.serve(async (req) => {
         const periodEnd = new Date(now);
         periodEnd.setDate(periodEnd.getDate() + 365); // 1 year validity
 
-        // First, try to update existing subscription
-        const { error: updateError } = await supabaseClient
+        // First, check if subscription exists
+        const { data: existingSub } = await supabaseClient
           .from('subscriptions')
-          .update({
-            plan_id: planId,
-            status: 'active',
-            razorpay_payment_id: payment.id,
-            payment_method: 'razorpay',
-            current_period_start: now.toISOString(),
-            current_period_end: periodEnd.toISOString(),
-            updated_at: now.toISOString(),
-          })
-          .eq('user_id', userId);
+          .select('id')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-        // If no rows updated, insert new subscription
-        if (updateError?.code === 'PGRST116') {
+        if (existingSub) {
+          // Update existing subscription
+          const { error: updateError } = await supabaseClient
+            .from('subscriptions')
+            .update({
+              plan_id: planId,
+              status: 'active',
+              razorpay_payment_id: payment.id,
+              payment_method: 'razorpay',
+              current_period_start: now.toISOString(),
+              current_period_end: periodEnd.toISOString(),
+              updated_at: now.toISOString(),
+            })
+            .eq('user_id', userId);
+
+          if (updateError) {
+            console.error('Error updating subscription:', updateError);
+          }
+        } else {
+          // Insert new subscription
           const { error: insertError } = await supabaseClient
             .from('subscriptions')
             .insert({
@@ -165,8 +176,6 @@ Deno.serve(async (req) => {
           if (insertError) {
             console.error('Error creating subscription:', insertError);
           }
-        } else if (updateError) {
-          console.error('Error updating subscription:', updateError);
         }
 
         console.log(`Credits purchased successfully for user ${userId}: ${credits} credits`);
