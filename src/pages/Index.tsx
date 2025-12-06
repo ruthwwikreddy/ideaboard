@@ -494,7 +494,7 @@ const Index = () => {
                               <div className="text-sm text-white">Tailwind</div>
                             </div>
                           </div>
-                          <button 
+                          <button
                             onClick={() => navigate("/auth")}
                             className="mt-6 w-full py-2 rounded bg-white text-black text-xs font-semibold hover:bg-gray-200 transition-colors"
                           >
@@ -671,7 +671,7 @@ const Index = () => {
 
                   {/* Step 1 */}
                   <div className="relative flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center mb-16 group">
-                    <div className="md:w-1/2 md:pr-12 text-left md:text-right">
+                    <div className="md:w-1/2 md:pr-12 pl-12 md:pl-0 text-left md:text-right">
                       <h3 className="text-xl font-medium text-white mb-2 group-hover:text-indigo-400 transition-colors">1. Describe Idea</h3>
                       <p className="text-sm text-[#888888]">Input a simple sentence about your concept. No complex forms.</p>
                     </div>
@@ -691,7 +691,7 @@ const Index = () => {
 
                   {/* Step 3 */}
                   <div className="relative flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center mb-16 group">
-                    <div className="md:w-1/2 md:pr-12 text-left md:text-right">
+                    <div className="md:w-1/2 md:pr-12 pl-12 md:pl-0 text-left md:text-right">
                       <h3 className="text-xl font-medium text-white mb-2 group-hover:text-indigo-400 transition-colors">3. Blueprint Generation</h3>
                       <p className="text-sm text-[#888888]">Receive a step-by-step tech spec tailored to your preferred stack.</p>
                     </div>
