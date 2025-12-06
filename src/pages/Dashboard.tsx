@@ -21,7 +21,8 @@ import {
   Target,
   CreditCard,
   Receipt,
-  IndianRupee
+  IndianRupee,
+  Shield
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -65,6 +66,7 @@ const Dashboard = () => {
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Set up auth listener first
@@ -89,12 +91,30 @@ const Dashboard = () => {
         setTimeout(() => {
           fetchProjects();
           fetchPaymentHistory();
+          checkAdminRole(session.user.id);
         }, 0);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!error && data) {
+        setIsAdmin(true);
+      }
+    } catch (error) {
+      console.error("Error checking admin role:", error);
+    }
+  };
 
   const fetchProjects = async () => {
     try {
@@ -228,6 +248,17 @@ const Dashboard = () => {
               </div>
 
               <nav className="hidden md:flex items-center gap-1">
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                    onClick={() => navigate("/admin")}
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    Admin
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
