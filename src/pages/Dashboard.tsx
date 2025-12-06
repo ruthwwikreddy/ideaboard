@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Plus,
   LogOut,
@@ -22,13 +23,29 @@ import {
   CreditCard,
   Receipt,
   IndianRupee,
-  Shield
+  Shield,
+  Search,
+  Filter,
+  MoreVertical,
+  Clock,
+  LayoutGrid,
+  List
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
 import { GenerationLimitWarning } from "@/components/GenerationLimitWarning";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Research {
   name: string;
@@ -67,6 +84,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   useEffect(() => {
     // Set up auth listener first
@@ -202,7 +221,7 @@ const Dashboard = () => {
     ? Math.round(projects.reduce((sum, p) => sum + (p.research?.demandProbability || 0), 0) / projects.length)
     : 0;
   const analyzedIdeas = projects.filter(p => p.research).length;
-  const recentProjects = projects.slice(0, 3);
+  const successRate = analyzedIdeas > 0 ? Math.round((analyzedIdeas / totalIdeas) * 100) : 0;
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -210,381 +229,347 @@ const Dashboard = () => {
     return user.email.charAt(0).toUpperCase();
   };
 
+  const filteredProjects = useMemo(() => {
+    return projects.filter(p => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        (p.idea || "").toLowerCase().includes(searchLower) ||
+        (p.research?.name || "").toLowerCase().includes(searchLower)
+      );
+    });
+  }, [projects, searchQuery]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your projects...</p>
+        <div className="text-center space-y-4">
+          <div className="relative w-16 h-16 mx-auto">
+            <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+          </div>
+          <p className="text-muted-foreground animate-pulse">Loading your workspace...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background selection:bg-primary/20">
       <Helmet>
-        <title>Your Dashboard - IdeaBoard AI</title>
-        <meta name="description" content="View and manage all your app idea projects, analyses, and build plans." />
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://www.ideaboard.ai/dashboard" />
+        <title>Dashboard - IdeaBoard AI</title>
+        <meta name="description" content="Manage your AI-powered projects and ideas." />
       </Helmet>
 
-      {/* Modern Glassmorphic Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo & Navigation */}
-            <div className="flex items-center gap-8">
-              <div
-                className="flex items-center gap-3 cursor-pointer group"
-                onClick={() => navigate("/")}
-              >
-                <div className="relative">
-                  <img src="/logo.png" alt="IdeaBoard" className="w-8 h-8 transition-transform group-hover:scale-110" />
-                  <div className="absolute inset-0 blur-lg bg-primary/30 group-hover:bg-primary/50 transition-all"></div>
-                </div>
-                <span className="text-xl font-bold tracking-tight">IdeaBoard</span>
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <div
+              className="flex items-center gap-2.5 cursor-pointer group"
+              onClick={() => navigate("/")}
+            >
+              <div className="relative w-8 h-8 flex items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <Sparkles className="w-5 h-5 text-primary" />
               </div>
-
-              <nav className="hidden md:flex items-center gap-1">
-                {isAdmin && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                    onClick={() => navigate("/admin")}
-                  >
-                    <Shield className="w-4 h-4 mr-2" />
-                    Admin
-                  </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  <Home className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                  onClick={handleNewIdea}
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  New Idea
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                  onClick={() => navigate("/payment-history")}
-                >
-                  <Receipt className="w-4 h-4 mr-2" />
-                  History
-                </Button>
-              </nav>
+              <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                IdeaBoard
+              </span>
             </div>
 
-            {/* User Section */}
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                  {getUserInitials()}
-                </div>
-                <div className="text-sm">
-                  <div className="font-medium line-clamp-1 max-w-[120px]">
-                    {user?.email?.split('@')[0] || 'User'}
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => navigate("/profile")}
-                variant="ghost"
-                size="sm"
-                className="hidden sm:flex hover:bg-secondary/50"
-              >
-                <User className="h-4 w-4" />
+            <nav className="hidden md:flex items-center gap-1">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/dashboard")}>
+                Dashboard
               </Button>
-
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                size="sm"
-                className="hover:bg-destructive/10 hover:text-destructive"
-              >
-                <LogOut className="h-4 w-4" />
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/payment-history")}>
+                History
               </Button>
-            </div>
+              {isAdmin && (
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => navigate("/admin")}>
+                  Admin
+                </Button>
+              )}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleNewIdea}
+              size="sm"
+              className="hidden sm:flex bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Project
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 border border-border/50 bg-secondary/50 hover:bg-secondary">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="" />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/payment-history")}>
+                  <Receipt className="mr-2 h-4 w-4" />
+                  Billing
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8 max-w-7xl">
-        {/* Generation Limit Warning */}
+      <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <GenerationLimitWarning />
 
-        {/* Hero Section */}
-        <div className="mb-12">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                <Calendar className="w-4 h-4" />
-                <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              </div>
-              <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-                <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
-                  Welcome back
-                </span>
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                {totalIdeas === 0
-                  ? "Ready to bring your ideas to life?"
-                  : `You have ${totalIdeas} ${totalIdeas === 1 ? 'project' : 'projects'} in progress`
-                }
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              {selectedProjects.length >= 2 && (
-                <Button
-                  onClick={handleCompare}
-                  variant="outline"
-                  size="lg"
-                  className="border-border hover:bg-secondary hover:border-primary/50 transition-all"
-                >
-                  <ArrowRightLeft className="mr-2 h-5 w-5" />
-                  Compare ({selectedProjects.length})
-                </Button>
-              )}
-              <Button
-                onClick={handleNewIdea}
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all group"
-              >
-                <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform" />
-                New Idea
-              </Button>
-            </div>
+        {/* Welcome Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-2">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+              Welcome back, <span className="text-muted-foreground">{user?.email?.split('@')[0]}</span>
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Here's what's happening with your projects today.
+            </p>
           </div>
 
-          {/* Enhanced Stats Grid */}
-          {projects.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <Card className="relative overflow-hidden border-border bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-lg transition-all group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
-                <CardContent className="p-6 relative">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Brain className="w-6 h-6 text-primary" />
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1 font-medium">Total Ideas</p>
-                    <p className="text-3xl font-bold">{totalIdeas}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="relative overflow-hidden border-border bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-lg transition-all group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
-                <CardContent className="p-6 relative">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <TrendingUp className="w-6 h-6 text-primary" />
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1 font-medium">Avg. Demand</p>
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-3xl font-bold">{avgDemand}%</p>
-                      {avgDemand >= 70 && (
-                        <span className="text-xs text-green-500 font-semibold">High</span>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="relative overflow-hidden border-border bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-lg transition-all group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
-                <CardContent className="p-6 relative">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Zap className="w-6 h-6 text-primary" />
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1 font-medium">Analyzed</p>
-                    <p className="text-3xl font-bold">{analyzedIdeas}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="relative overflow-hidden border-border bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-lg transition-all group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
-                <CardContent className="p-6 relative">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Target className="w-6 h-6 text-primary" />
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1 font-medium">Success Rate</p>
-                    <p className="text-3xl font-bold">
-                      {analyzedIdeas > 0 ? Math.round((analyzedIdeas / totalIdeas) * 100) : 0}%
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          {selectedProjects.length >= 2 && (
+            <Button
+              onClick={handleCompare}
+              variant="outline"
+              className="animate-in fade-in zoom-in duration-300"
+            >
+              <ArrowRightLeft className="mr-2 h-4 w-4" />
+              Compare Selected ({selectedProjects.length})
+            </Button>
           )}
         </div>
 
-        {/* Projects Section */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold">Your Projects</h2>
-            {projects.length > 0 && (
-              <div className="text-sm text-muted-foreground">
-                {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
+          <Card className="bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/20 transition-all hover:shadow-lg group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
+                  <Brain className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">Total</span>
               </div>
-            )}
-          </div>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold">{totalIdeas}</h3>
+                <p className="text-sm text-muted-foreground">Active Projects</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/20 transition-all hover:shadow-lg group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-500 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">Avg</span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold">{avgDemand}%</h3>
+                <p className="text-sm text-muted-foreground">Demand Score</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/20 transition-all hover:shadow-lg group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 group-hover:scale-110 transition-transform">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">Analyzed</span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold">{analyzedIdeas}</h3>
+                <p className="text-sm text-muted-foreground">Projects Validated</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary/20 transition-all hover:shadow-lg group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform">
+                  <Target className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">Rate</span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold">{successRate}%</h3>
+                <p className="text-sm text-muted-foreground">Success Rate</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Projects Section */}
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 className="text-xl font-semibold tracking-tight">Your Projects</h2>
 
-
-        {projects.length === 0 ? (
-          <Card className="relative overflow-hidden border-border">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent"></div>
-            <div className="relative p-16 text-center">
-              <div className="flex flex-col items-center gap-6 max-w-md mx-auto">
-                <div className="relative">
-                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center backdrop-blur-sm">
-                    <Sparkles className="w-12 h-12 text-primary" />
-                  </div>
-                  <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl -z-10 animate-pulse"></div>
-                </div>
-                <div className="space-y-3">
-                  <h3 className="text-3xl font-bold">Start Building Something Amazing</h3>
-                  <p className="text-muted-foreground text-lg leading-relaxed">
-                    Transform your ideas into reality with AI-powered validation,
-                    market research, and build plans tailored to your vision.
-                  </p>
-                </div>
-                <Button
-                  onClick={handleNewIdea}
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all mt-2 group"
-                >
-                  <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform" />
-                  Create Your First Project
-                </Button>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search projects..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 w-full sm:w-64 bg-secondary/50 border-border/50 focus:bg-background transition-all"
+                />
               </div>
-            </div>
-          </Card>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-              <Card
-                key={project.id}
-                className={`relative overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border-border ${selectedProjects.includes(project.id)
-                  ? "ring-2 ring-primary shadow-lg border-primary"
-                  : "hover:border-primary/30"
-                  }`}
-                onClick={() => navigate(`/project/${project.id}`)}
-              >
-                {/* Decorative gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-                {/* Selection checkbox */}
-                <div className="absolute top-4 left-4 z-10" onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedProjects.includes(project.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked) setSelectedProjects([...selectedProjects, project.id]);
-                      else setSelectedProjects(selectedProjects.filter(id => id !== project.id));
-                    }}
-                    className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                </div>
-
-                {/* Delete button */}
+              <div className="flex items-center border border-border/50 rounded-md bg-secondary/50 p-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all z-10 hover:bg-destructive/10 hover:text-destructive h-8 w-8"
-                  onClick={(e) => handleDeleteProject(project.id, e)}
+                  className={`h-8 w-8 rounded-sm ${viewMode === 'grid' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+                  onClick={() => setViewMode('grid')}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <LayoutGrid className="w-4 h-4" />
                 </Button>
-
-                <CardHeader className="pt-12 pb-3 relative">
-                  <CardTitle className="line-clamp-2 pr-10 text-xl group-hover:text-primary transition-colors">
-                    {project.research?.name || project.idea}
-                  </CardTitle>
-                  <CardDescription className="flex items-center gap-2 text-xs">
-                    <Calendar className="w-3 h-3" />
-                    {new Date(project.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4 relative">
-                  {project.research?.demandProbability !== undefined && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground font-medium">Demand Score</span>
-                        <span className="font-bold text-primary text-lg">{project.research.demandProbability}%</span>
-                      </div>
-                      <div className="relative h-2 bg-secondary/50 rounded-full overflow-hidden">
-                        <div
-                          className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/60 to-primary rounded-full transition-all duration-1000 ease-out"
-                          style={{ width: `${project.research.demandProbability}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {project.platform && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Platform:</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-semibold text-xs border border-primary/20">
-                        {project.platform}
-                      </span>
-                    </div>
-                  )}
-
-                  {project.research?.problem && (
-                    <div className="pt-3 border-t border-border/50">
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        {project.research.problem}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* View details indicator */}
-                  <div className="flex items-center text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="font-medium">View details</span>
-                    <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`h-8 w-8 rounded-sm ${viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           </div>
-        )}
+
+          {filteredProjects.length === 0 ? (
+            <Card className="border-dashed border-2 border-border/50 bg-transparent">
+              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
+                  <Sparkles className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No projects found</h3>
+                <p className="text-muted-foreground max-w-sm mb-6">
+                  {searchQuery ? "Try adjusting your search terms." : "Get started by creating your first AI-powered project."}
+                </p>
+                <Button onClick={handleNewIdea}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Project
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className={
+              viewMode === 'grid'
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                : "flex flex-col gap-4"
+            }>
+              {filteredProjects.map((project) => (
+                <Card
+                  key={project.id}
+                  className={`group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/30 bg-card/50 backdrop-blur-sm ${selectedProjects.includes(project.id) ? "ring-2 ring-primary border-primary" : "border-border/50"
+                    }`}
+                  onClick={() => navigate(`/project/${project.id}`)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                  <CardHeader className="relative pb-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-background/50 backdrop-blur-sm text-[10px] uppercase tracking-wider font-medium text-muted-foreground border-border/50">
+                            {project.platform || "Web App"}
+                          </Badge>
+                          {project.research?.demandProbability && project.research.demandProbability >= 80 && (
+                            <Badge className="bg-green-500/10 text-green-500 border-green-500/20 text-[10px] uppercase tracking-wider font-medium">
+                              High Potential
+                            </Badge>
+                          )}
+                        </div>
+                        <CardTitle className="text-lg font-semibold leading-tight truncate group-hover:text-primary transition-colors">
+                          {project.research?.name || project.idea}
+                        </CardTitle>
+                      </div>
+
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedProjects.includes(project.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) setSelectedProjects([...selectedProjects, project.id]);
+                            else setSelectedProjects(selectedProjects.filter(id => id !== project.id));
+                          }}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => navigate(`/project/${project.id}`)}>
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={(e) => handleDeleteProject(project.id, e as any)}
+                            >
+                              Delete Project
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="relative pb-4">
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4 h-10">
+                      {project.research?.problem || "No description available."}
+                    </p>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Demand Score</span>
+                        <span className="font-medium">{project.research?.demandProbability || 0}%</span>
+                      </div>
+                      <Progress value={project.research?.demandProbability || 0} className="h-1.5" />
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="relative pt-0 pb-4 text-xs text-muted-foreground flex items-center justify-between border-t border-border/30 mt-2 pt-3">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      {new Date(project.created_at).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </div>
+                    <div className="flex items-center gap-1 text-primary opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                      Open Project <ChevronRight className="w-3 h-3" />
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

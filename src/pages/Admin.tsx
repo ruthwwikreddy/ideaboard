@@ -5,7 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Shield, User, Search, RefreshCw, Download, Ban, LogIn, Activity, DollarSign, Users } from "lucide-react";
+import { Loader2, Shield, User, Search, RefreshCw, Download, Ban, Activity, DollarSign, Users, TrendingUp, PieChart as PieChartIcon } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from "recharts";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
 
@@ -16,11 +31,14 @@ interface UserData {
   generation_count: number;
   plan_id: string;
   status: string;
+  created_at: string;
 }
 
 const Admin = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserData[]>([]);
+  const [projectStats, setProjectStats] = useState<{ date: string; count: number }[]>([]);
+  const [userGrowthStats, setUserGrowthStats] = useState<{ date: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,7 +86,7 @@ const Admin = () => {
       // Fetch all profiles with their subscriptions using raw SQL via RPC or separate queries
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, email, full_name, generation_count")
+        .select("id, email, full_name, generation_count, created_at")
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -90,15 +108,49 @@ const Admin = () => {
           generation_count: profile.generation_count || 0,
           plan_id: sub?.plan_id || "free",
           status: sub?.status || "none",
+          created_at: profile.created_at,
         };
       }) || [];
 
+      // Fetch projects for analytics
+      const { data: projects, error: projectsError } = await supabase
+        .from("projects")
+        .select("created_at");
+
+      if (projectsError) throw projectsError;
+
+      // Process User Growth (last 30 days)
+      const last30Days = [...Array(30)].map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        return d.toISOString().split('T')[0];
+      }).reverse();
+
+      const userGrowth = last30Days.map(date => ({
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        count: profiles?.filter(p => p.created_at.startsWith(date)).length || 0
+      }));
+
+      // Process Project Growth
+      const projectGrowth = last30Days.map(date => ({
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        count: projects?.filter(p => p.created_at.startsWith(date)).length || 0
+      }));
+
+      setUserGrowthStats(userGrowth);
+      setProjectStats(projectGrowth);
       setUsers(usersData);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Failed to fetch users");
     }
   };
+
+  const planDistribution = [
+    { name: 'Free', value: users.filter(u => u.plan_id === 'free').length, color: '#94a3b8' },
+    { name: 'Basic', value: users.filter(u => u.plan_id === 'basic').length, color: '#3b82f6' },
+    { name: 'Premium', value: users.filter(u => u.plan_id === 'premium').length, color: '#8b5cf6' },
+  ].filter(item => item.value > 0);
 
   const stats = {
     totalUsers: users.length,
@@ -152,11 +204,7 @@ const Admin = () => {
     }
   };
 
-  const handleImpersonate = async (userId: string) => {
-    toast.info("Impersonation requires an Edge Function. Please configure the backend.");
-    // In a real implementation, this would call an edge function to get a session token
-    // const { data, error } = await supabase.functions.invoke('impersonate-user', { body: { userId } });
-  };
+
 
   const updateUserPlan = async (userId: string, newPlanId: string) => {
     setUpdating(userId);
@@ -330,6 +378,114 @@ const Admin = () => {
           </Card>
         </div>
 
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <Card className="col-span-1">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                Growth Trends (Last 30 Days)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={userGrowthStats}>
+                    <defs>
+                      <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="colorIdeas" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="date" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      name="New Users"
+                      stroke="#8b5cf6"
+                      fillOpacity={1}
+                      fill="url(#colorUsers)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-primary" />
+                Ideas Generated
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={projectStats}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="date" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+                      itemStyle={{ color: '#fff' }}
+                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    />
+                    <Bar dataKey="count" name="Ideas" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1 lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PieChartIcon className="w-5 h-5 text-primary" />
+                Subscription Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={planDistribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {planDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -411,15 +567,6 @@ const Admin = () => {
                           >
                             <Ban className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleImpersonate(user.id)}
-                            disabled={updating === user.id}
-                            title="Login as User"
-                          >
-                            <LogIn className="w-4 h-4" />
-                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -429,8 +576,8 @@ const Admin = () => {
             </div>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </main >
+    </div >
   );
 };
 
