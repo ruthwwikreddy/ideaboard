@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ArrowLeft,
   Loader2,
@@ -31,6 +31,8 @@ import Lovable from "@/assets/lovable.svg";
 import Bolt from "@/assets/bolt.svg";
 import V0 from "@/assets/v0.svg";
 import Replit from "@/assets/replit.svg";
+import { PremiumFeature } from "@/components/PremiumFeature";
+import { useMemo } from "react";
 
 interface Research {
   name?: string;
@@ -80,12 +82,30 @@ const ProjectDetails = () => {
   const [generatingPlan, setGeneratingPlan] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>("");
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
+      if (user) {
+        checkPremium(user.id);
+      }
     });
   }, []);
+
+  const checkPremium = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("payment_history")
+        .select("status")
+        .eq("status", "captured")
+        .limit(1);
+
+      setIsPremium(!!(data && data.length > 0));
+    } catch (error) {
+      console.error("Error checking premium status:", error);
+    }
+  };
 
   useEffect(() => {
     if (!id) {
@@ -319,8 +339,8 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
 
     // Try to render structured data
     const hasDemographics = audience.demographics && (
-      audience.demographics.age || 
-      audience.demographics.gender || 
+      audience.demographics.age ||
+      audience.demographics.gender ||
       audience.demographics.location ||
       audience.demographics.income ||
       audience.demographics['education level'] ||
@@ -718,6 +738,61 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
                   </div>
                 </Card>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Premium Features Section */}
+        {project.research && (
+          <div className="space-y-8 mb-12">
+            <h2 className="text-2xl font-bold">Advanced Insights (Premium)</h2>
+
+            <div className="grid gap-8">
+              <PremiumFeature
+                isPremium={isPremium}
+                title="Deep Market Analysis"
+                description="Unlock comprehensive market trends, detailed competitor SWOT analysis, and investment readiness scores."
+              >
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="border-border bg-card/50">
+                    <CardHeader>
+                      <CardTitle className="text-lg">SWOT Analysis</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                          <h4 className="font-semibold text-green-500 mb-1">Strengths</h4>
+                          <p className="text-sm text-muted-foreground">Unique AI integration, First-mover advantage in niche market.</p>
+                        </div>
+                        <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                          <h4 className="font-semibold text-red-500 mb-1">Weaknesses</h4>
+                          <p className="text-sm text-muted-foreground">High initial development cost, Dependency on third-party APIs.</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-border bg-card/50">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Investment Readiness</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-center py-6">
+                        <div className="relative w-32 h-32 flex items-center justify-center">
+                          <svg className="w-full h-full transform -rotate-90">
+                            <circle cx="64" cy="64" r="60" className="stroke-secondary fill-none" strokeWidth="8" />
+                            <circle cx="64" cy="64" r="60" className="stroke-primary fill-none" strokeWidth="8" strokeDasharray="377" strokeDashoffset="94" />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className="text-3xl font-bold">75%</span>
+                            <span className="text-xs text-muted-foreground">Score</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </PremiumFeature>
             </div>
           </div>
         )}
