@@ -494,7 +494,10 @@ const Index = () => {
                               <div className="text-sm text-white">Tailwind</div>
                             </div>
                           </div>
-                          <button className="mt-6 w-full py-2 rounded bg-white text-black text-xs font-semibold hover:bg-gray-200 transition-colors">
+                          <button 
+                            onClick={() => navigate("/auth")}
+                            className="mt-6 w-full py-2 rounded bg-white text-black text-xs font-semibold hover:bg-gray-200 transition-colors"
+                          >
                             Generate Blueprint
                           </button>
                         </div>
