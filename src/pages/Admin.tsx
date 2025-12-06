@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Shield, User, Search, RefreshCw } from "lucide-react";
+import { Loader2, Shield, User, Search, RefreshCw, Download, Ban, LogIn, Activity, DollarSign, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
 
@@ -33,7 +33,7 @@ const Admin = () => {
   const checkAdminAndFetchUsers = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         navigate("/auth");
         return;
@@ -98,6 +98,64 @@ const Admin = () => {
       console.error("Error fetching users:", error);
       toast.error("Failed to fetch users");
     }
+  };
+
+  const stats = {
+    totalUsers: users.length,
+    activeSubs: users.filter(u => u.status === 'active' && u.plan_id !== 'free').length,
+    totalGenerations: users.reduce((acc, u) => acc + (u.generation_count || 0), 0),
+    mrr: users.reduce((acc, u) => {
+      if (u.status !== 'active') return acc;
+      if (u.plan_id === 'basic') return acc + 10;
+      if (u.plan_id === 'premium') return acc + 15;
+      return acc;
+    }, 0)
+  };
+
+  const handleExport = () => {
+    const headers = ["ID", "Name", "Email", "Plan", "Status", "Generations"];
+    const csvContent = [
+      headers.join(","),
+      ...users.map(u => [u.id, `"${u.full_name}"`, u.email, u.plan_id, u.status, u.generation_count].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    toast.success("Exported user list to CSV");
+  };
+
+  const handleBan = async (userId: string, currentStatus: string) => {
+    setUpdating(userId);
+    try {
+      const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+      const { error } = await supabase
+        .from("subscriptions")
+        .update({ status: newStatus })
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      toast.success(`User ${newStatus === 'suspended' ? 'suspended' : 'activated'} successfully`);
+      await fetchUsers();
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update user status");
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const handleImpersonate = async (userId: string) => {
+    toast.info("Impersonation requires an Edge Function. Please configure the backend.");
+    // In a real implementation, this would call an edge function to get a session token
+    // const { data, error } = await supabase.functions.invoke('impersonate-user', { body: { userId } });
   };
 
   const updateUserPlan = async (userId: string, newPlanId: string) => {
@@ -221,6 +279,57 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-6 py-8">
+        {/* Analytics Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                <h3 className="text-2xl font-bold mt-2">{stats.totalUsers}</h3>
+              </div>
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Active Subs</p>
+                <h3 className="text-2xl font-bold mt-2">{stats.activeSubs}</h3>
+              </div>
+              <div className="p-3 bg-green-500/10 rounded-full">
+                <Activity className="w-6 h-6 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Ideas</p>
+                <h3 className="text-2xl font-bold mt-2">{stats.totalGenerations}</h3>
+              </div>
+              <div className="p-3 bg-blue-500/10 rounded-full">
+                <Shield className="w-6 h-6 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Est. MRR</p>
+                <h3 className="text-2xl font-bold mt-2">₹{stats.mrr}</h3>
+              </div>
+              <div className="p-3 bg-yellow-500/10 rounded-full">
+                <DollarSign className="w-6 h-6 text-yellow-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -242,6 +351,10 @@ const Admin = () => {
               <Button onClick={fetchUsers} variant="outline" size="icon">
                 <RefreshCw className="w-4 h-4" />
               </Button>
+              <Button onClick={handleExport} variant="outline" className="gap-2">
+                <Download className="w-4 h-4" />
+                Export CSV
+              </Button>
             </div>
 
             <div className="overflow-x-auto">
@@ -251,7 +364,7 @@ const Admin = () => {
                     <th className="text-left py-3 px-4 font-semibold">User</th>
                     <th className="text-left py-3 px-4 font-semibold">Email</th>
                     <th className="text-left py-3 px-4 font-semibold">Plan</th>
-                    <th className="text-left py-3 px-4 font-semibold">Used</th>
+
                     <th className="text-left py-3 px-4 font-semibold">Actions</th>
                   </tr>
                 </thead>
@@ -276,27 +389,38 @@ const Admin = () => {
                           </SelectContent>
                         </Select>
                       </td>
+
                       <td className="py-3 px-4">
-                        <span className={user.generation_count > 0 ? "text-yellow-500" : "text-green-500"}>
-                          {user.generation_count}
-                        </span>
-                        <span className="text-muted-foreground">
-                          /{user.plan_id === "premium" ? 10 : user.plan_id === "basic" ? 5 : 1}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => resetUserCredits(user.id)}
-                          disabled={updating === user.id}
-                        >
-                          {updating === user.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            "Reset Credits"
-                          )}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => resetUserCredits(user.id)}
+                            disabled={updating === user.id}
+                            title="Reset Credits"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleBan(user.id, user.status)}
+                            disabled={updating === user.id}
+                            className={user.status === 'suspended' ? "text-red-500 border-red-200 hover:bg-red-50" : ""}
+                            title={user.status === 'suspended' ? "Unsuspend User" : "Suspend User"}
+                          >
+                            <Ban className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleImpersonate(user.id)}
+                            disabled={updating === user.id}
+                            title="Login as User"
+                          >
+                            <LogIn className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}

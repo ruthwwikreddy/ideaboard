@@ -277,6 +277,15 @@ const Dashboard = () => {
                   <Sparkles className="w-4 h-4 mr-2" />
                   New Idea
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                  onClick={() => navigate("/payment-history")}
+                >
+                  <Receipt className="w-4 h-4 mr-2" />
+                  History
+                </Button>
               </nav>
             </div>
 
@@ -452,73 +461,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Payment History Summary */}
-        {paymentHistory.length > 0 && (
-          <div className="mb-12">
-            <Card className="border-border bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-lg transition-all group cursor-pointer"
-              onClick={() => navigate("/payment-history")}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Receipt className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold">Payment History</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {paymentHistory.length} {paymentHistory.length === 1 ? 'transaction' : 'transactions'}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-border hover:bg-secondary group-hover:border-primary/50"
-                  >
-                    View All
-                    <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </div>
 
-                {/* Recent Payments Preview */}
-                <div className="space-y-2">
-                  {paymentHistory.slice(0, 3).map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <CreditCard className="w-4 h-4 text-primary" />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium flex items-center gap-1">
-                              <IndianRupee className="w-3 h-3" />
-                              {(payment.amount / 100).toFixed(0)}
-                            </span>
-                            <Badge
-                              variant={payment.status === "captured" ? "default" : "destructive"}
-                              className="text-xs"
-                            >
-                              {payment.status}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(payment.created_at).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric"
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         {projects.length === 0 ? (
           <Card className="relative overflow-hidden border-border">

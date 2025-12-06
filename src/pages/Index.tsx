@@ -29,6 +29,7 @@ import {
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
+import { HeroBackground } from "@/components/HeroBackground";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
@@ -95,6 +96,7 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
 
   const handleTextareaFocus = () => {
     if (!user) {
@@ -223,6 +225,7 @@ const Index = () => {
 
       {/* Background Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+
         {/* Grid Pattern */}
         <div
           className="absolute inset-0 opacity-20"
@@ -356,6 +359,7 @@ const Index = () => {
           <>
             {/* Hero Section */}
             <section className="relative pt-28 pb-24 lg:pt-36 lg:pb-32 overflow-hidden">
+              <HeroBackground />
               <div className="max-w-6xl mx-auto px-6 text-center relative">
 
                 {/* Spotlight Effect */}
