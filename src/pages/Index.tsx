@@ -302,10 +302,7 @@ const Index = () => {
           <nav className="pointer-events-auto backdrop-blur-[20px] bg-[rgba(5,5,5,0.6)] rounded-full pl-5 pr-2 py-2 flex items-center justify-between gap-8 border border-white/8 shadow-[0_4px_30px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20">
             {/* Logo */}
             <a href="/" className="flex items-center gap-2.5">
-              <div className="relative w-6 h-6 flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-tr from-white to-gray-400 rounded-md opacity-20" />
-                <div className="w-2 h-2 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-              </div>
+              <img src="/logo.png" alt="IdeaBoard Logo" className="w-6 h-6" />
               <span className="text-white font-medium tracking-tight text-sm hidden sm:block">IdeaBoard</span>
             </a>
 
