@@ -383,9 +383,9 @@ const Index = () => {
                   <span className="bg-gradient-to-br from-white to-[#999999] bg-clip-text text-transparent">From abstract</span>
                   <br />
                   <span className="text-white/40">to </span>
-                  <span className="bg-gradient-to-r from-[#60A5FA] to-[#A78BFA] bg-clip-text text-transparent relative inline-block">
+                  <span className="bg-gradient-to-br from-white to-[#CCCCCC] bg-clip-text text-transparent relative inline-block">
                     concrete
-                    <svg className="absolute w-full h-3 -bottom-1 left-0 text-indigo-500/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <svg className="absolute w-full h-3 -bottom-1 left-0 text-white/20" viewBox="0 0 100 10" preserveAspectRatio="none">
                       <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
                     </svg>
                   </span>
