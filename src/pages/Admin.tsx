@@ -18,8 +18,6 @@ interface UserData {
   status: string;
 }
 
-const ADMIN_EMAILS = ["anupthedesigner@gmail.com", "akkenapally.reddy@gmail.com", "admin@ideaboard.live"];
-
 const Admin = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserData[]>([]);
@@ -41,8 +39,15 @@ const Admin = () => {
         return;
       }
 
-      // Check if user is admin
-      if (!ADMIN_EMAILS.includes(session.user.email || "")) {
+      // Check if user is admin using server-side role check
+      const { data: roleData, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (roleError || !roleData) {
         toast.error("Access denied. Admin only.");
         navigate("/dashboard");
         return;
