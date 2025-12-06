@@ -421,53 +421,65 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Payment History Section */}
+        {/* Payment History Summary */}
         {paymentHistory.length > 0 && (
           <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Receipt className="w-6 h-6 text-primary" />
-                Payment History
-              </h2>
-            </div>
-            <Card className="border-border">
-              <CardContent className="p-0">
-                <div className="divide-y divide-border">
-                  {paymentHistory.map((payment) => (
+            <Card className="border-border bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-lg transition-all group cursor-pointer"
+              onClick={() => navigate("/payment-history")}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Receipt className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">Payment History</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {paymentHistory.length} {paymentHistory.length === 1 ? 'transaction' : 'transactions'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-border hover:bg-secondary group-hover:border-primary/50"
+                  >
+                    View All
+                    <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </div>
+
+                {/* Recent Payments Preview */}
+                <div className="space-y-2">
+                  {paymentHistory.slice(0, 3).map((payment) => (
                     <div
                       key={payment.id}
-                      className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="w-4 h-4 text-primary" />
                         <div>
-                          <div className="font-medium flex items-center gap-2">
-                            <IndianRupee className="w-4 h-4" />
-                            {(payment.amount / 100).toFixed(0)}
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium flex items-center gap-1">
+                              <IndianRupee className="w-3 h-3" />
+                              {(payment.amount / 100).toFixed(0)}
+                            </span>
                             <Badge
-                              variant={payment.status === "captured" ? "default" : payment.status === "failed" ? "destructive" : "secondary"}
+                              variant={payment.status === "captured" ? "default" : "destructive"}
                               className="text-xs"
                             >
                               {payment.status}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {new Date(payment.created_at).toLocaleDateString("en-US", {
-                              year: "numeric",
                               month: "short",
                               day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit"
+                              year: "numeric"
                             })}
                           </p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground font-mono">
-                          {payment.razorpay_payment_id.slice(0, 20)}...
-                        </p>
                       </div>
                     </div>
                   ))}
@@ -512,8 +524,8 @@ const Dashboard = () => {
               <Card
                 key={project.id}
                 className={`relative overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border-border ${selectedProjects.includes(project.id)
-                    ? "ring-2 ring-primary shadow-lg border-primary"
-                    : "hover:border-primary/30"
+                  ? "ring-2 ring-primary shadow-lg border-primary"
+                  : "hover:border-primary/30"
                   }`}
                 onClick={() => navigate(`/project/${project.id}`)}
               >

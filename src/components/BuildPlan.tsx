@@ -90,11 +90,10 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
         <h3 className="text-2xl font-semibold">Execution Steps</h3>
 
         {/* Step 1: Visit Platform */}
-        <Card className={`p-6 bg-card border-l-4 transition-all ${
-          completedSteps.has(1)
-            ? "border-l-success bg-success/5"
-            : "border-l-primary"
-        }`}>
+        <Card className={`p-6 bg-card border-l-4 transition-all ${completedSteps.has(1)
+          ? "border-l-success bg-success/5"
+          : "border-l-primary"
+          }`}>
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-3">
               {completedSteps.has(1) ? (
@@ -118,24 +117,28 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
-          <p className="text-muted-foreground">
-            Create a new project on {platform} and get ready to paste the prompts below.
-          </p>
+          <div className="space-y-3">
+            <p className="text-muted-foreground">
+              Create a new project on {platform} and get ready to paste the prompts below.
+            </p>
+            <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <ExternalLink className="w-4 h-4 text-primary flex-shrink-0" />
+            </div>
+          </div>
         </Card>
 
         {/* Build Phases */}
         {plan.phases.map((phase) => {
           const stepNumber = phase.phase + 2; // phase 0 = step 2, phase 1 = step 3, etc.
           const isCompleted = completedSteps.has(stepNumber);
-          
+
           return (
             <Card
               key={phase.phase}
-              className={`p-6 bg-card border-l-4 transition-all ${
-                isCompleted
-                  ? "border-l-success bg-success/5"
-                  : "border-l-accent"
-              }`}
+              className={`p-6 bg-card border-l-4 transition-all ${isCompleted
+                ? "border-l-success bg-success/5"
+                : "border-l-accent"
+                }`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -153,9 +156,8 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
                   onClick={() => copyPrompt(phase.prompt, phase.phase, stepNumber)}
                   variant="outline"
                   size="sm"
-                  className={`border-border hover:bg-secondary ${
-                    isCompleted ? "bg-success/10 border-success/30" : ""
-                  }`}
+                  className={`border-border hover:bg-secondary ${isCompleted ? "bg-success/10 border-success/30" : ""
+                    }`}
                 >
                   {copiedPhase === phase.phase ? (
                     <>
@@ -176,25 +178,25 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
                 </Button>
               </div>
 
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">Features in this phase:</p>
-                <ul className="space-y-1">
-                  {phase.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm">
-                      <span className="text-primary mt-0.5">•</span>
-                      <span className="text-foreground/90">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Features in this phase:</p>
+                  <ul className="space-y-1">
+                    {phase.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <span className="text-primary mt-0.5">•</span>
+                        <span className="text-foreground/90">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-              <div className="mt-4 p-4 bg-secondary rounded-lg border border-border">
-                <p className="text-sm font-mono text-foreground/90 whitespace-pre-wrap">{phase.prompt}</p>
+                <div className="mt-4 p-4 bg-secondary rounded-lg border border-border">
+                  <p className="text-sm font-mono text-foreground/90 whitespace-pre-wrap">{phase.prompt}</p>
+                </div>
               </div>
-            </div>
-          </Card>
-        );
+            </Card>
+          );
         })}
       </div>
 
