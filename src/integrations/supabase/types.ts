@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      coupon_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          current_uses: number | null
+          discount_percent: number
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          plan_restriction: string | null
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          current_uses?: number | null
+          discount_percent: number
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          plan_restriction?: string | null
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          current_uses?: number | null
+          discount_percent?: number
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          plan_restriction?: string | null
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       payment_history: {
         Row: {
           amount: number
@@ -174,6 +216,33 @@ export type Database = {
           razorpay_subscription_id?: string | null
           status?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
           user_id?: string
         }
         Relationships: []
