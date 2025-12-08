@@ -35,9 +35,9 @@ const team = [
   },
   {
     name: "Anup Medhi",
-    role: "Co-Founder & Product/Brand Strategy",
+    role: "Co-Founder & Product Strategy",
     initials: "AM",
-    bio: "Brings a decade of experience in design thinking, UX, MVP shipping, and brand systems. Sharp at refining raw ideas into clear, usable, market-ready products. Leads product experience, design direction, and early-market positioning.",
+    bio: "Brings a decade of experience in design thinking, UX, MVP shipping, and brand building. Sharp at refining raw ideas into clear, usable, market-ready products. Leads product experience, design direction, and early-market positioning.",
     linkedin: "https://www.linkedin.com/in/anup-medhi-67881188/",
   },
 ];
