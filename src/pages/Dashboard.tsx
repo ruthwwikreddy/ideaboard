@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
 import { GenerationLimitWarning } from "@/components/GenerationLimitWarning";
+import { CreditsIndicator } from "@/components/CreditsIndicator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -291,7 +292,9 @@ const Dashboard = () => {
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <CreditsIndicator />
+            
             <Button
               onClick={handleNewIdea}
               size="sm"
