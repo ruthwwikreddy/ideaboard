@@ -34,6 +34,7 @@ import Bolt from "@/assets/bolt.svg";
 import V0 from "@/assets/v0.svg";
 import Replit from "@/assets/replit.svg";
 import { PremiumFeature } from "@/components/PremiumFeature";
+import { CreditsIndicator } from "@/components/CreditsIndicator";
 import { useMemo } from "react";
 
 interface Research {
@@ -555,6 +556,7 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
             </div>
 
             <div className="flex items-center gap-3">
+              <CreditsIndicator />
               {user && (
                 <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold text-sm">

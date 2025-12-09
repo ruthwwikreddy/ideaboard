@@ -15,6 +15,7 @@ import {
   Brain
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { CreditsIndicator } from "@/components/CreditsIndicator";
 import { toast } from "sonner";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
@@ -170,6 +171,7 @@ const NewProject = () => {
 
             {/* User Section */}
             <div className="flex items-center gap-3">
+              <CreditsIndicator />
               <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-semibold text-sm">
                   {getUserInitials()}
