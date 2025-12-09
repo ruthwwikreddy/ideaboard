@@ -20,7 +20,9 @@ import {
   BarChart,
   Sparkles,
   CheckCircle,
-  Zap
+  Zap,
+  AlertCircle,
+  CreditCard
 } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
@@ -83,12 +85,20 @@ const ProjectDetails = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<string>("");
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isPremium, setIsPremium] = useState(false);
+  const [generationInfo, setGenerationInfo] = useState<{ count: number; limit: number; planId: string } | null>(null);
+
+  const PLAN_LIMITS: { [key: string]: number } = {
+    free: 1,
+    basic: 5,
+    premium: 10,
+  };
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       if (user) {
         checkPremium(user.id);
+        fetchGenerationInfo(user.id);
       }
     });
   }, []);
@@ -104,6 +114,31 @@ const ProjectDetails = () => {
       setIsPremium(!!(data && data.length > 0));
     } catch (error) {
       console.error("Error checking premium status:", error);
+    }
+  };
+
+  const fetchGenerationInfo = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("generation_count")
+        .eq("id", userId)
+        .single();
+
+      const { data: subscription } = await supabase
+        .from("subscriptions")
+        .select("plan_id")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      const planId = subscription?.plan_id || "free";
+      const limit = PLAN_LIMITS[planId] || 1;
+      const count = profile?.generation_count || 0;
+
+      setGenerationInfo({ count, limit, planId });
+    } catch (error) {
+      console.error("Error fetching generation info:", error);
     }
   };
 
@@ -556,6 +591,35 @@ ${monetization.map(mon => `- ${typeof mon === 'string' ? mon : mon.strategy}`).j
       </header>
 
       <main className="container mx-auto px-6 py-8 max-w-6xl">
+        {/* Low Credits Warning */}
+        {generationInfo && generationInfo.count >= generationInfo.limit * 0.8 && (
+          <div className={`mb-6 p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+            generationInfo.count >= generationInfo.limit 
+              ? 'bg-destructive/10 border-destructive/30' 
+              : 'bg-yellow-500/10 border-yellow-500/30'
+          }`}>
+            <div className="flex items-center gap-3">
+              <AlertCircle className={`w-5 h-5 ${generationInfo.count >= generationInfo.limit ? 'text-destructive' : 'text-yellow-500'}`} />
+              <div>
+                <p className="font-semibold">
+                  {generationInfo.count >= generationInfo.limit 
+                    ? 'You\'ve reached your generation limit' 
+                    : 'Running low on credits'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {generationInfo.count}/{generationInfo.limit} generations used on {generationInfo.planId} plan
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => navigate("/pricing")}
+              className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              Buy More Credits
+            </Button>
+          </div>
+        )}
         {/* Action Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <Button
