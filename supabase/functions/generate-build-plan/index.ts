@@ -41,14 +41,27 @@ Return a JSON response with:
 
 Make the prompts specific, actionable, and optimized for ${platform}. Each prompt should be self-contained and ready to paste directly into the builder.`;
 
+    // Handle both array and string formats for research data
+    const marketGaps = Array.isArray(research.marketGaps) 
+      ? research.marketGaps.join(", ") 
+      : (research.marketGaps || "Not specified");
+    
+    const monetization = Array.isArray(research.monetization) 
+      ? research.monetization.map((m: string | { strategy: string }) => typeof m === 'string' ? m : m.strategy).join(", ")
+      : (research.monetization || "Not specified");
+
+    const audience = typeof research.audience === 'string' 
+      ? research.audience 
+      : JSON.stringify(research.audience);
+
     const userPrompt = `
 App Idea: ${idea}
 
 Research Data:
 - Problem: ${research.problem}
-- Audience: ${research.audience}
-- Market Gaps: ${research.marketGaps.join(", ")}
-- Monetization: ${research.monetization.join(", ")}
+- Audience: ${audience}
+- Market Gaps: ${marketGaps}
+- Monetization: ${monetization}
 
 Create a ${platform}-optimized build plan with detailed prompts for each phase.`;
 
