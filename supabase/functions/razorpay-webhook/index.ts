@@ -1,10 +1,87 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.83.0';
 import { crypto } from 'https://deno.land/std@0.177.0/crypto/mod.ts';
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-razorpay-signature',
 };
+
+const PLAN_DETAILS: { [key: string]: { name: string; credits: number; price: string } } = {
+  basic: { name: 'Basic Pack', credits: 5, price: '₹10' },
+  premium: { name: 'Premium Pack', credits: 10, price: '₹15' },
+};
+
+async function sendPaymentSuccessEmail(email: string, planId: string, credits: number) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+  if (!resendApiKey) {
+    console.log('RESEND_API_KEY not configured, skipping email');
+    return;
+  }
+
+  const resend = new Resend(resendApiKey);
+  const planInfo = PLAN_DETAILS[planId] || { name: planId, credits, price: 'N/A' };
+
+  try {
+    await resend.emails.send({
+      from: 'IdeaBoard AI <noreply@ideaboard.live>',
+      to: [email],
+      subject: '🎉 Payment Successful - Your Credits Are Ready!',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0a; color: #ffffff; margin: 0; padding: 40px 20px;">
+          <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); border-radius: 16px; overflow: hidden; border: 1px solid #333;">
+            <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px; text-align: center;">
+              <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Payment Successful! 🚀</h1>
+            </div>
+            <div style="padding: 32px;">
+              <p style="font-size: 16px; line-height: 1.6; color: #e0e0e0; margin-bottom: 24px;">
+                Thank you for your purchase! Your account has been credited and you're ready to continue building amazing ideas.
+              </p>
+              
+              <div style="background: #1f1f1f; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #333;">
+                <h2 style="margin: 0 0 16px 0; font-size: 18px; color: #a78bfa;">Order Details</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #888;">Plan</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: bold; color: #fff;">${planInfo.name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #888;">Credits Added</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: bold; color: #22c55e;">${planInfo.credits} generations</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #888;">Amount Paid</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: bold; color: #fff;">${planInfo.price}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="text-align: center; margin-top: 32px;">
+                <a href="https://www.ideaboard.live/dashboard" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                  Start Creating →
+                </a>
+              </div>
+
+              <p style="font-size: 14px; color: #666; text-align: center; margin-top: 32px;">
+                Questions? Reply to this email or contact us at support@ideaboard.live
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+    console.log('Payment success email sent to:', email);
+  } catch (error) {
+    console.error('Failed to send payment success email:', error);
+  }
+}
 
 async function verifyWebhookSignature(body: string, signature: string, secret: string): Promise<boolean> {
   const encoder = new TextEncoder();
@@ -176,6 +253,20 @@ Deno.serve(async (req) => {
           if (insertError) {
             console.error('Error creating subscription:', insertError);
           }
+        }
+
+        // Fetch user email and send confirmation email
+        const { data: userProfile } = await supabaseClient
+          .from('profiles')
+          .select('email')
+          .eq('id', userId)
+          .single();
+
+        if (userProfile?.email) {
+          // Send email in background (don't await)
+          sendPaymentSuccessEmail(userProfile.email, planId, credits).catch(err => 
+            console.error('Background email failed:', err)
+          );
         }
 
         console.log(`Credits purchased successfully for user ${userId}: ${credits} credits`);
