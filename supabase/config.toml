@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.cancel-subscription]
 verify_jwt = true
+
+[functions.weekly-digest]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.send-admin-email]
+verify_jwt = false

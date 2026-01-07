@@ -8,9 +8,37 @@ const corsHeaders = {
 };
 
 const PLAN_DETAILS: { [key: string]: { name: string; credits: number; price: string } } = {
+  free: { name: 'Free Plan', credits: 3, price: '₹0' },
   basic: { name: 'Basic Pack', credits: 5, price: '₹10' },
   premium: { name: 'Premium Pack', credits: 10, price: '₹15' },
 };
+
+// Send push notification for low credits
+async function sendLowCreditsPushNotification(supabaseUrl: string, userId: string, remainingCredits: number) {
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        title: '⚠️ Credits Running Low',
+        body: `You have ${remainingCredits} credit${remainingCredits !== 1 ? 's' : ''} remaining. Upgrade to continue building!`,
+        url: '/pricing',
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Failed to send push notification:', await response.text());
+    } else {
+      console.log('Push notification sent for low credits');
+    }
+  } catch (error) {
+    console.error('Error sending push notification:', error);
+  }
+}
 
 async function sendPaymentSuccessEmail(email: string, planId: string, credits: number) {
   const resendApiKey = Deno.env.get('RESEND_API_KEY');
