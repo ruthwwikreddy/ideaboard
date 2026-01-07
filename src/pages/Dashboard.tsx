@@ -37,6 +37,7 @@ import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { Helmet } from "react-helmet-async";
 import { GenerationLimitWarning } from "@/components/GenerationLimitWarning";
 import { CreditsIndicator } from "@/components/CreditsIndicator";
+import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -293,6 +294,7 @@ const Dashboard = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <PushNotificationToggle />
             <CreditsIndicator />
             
             <Button
