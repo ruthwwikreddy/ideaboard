@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +31,10 @@ import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
 import { HeroBackground } from "@/components/HeroBackground";
+import { ProgressStepper } from "@/components/ProgressStepper";
+import { FloatingParticles, GlowOrbs } from "@/components/FloatingParticles";
+import { OrganizationSchema, SoftwareApplicationSchema, HowToSchema } from "@/components/SEOJsonLd";
+import { fadeInUp, staggerContainer, staggerItem } from "@/components/PageTransition";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
@@ -214,14 +219,37 @@ const Index = () => {
     setCurrentProjectId(null);
   };
 
+  const howToSteps = [
+    { name: "Describe your idea", text: "Enter a simple description of your app concept" },
+    { name: "AI Analysis", text: "Our AI analyzes market demand, competitors, and opportunities" },
+    { name: "Choose platform", text: "Select your preferred development platform" },
+    { name: "Get build plan", text: "Receive detailed, executable prompts for your chosen platform" },
+  ];
+
   return (
     <div className="min-h-screen bg-[#020202] text-[#A1A1AA] overflow-x-hidden relative">
       <Helmet>
-        <title>IdeaBoard - Intelligent Build Planning</title>
-        <meta name="description" content="Validate, plan, and build your next big idea with AI assistance." />
+        <title>IdeaBoard - AI-Powered App Idea Validation & Build Planning</title>
+        <meta name="description" content="Validate your app idea with AI-powered market research, competitor analysis, and get detailed build plans. Transform abstract ideas into concrete products." />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://ideaboard.live/" />
+        <meta property="og:title" content="IdeaBoard - AI-Powered App Idea Validation" />
+        <meta property="og:description" content="Transform your app idea into reality with AI-powered market validation and build planning." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ideaboard.live/" />
+        <meta property="og:image" content="https://ideaboard.live/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="IdeaBoard - AI-Powered App Idea Validation" />
+        <meta name="twitter:description" content="Transform your app idea into reality with AI-powered market validation and build planning." />
       </Helmet>
+      
+      <OrganizationSchema />
+      <SoftwareApplicationSchema />
+      <HowToSchema 
+        name="How to Validate Your App Idea with IdeaBoard" 
+        description="Use AI to validate your app idea and get a detailed build plan"
+        steps={howToSteps}
+      />
 
       {/* Background Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -883,7 +911,7 @@ const Index = () => {
 
         {stage === "plan" && buildPlan && (
           <div className="min-h-screen pt-24">
-            <BuildPlan plan={buildPlan} platform={platform} onReset={handleReset} />
+            <BuildPlan plan={buildPlan} platform={platform} onReset={handleReset} idea={idea} research={research} />
           </div>
         )}
       </main>
