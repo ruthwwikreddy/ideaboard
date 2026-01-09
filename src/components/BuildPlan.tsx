@@ -1,9 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, ExternalLink, RotateCcw, Check, CheckCircle2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Copy, ExternalLink, RotateCcw, Check, CheckCircle2, Download, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { usePDFExport } from "@/hooks/usePDFExport";
+import { staggerContainer, staggerItem } from "@/components/PageTransition";
 
 interface BuildPlanProps {
   plan: {
@@ -18,6 +21,8 @@ interface BuildPlanProps {
   };
   platform: string;
   onReset: () => void;
+  idea?: string;
+  research?: any;
 }
 
 const platformUrls: Record<string, string> = {
@@ -27,12 +32,10 @@ const platformUrls: Record<string, string> = {
   v0: "https://v0.app/ref/38YXBK",
 };
 
-export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
+export const BuildPlan = ({ plan, platform, onReset, idea = "", research }: BuildPlanProps) => {
   const [copiedPhase, setCopiedPhase] = useState<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-
-
-
+  const { exportToPDF, isExporting } = usePDFExport();
 
 
   const markStepComplete = (step: number) => {
@@ -59,9 +62,23 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
     onReset();
   };
 
+  const handleExportPDF = () => {
+    exportToPDF({
+      idea,
+      research,
+      buildPlan: plan,
+      platform,
+    });
+  };
+
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
+    <motion.div
+      className="space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="show"
+    >
+      <motion.div variants={staggerItem} className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-3xl font-bold mb-2">Your Build Plan</h2>
           <div className="flex items-center gap-3">
@@ -73,17 +90,34 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
             )}
           </div>
         </div>
-        <Button onClick={resetProgress} variant="outline" className="border-border hover:bg-secondary">
-          <RotateCcw className="mr-2 h-4 w-4" />
-          New Idea
-        </Button>
-      </div>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleExportPDF} 
+            variant="outline" 
+            className="border-border hover:bg-secondary"
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            Export PDF
+          </Button>
+          <Button onClick={resetProgress} variant="outline" className="border-border hover:bg-secondary">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            New Idea
+          </Button>
+        </div>
+      </motion.div>
 
       {/* Summary */}
-      <Card className="p-6 bg-card border-border">
-        <h3 className="text-xl font-semibold mb-3">App Summary</h3>
-        <p className="text-foreground/90 leading-relaxed">{plan.summary}</p>
-      </Card>
+      <motion.div variants={staggerItem}>
+        <Card className="p-6 bg-card border-border">
+          <h3 className="text-xl font-semibold mb-3">App Summary</h3>
+          <p className="text-foreground/90 leading-relaxed">{plan.summary}</p>
+        </Card>
+      </motion.div>
 
       {/* Step-by-Step Execution */}
       <div className="space-y-4">
@@ -210,6 +244,6 @@ export const BuildPlan = ({ plan, platform, onReset }: BuildPlanProps) => {
           After completing all phases, test your app thoroughly, add any finishing touches, and deploy it to your users!
         </p>
       </Card>
-    </div>
+    </motion.div>
   );
 };
