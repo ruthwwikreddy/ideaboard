@@ -14,6 +14,7 @@ import {
   CheckCircle,
   Sparkles
 } from "lucide-react";
+import { ProgressStepper } from "@/components/ProgressStepper";
 
 interface ResearchResultsProps {
   research: {
@@ -210,6 +211,9 @@ export const ResearchResults = ({ research, onNext, onBack }: ResearchResultsPro
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Progress Stepper */}
+      <ProgressStepper currentStage="research" className="mb-8" />
+      
       {/* Header with Demand Score */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-primary/5 p-8">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32"></div>
