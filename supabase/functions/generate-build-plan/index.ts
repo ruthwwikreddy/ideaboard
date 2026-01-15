@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +12,34 @@ serve(async (req) => {
   }
 
   try {
+    // Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.log("No authorization header provided");
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.log("Invalid authentication:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Authenticated user:", user.id);
+
     const { idea, research, platform } = await req.json();
 
     if (!idea || !research || !platform) {
@@ -22,7 +51,7 @@ serve(async (req) => {
       throw new Error("OPENAI_API_KEY is not configured");
     }
 
-    console.log("Generating build plan for platform:", platform);
+    console.log("Generating build plan for platform:", platform, "user:", user.id);
 
     const systemPrompt = `You are an expert product manager and technical architect. Based on the app idea and research data, create a structured multi-phase build plan optimized for ${platform}.
 
@@ -88,7 +117,7 @@ Create a ${platform}-optimized build plan with detailed prompts for each phase.`
     }
 
     const data = await response.json();
-    console.log("Build plan generated");
+    console.log("Build plan generated for user:", user.id);
 
     const content = data.choices[0]?.message?.content;
     if (!content) {
