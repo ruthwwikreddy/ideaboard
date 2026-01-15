@@ -35,6 +35,7 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { FloatingParticles, GlowOrbs } from "@/components/FloatingParticles";
 import { OrganizationSchema, SoftwareApplicationSchema, HowToSchema } from "@/components/SEOJsonLd";
 import { fadeInUp, staggerContainer, staggerItem } from "@/components/PageTransition";
+import { ProjectTemplates } from "@/components/ProjectTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
@@ -603,6 +604,21 @@ const Index = () => {
                     </Button>
                   </div>
                 </Card>
+
+                {/* Project Templates */}
+                <div className="mt-12">
+                  <ProjectTemplates 
+                    onSelectTemplate={(templateIdea) => {
+                      if (!user) {
+                        localStorage.setItem('pendingIdea', templateIdea);
+                        setShowAuthDialog(true);
+                        return;
+                      }
+                      setIdea(templateIdea);
+                      toast.success("Template loaded! Click 'Analyze Idea' to start.");
+                    }} 
+                  />
+                </div>
               </div>
             </section>
 
