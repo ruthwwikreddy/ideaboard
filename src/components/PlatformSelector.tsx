@@ -5,6 +5,7 @@ import Lovable from "@/assets/lovable.svg";
 import Bolt from "@/assets/bolt.svg";
 import V0 from "@/assets/v0.svg";
 import Replit from "@/assets/replit.svg";
+import { ProgressStepper } from "@/components/ProgressStepper";
 
 const platforms = [
   {
@@ -46,6 +47,9 @@ interface PlatformSelectorProps {
 export const PlatformSelector = ({ onSelect, loading, onBack }: PlatformSelectorProps) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Progress Stepper */}
+      <ProgressStepper currentStage="platform" className="mb-4" />
+      
       <div>
         <h2 className="text-3xl font-bold mb-2">Choose Your Build Platform</h2>
         <p className="text-muted-foreground">Select where you want to build your MVP</p>
