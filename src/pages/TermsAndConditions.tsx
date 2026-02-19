@@ -8,19 +8,20 @@ const TermsAndConditions = () => {
       <Helmet>
         <title>Terms and Conditions - IdeaBoard AI</title>
         <meta name="description" content="Read the terms and conditions for using the IdeaBoard AI service." />
-        <link rel="canonical" href="https://www.ideaboard.ai/terms-and-conditions" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://ideaboard.live/terms-and-conditions" />
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.ideaboard.ai/terms-and-conditions" />
+        <meta property="og:url" content="https://ideaboard.live/terms-and-conditions" />
         <meta property="og:title" content="Terms and Conditions - IdeaBoard AI" />
         <meta property="og:description" content="Read the terms and conditions for using the IdeaBoard AI service." />
-        <meta property="og:image" content="https://www.ideaboard.ai/logo.png" />
+        <meta property="og:image" content="https://ideaboard.live/logo.png" />
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://www.ideaboard.ai/terms-and-conditions" />
+        <meta property="twitter:url" content="https://ideaboard.live/terms-and-conditions" />
         <meta property="twitter:title" content="Terms and Conditions - IdeaBoard AI" />
         <meta property="twitter:description" content="Read the terms and conditions for using the IdeaBoard AI service." />
-        <meta property="twitter:image" content="https://www.ideaboard.ai/logo.png" />
+        <meta property="twitter:image" content="https://ideaboard.live/logo.png" />
       </Helmet>
       <BackToHome />
       <h1 className="text-4xl font-bold mb-6">Terms and Conditions</h1>
