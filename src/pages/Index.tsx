@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -12,29 +12,27 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Sparkles,
-  PlayCircle,
   ArrowRight,
   LogIn,
-  Triangle,
   Zap,
-  Box,
-  Github,
   BrainCircuit,
   Target,
   CheckCircle,
   FileCode2,
   Check,
-  X
+  Sparkles,
+  ChevronRight,
+  BarChart3,
+  Layers,
+  Rocket,
+  Github,
+  Twitter,
 } from "lucide-react";
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
-import { HeroBackground } from "@/components/HeroBackground";
 import { ProgressStepper } from "@/components/ProgressStepper";
-import { FloatingParticles, GlowOrbs } from "@/components/FloatingParticles";
 import { OrganizationSchema, SoftwareApplicationSchema, HowToSchema } from "@/components/SEOJsonLd";
-import { fadeInUp, staggerContainer, staggerItem } from "@/components/PageTransition";
 import { ProjectTemplates } from "@/components/ProjectTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -82,7 +80,6 @@ const Index = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-
       if (session?.user) {
         const savedIdea = localStorage.getItem('pendingIdea');
         if (savedIdea) {
@@ -92,24 +89,19 @@ const Index = () => {
         }
       }
     });
-
     setTimeout(() => {
       supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session);
         setUser(session?.user ?? null);
       });
     }, 0);
-
     return () => subscription.unsubscribe();
   }, []);
-
 
   const handleTextareaFocus = () => {
     if (!user) {
       setShowAuthDialog(true);
-      if (idea.trim()) {
-        localStorage.setItem('pendingIdea', idea);
-      }
+      if (idea.trim()) localStorage.setItem('pendingIdea', idea);
     }
   };
 
@@ -123,101 +115,48 @@ const Index = () => {
   };
 
   const handleAnalyze = async () => {
-    if (!idea.trim()) {
-      toast.error("Please enter your idea");
-      return;
-    }
-
-    if (!user) {
-      toast.info("Please sign in or sign up to generate ideas.");
-      navigate("/auth");
-      return;
-    }
-
+    if (!idea.trim()) { toast.error("Please enter your idea"); return; }
+    if (!user) { toast.info("Please sign in or sign up to generate ideas."); navigate("/auth"); return; }
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("analyze-idea", {
-        body: { idea },
-      });
-
+      const { data, error } = await supabase.functions.invoke("analyze-idea", { body: { idea } });
       if (error) throw error;
-
       setResearch(data as Research);
       setStage("research");
-
       if (user) {
         const { data: projectData, error: projectError } = await supabase
-          .from("projects")
-          .insert({
-            user_id: user.id,
-            idea,
-            research: data,
-          })
-          .select()
-          .single();
-
-        if (!projectError && projectData) {
-          setCurrentProjectId((projectData as { id: string }).id);
-        }
+          .from("projects").insert({ user_id: user.id, idea, research: data }).select().single();
+        if (!projectError && projectData) setCurrentProjectId((projectData as { id: string }).id);
       }
-
       toast.success("Research completed!");
     } catch (error: unknown) {
       console.error("Error analyzing idea:", error);
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Failed to analyze idea");
-      }
-    } finally {
-      setLoading(false);
-    }
+      toast.error(error instanceof Error ? error.message : "Failed to analyze idea");
+    } finally { setLoading(false); }
   };
 
   const handlePlatformSelect = async (selectedPlatform: string) => {
     setPlatform(selectedPlatform);
     setLoading(true);
-
     try {
       const { data, error } = await supabase.functions.invoke("generate-build-plan", {
         body: { idea, research, platform: selectedPlatform },
       });
-
       if (error) throw error;
-
       setBuildPlan(data as BuildPlanType);
       setStage("plan");
-
       if (user && currentProjectId) {
-        await supabase
-          .from("projects")
-          .update({
-            platform: selectedPlatform,
-            build_plan: data,
-          })
-          .eq("id", currentProjectId);
+        await supabase.from("projects").update({ platform: selectedPlatform, build_plan: data }).eq("id", currentProjectId);
       }
-
       toast.success("Build plan generated!");
     } catch (error: unknown) {
       console.error("Error generating plan:", error);
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Failed to generate build plan");
-      }
-    } finally {
-      setLoading(false);
-    }
+      toast.error(error instanceof Error ? error.message : "Failed to generate build plan");
+    } finally { setLoading(false); }
   };
 
   const handleReset = () => {
-    setStage("input");
-    setIdea("");
-    setResearch(null);
-    setPlatform("");
-    setBuildPlan(null);
-    setCurrentProjectId(null);
+    setStage("input"); setIdea(""); setResearch(null); setPlatform(""); setBuildPlan(null); setCurrentProjectId(null);
   };
 
   const howToSteps = [
@@ -228,7 +167,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#020202] text-[#A1A1AA] overflow-x-hidden relative">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative noise-bg">
       <Helmet>
         <title>IdeaBoard - AI-Powered App Idea Validation & Build Planning</title>
         <meta name="description" content="Validate your app idea with AI-powered market research, competitor analysis, and get detailed build plans. Transform abstract ideas into concrete products." />
@@ -252,75 +191,34 @@ const Index = () => {
         steps={howToSteps}
       />
 
-      {/* Background Elements */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-
-        {/* Grid Pattern */}
-        <div
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundSize: '50px 50px',
-            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
-            maskImage: 'radial-gradient(circle at center, black 40%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 100%)'
-          }}
-        />
-
-        {/* Animated Blobs */}
-        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-900/10 rounded-full blur-[100px] animate-blob" />
-        <div className="absolute top-[20%] right-[-10%] w-[35vw] h-[35vw] bg-indigo-900/10 rounded-full blur-[100px] animate-blob" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] bg-blue-900/5 rounded-full blur-[120px] animate-blob" style={{ animationDelay: '4s' }} />
-      </div>
-
       {/* Auth Dialog */}
       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="bg-[#0A0A0A] border border-white/10 text-white max-w-md">
+        <DialogContent className="glass-card text-foreground max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-semibold text-white flex items-center gap-2">
-              <LogIn className="w-6 h-6 text-indigo-400" />
+            <DialogTitle className="text-2xl font-semibold text-foreground flex items-center gap-2">
+              <LogIn className="w-6 h-6 text-accent" />
               Sign in required
             </DialogTitle>
-            <DialogDescription className="text-[#888888] text-base mt-2">
+            <DialogDescription className="text-muted-foreground text-base mt-2">
               Create a free account to validate your ideas with AI-powered market research and build plans.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-6">
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-[#888888]">
-                <Check className="w-4 h-4 text-green-400" />
-                <span>1 free generation</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-[#888888]">
-                <Check className="w-4 h-4 text-green-400" />
-                <span>AI market research & competitor analysis</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-[#888888]">
-                <Check className="w-4 h-4 text-green-400" />
-                <span>Platform-specific build plans</span>
-              </div>
+              {["1 free generation", "AI market research & competitor analysis", "Platform-specific build plans"].map((text) => (
+                <div key={text} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Check className="w-4 h-4 text-[hsl(var(--neon-emerald))]" />
+                  <span>{text}</span>
+                </div>
+              ))}
             </div>
             <div className="flex gap-3 pt-4">
-              <Button
-                onClick={() => {
-                  if (idea.trim()) {
-                    localStorage.setItem('pendingIdea', idea);
-                  }
-                  navigate("/auth");
-                }}
-                className="flex-1 bg-white hover:bg-gray-100 text-black font-semibold"
-              >
+              <Button onClick={() => { if (idea.trim()) localStorage.setItem('pendingIdea', idea); navigate("/auth"); }}
+                className="flex-1 bg-foreground hover:bg-foreground/90 text-background font-semibold">
                 Sign Up Free
               </Button>
-              <Button
-                onClick={() => {
-                  if (idea.trim()) {
-                    localStorage.setItem('pendingIdea', idea);
-                  }
-                  navigate("/auth");
-                }}
-                variant="outline"
-                className="flex-1 border-white/20 hover:bg-white/5 text-white"
-              >
+              <Button onClick={() => { if (idea.trim()) localStorage.setItem('pendingIdea', idea); navigate("/auth"); }}
+                variant="outline" className="flex-1 border-border hover:bg-secondary text-foreground">
                 Sign In
               </Button>
             </div>
@@ -328,252 +226,169 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Navbar */}
-      {stage === "input" && (
-        <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 w-full pointer-events-none">
-          <nav className="pointer-events-auto backdrop-blur-[20px] bg-[rgba(5,5,5,0.6)] rounded-full pl-5 pr-2 py-2 flex items-center justify-between gap-8 border border-white/8 shadow-[0_4px_30px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20">
-            {/* Logo */}
-            <a href="/" className="flex items-center gap-2.5">
-              <img src="/logo.png" alt="IdeaBoard Logo" className="w-6 h-6" />
-              <span className="text-white font-medium tracking-tight text-sm hidden sm:block">IdeaBoard</span>
-            </a>
-
-            {/* Center Navigation */}
-            <div className="hidden md:flex items-center gap-1">
-              <a href="#features" className="px-4 py-2 rounded-full text-xs font-medium text-[#888888] hover:text-white hover:bg-white/5 transition-all">Features</a>
-              <a href="#how-it-works" className="px-4 py-2 rounded-full text-xs font-medium text-[#888888] hover:text-white hover:bg-white/5 transition-all">How it works</a>
-              <a href="#pricing" className="px-4 py-2 rounded-full text-xs font-medium text-[#888888] hover:text-white hover:bg-white/5 transition-all">Pricing</a>
-            </div>
-
-            {/* Right CTAs */}
-            <div className="flex items-center gap-2">
-              {user ? (
-                <Button
-                  onClick={() => navigate("/dashboard")}
-                  variant="ghost"
-                  className="hidden sm:block text-xs font-medium text-[#888888] hover:text-white transition-colors px-3"
-                >
-                  Dashboard
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => navigate("/auth")}
-                  variant="ghost"
-                  className="hidden sm:block text-xs font-medium text-[#888888] hover:text-white transition-colors px-3"
-                >
-                  Login
-                </Button>
-              )}
-              <Button
-                onClick={() => {
-                  if (user) {
-                    navigate("/dashboard");
-                  } else {
-                    navigate("/auth");
-                  }
-                }}
-                className="relative group/btn overflow-hidden rounded-full bg-white text-black px-5 py-2 text-xs font-semibold hover:bg-gray-100 transition-colors flex items-center gap-2"
-              >
-                <span className="relative z-10">Get Started</span>
-                <ArrowRight className="w-3 h-3 opacity-60 relative z-10 group-hover/btn:translate-x-0.5 transition-transform" />
-              </Button>
-            </div>
-          </nav>
-        </div>
-      )}
-
-      {/* Main Content */}
       <main className="relative z-10">
         {stage === "input" && (
           <>
-            {/* Hero Section */}
-            <section className="relative pt-28 pb-24 lg:pt-36 lg:pb-32 overflow-hidden">
-              <HeroBackground />
-              <div className="max-w-6xl mx-auto px-6 text-center relative">
+            {/* ═══════════ NAVBAR ═══════════ */}
+            <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+              <nav className="pointer-events-auto backdrop-blur-xl bg-background/50 rounded-full pl-5 pr-2 py-2 flex items-center justify-between gap-6 border border-border/60 shadow-[0_8px_32px_hsl(0_0%_0%/0.5)] transition-all duration-300 hover:border-border">
+                <a href="/" className="flex items-center gap-2.5">
+                  <img src="/logo.png" alt="IdeaBoard Logo" className="w-6 h-6" />
+                  <span className="text-foreground font-semibold tracking-tight text-sm hidden sm:block">IdeaBoard</span>
+                </a>
+                <div className="hidden md:flex items-center gap-0.5">
+                  {[
+                    { label: "Features", href: "#features" },
+                    { label: "How it works", href: "#how-it-works" },
+                    { label: "Pricing", href: "#pricing" },
+                  ].map((link) => (
+                    <a key={link.label} href={link.href} className="px-4 py-2 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200">{link.label}</a>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  {user ? (
+                    <Button onClick={() => navigate("/dashboard")} variant="ghost" className="hidden sm:flex text-xs font-medium text-muted-foreground hover:text-foreground px-3">Dashboard</Button>
+                  ) : (
+                    <Button onClick={() => navigate("/auth")} variant="ghost" className="hidden sm:flex text-xs font-medium text-muted-foreground hover:text-foreground px-3">Login</Button>
+                  )}
+                  <Button onClick={() => navigate(user ? "/dashboard" : "/auth")}
+                    className="rounded-full bg-foreground text-background px-5 py-2 text-xs font-semibold hover:bg-foreground/90 transition-colors flex items-center gap-1.5">
+                    <span>Get Started</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Button>
+                </div>
+              </nav>
+            </div>
 
-                {/* Spotlight Effect */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-white/5 blur-[120px] rounded-full pointer-events-none" />
+            {/* ═══════════ HERO ═══════════ */}
+            <section className="relative min-h-screen flex flex-col items-center justify-center pt-24 pb-20 px-6 overflow-hidden">
+              {/* Orbital background */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="relative w-[400px] h-[400px] md:w-[600px] md:h-[600px]">
+                  {/* Rings */}
+                  <div className="absolute inset-0 rounded-full border border-border/30 animate-[spin_60s_linear_infinite]" />
+                  <div className="absolute inset-8 rounded-full border border-border/20 animate-[spin_45s_linear_infinite_reverse]" />
+                  <div className="absolute inset-16 rounded-full border border-border/10" />
+                  {/* Orbiting dots */}
+                  <div className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full bg-[hsl(var(--neon-indigo))] animate-orbit shadow-[0_0_12px_hsl(var(--neon-indigo))]" />
+                  <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full bg-[hsl(var(--neon-violet))] animate-orbit-reverse shadow-[0_0_10px_hsl(var(--neon-violet))]" />
+                  {/* Center glow */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-[hsl(var(--neon-indigo)/0.08)] blur-[60px] animate-pulse-glow" />
+                  </div>
+                </div>
+              </div>
 
+              <div className="relative z-10 max-w-5xl mx-auto text-center">
                 {/* Badge */}
-                <a
+                <motion.a
                   href="https://www.producthunt.com/products/ideaboard"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs font-normal text-[#888888] hover:border-white/20 hover:text-white transition-all mb-8 group"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-secondary/40 text-xs font-medium text-muted-foreground hover:border-[hsl(var(--neon-indigo)/0.4)] hover:text-foreground transition-all mb-10 group"
                 >
-                  <svg className="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                  </svg>
+                  <Sparkles className="w-3.5 h-3.5 text-[hsl(var(--neon-indigo))]" />
                   <span>Live on Product Hunt</span>
-                  <ArrowRight className="w-3 h-3 opacity-50 group-hover:translate-x-0.5 transition-transform" />
-                </a>
+                  <ChevronRight className="w-3 h-3 opacity-50 group-hover:translate-x-0.5 transition-transform" />
+                </motion.a>
 
-                {/* Heading */}
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight mb-8 leading-[0.95]">
-                  <span className="bg-gradient-to-br from-white to-[#999999] bg-clip-text text-transparent">From abstract</span>
+                {/* Headline */}
+                <motion.h1
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.1 }}
+                  className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8"
+                >
+                  <span className="text-gradient-hero">Validate.</span>
                   <br />
-                  <span className="text-white/40">to </span>
-                  <span className="bg-gradient-to-br from-white to-[#CCCCCC] bg-clip-text text-transparent relative inline-block">
-                    concrete
-                    <svg className="absolute w-full h-3 -bottom-1 left-0 text-white/20" viewBox="0 0 100 10" preserveAspectRatio="none">
-                      <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
-                    </svg>
-                  </span>
-                </h1>
+                  <span className="text-gradient-accent">Blueprint.</span>
+                  <br />
+                  <span className="text-gradient-hero">Ship.</span>
+                </motion.h1>
 
                 {/* Subheading */}
-                <p className="text-lg md:text-xl text-[#888888]/80 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-                  Stop guessing. Start building. AI-powered market validation and build blueprints designed for the modern founder.
-                </p>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed font-light"
+                >
+                  AI-powered market validation that turns your raw idea into a detailed,
+                  platform-ready build plan — in under 5 minutes.
+                </motion.p>
 
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24">
+                {/* CTAs */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
+                >
                   <Button
                     onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
-                    className="relative h-12 px-8 rounded-full bg-white text-black text-sm font-semibold flex items-center gap-2 hover:scale-105 transition-transform duration-300"
+                    className="h-13 px-8 rounded-full bg-foreground text-background text-sm font-semibold flex items-center gap-2 hover:scale-[1.03] transition-transform duration-300 glow-indigo"
                   >
-                    Validate Idea
+                    Start Validating
+                    <ArrowRight className="w-4 h-4" />
                   </Button>
                   <Button
                     onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}
                     variant="outline"
-                    className="h-12 px-8 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-[#888888] text-sm font-medium flex items-center gap-2 hover:bg-white/10 hover:text-white transition-all hover:scale-105"
+                    className="h-13 px-8 rounded-full border-border text-muted-foreground text-sm font-medium hover:bg-secondary/60 hover:text-foreground transition-all"
                   >
-                    View Demo
-                    <PlayCircle className="w-4 h-4" />
+                    See how it works
                   </Button>
-                </div>
+                </motion.div>
 
-                {/* Dashboard Preview */}
-                <div className="relative mx-auto max-w-5xl" style={{ perspective: '2000px' }}>
-                  {/* Glowing Backlight */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-50" />
-
-                  <div className="relative rounded-xl border border-white/10 bg-[#080808]/80 backdrop-blur-xl shadow-2xl overflow-hidden">
-                    {/* Fake Browser Header */}
-                    <div className="h-10 border-b border-white/5 flex items-center px-4 justify-between bg-white/[0.02]">
-                      <div className="flex gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
-                      </div>
-                      <div className="text-[10px] text-white/20 font-mono">ideaboard.app/dashboard</div>
-                      <div className="w-10" />
+                {/* Stats row */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.7 }}
+                  className="flex flex-wrap justify-center gap-x-12 gap-y-4 text-sm"
+                >
+                  {[
+                    { value: "1,200+", label: "Ideas Validated" },
+                    { value: "40hrs", label: "Avg. Time Saved" },
+                    { value: "92%", label: "PMF Success Rate" },
+                  ].map((stat) => (
+                    <div key={stat.label} className="flex items-center gap-3">
+                      <span className="text-2xl font-bold text-foreground">{stat.value}</span>
+                      <span className="text-muted-foreground text-xs uppercase tracking-wider">{stat.label}</span>
                     </div>
-
-                    {/* Dashboard Content */}
-                    <div className="p-6 md:p-10 grid grid-cols-1 md:grid-cols-12 gap-6 text-left">
-                      {/* Left Panel */}
-                      <div className="md:col-span-8 space-y-6">
-                        <div className="flex justify-between items-end">
-                          <div>
-                            <h3 className="text-2xl font-normal text-white tracking-tight">AI Content Generator SaaS</h3>
-                            <p className="text-sm text-[#888888] mt-1">Validation Status: <span className="text-green-400">Strong Demand</span></p>
-                          </div>
-                          <div className="hidden md:block">
-                            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white">v0.1.2</span>
-                          </div>
-                        </div>
-
-                        {/* Charts Area */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="p-5 rounded-lg bg-white/[0.03] border border-white/5 relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="text-xs text-[#888888] uppercase tracking-wider mb-2">Market Size</div>
-                            <div className="text-2xl text-white font-medium">$4.2B</div>
-                            <div className="mt-4 h-12 flex items-end gap-1">
-                              <div className="w-full bg-indigo-500/20 h-[40%] rounded-sm" />
-                              <div className="w-full bg-indigo-500/40 h-[60%] rounded-sm" />
-                              <div className="w-full bg-indigo-500/60 h-[50%] rounded-sm" />
-                              <div className="w-full bg-indigo-500/80 h-[80%] rounded-sm" />
-                              <div className="w-full bg-indigo-500 h-[70%] rounded-sm" />
-                            </div>
-                          </div>
-                          <div className="p-5 rounded-lg bg-white/[0.03] border border-white/5 relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="text-xs text-[#888888] uppercase tracking-wider mb-2">Success Probability</div>
-                            <div className="text-2xl text-white font-medium">89%</div>
-                            <div className="mt-4 h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 w-[89%] relative">
-                                <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]" />
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-[#888888] mt-2">Based on 12 competitor data points</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Panel */}
-                      <div className="md:col-span-4 space-y-4">
-                        <div className="p-5 rounded-lg bg-white/[0.03] border border-white/5 h-full">
-                          <div className="text-xs text-[#888888] uppercase tracking-wider mb-4">Recommended Stack</div>
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-3 p-2 rounded hover:bg-white/5 transition-colors">
-                              <div className="w-8 h-8 rounded bg-black flex items-center justify-center border border-white/10 text-white">
-                                <Box className="w-4 h-4" />
-                              </div>
-                              <div className="text-sm text-white">Next.js</div>
-                            </div>
-                            <div className="flex items-center gap-3 p-2 rounded hover:bg-white/5 transition-colors">
-                              <div className="w-8 h-8 rounded bg-black flex items-center justify-center border border-white/10 text-white">
-                                <Zap className="w-4 h-4" />
-                              </div>
-                              <div className="text-sm text-white">Supabase</div>
-                            </div>
-                            <div className="flex items-center gap-3 p-2 rounded hover:bg-white/5 transition-colors">
-                              <div className="w-8 h-8 rounded bg-black flex items-center justify-center border border-white/10 text-white">
-                                <Triangle className="w-4 h-4" />
-                              </div>
-                              <div className="text-sm text-white">Tailwind</div>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => navigate("/auth")}
-                            className="mt-6 w-full py-2 rounded bg-white text-black text-xs font-semibold hover:bg-gray-200 transition-colors"
-                          >
-                            Generate Blueprint
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  ))}
+                </motion.div>
               </div>
             </section>
 
-            {/* Partners Section */}
-            <section className="border-y border-white/5 bg-white/[0.01] py-10 overflow-hidden relative">
-              <div className="max-w-7xl mx-auto px-6 text-center">
-                <p className="text-[10px] text-[#888888]/60 mb-6 uppercase tracking-[0.2em] font-medium">Integration Partners</p>
-                <div className="flex justify-center items-center gap-12 md:gap-20 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
-                  <div className="flex items-center gap-2 text-white font-medium text-lg tracking-tight hover:text-white transition-colors">
-                    <Triangle className="w-5 h-5" /> Vercel
+            {/* ═══════════ LOGO BAR ═══════════ */}
+            <section className="border-y border-border/40 py-8 overflow-hidden">
+              <div className="flex animate-marquee whitespace-nowrap">
+                {[...Array(2)].map((_, setIdx) => (
+                  <div key={setIdx} className="flex items-center gap-16 px-8 shrink-0">
+                    {["Vercel", "Supabase", "Replit", "GitHub", "Lovable", "Bolt", "V0"].map((name) => (
+                      <span key={`${setIdx}-${name}`} className="text-muted-foreground/40 text-sm font-medium tracking-wide uppercase">{name}</span>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2 text-white font-medium text-lg tracking-tight hover:text-white transition-colors">
-                    <Zap className="w-5 h-5" /> Supabase
-                  </div>
-                  <div className="flex items-center gap-2 text-white font-medium text-lg tracking-tight hover:text-white transition-colors">
-                    <Box className="w-5 h-5" /> Replit
-                  </div>
-                  <div className="flex items-center gap-2 text-white font-medium text-lg tracking-tight hover:text-white transition-colors">
-                    <Github className="w-5 h-5" /> GitHub
-                  </div>
-                </div>
+                ))}
               </div>
             </section>
 
-            {/* Idea Input Panel */}
-            <section className="py-20 relative">
+            {/* ═══════════ IDEA INPUT ═══════════ */}
+            <section className="py-24 relative">
               <div className="max-w-3xl mx-auto px-6">
                 <Card
                   id="idea-panel"
-                  className="p-8 bg-[rgba(10,10,10,0.4)] backdrop-blur-[16px] border border-white/5 shadow-lg scroll-mt-28"
+                  className="glass-card rounded-2xl p-8 md:p-10 scroll-mt-28"
                 >
                   <div className="space-y-6">
                     <div>
-                      <h2 className="text-2xl font-semibold mb-2 text-white">What's your idea?</h2>
-                      <p className="text-[#888888]">
-                        Describe your app idea and let AI research the market, competitors, and create a build-ready plan.
+                      <h2 className="text-2xl md:text-3xl font-bold mb-2 text-foreground tracking-tight">What's your idea?</h2>
+                      <p className="text-muted-foreground text-sm">
+                        Describe your app concept. Our AI will research the market, analyze competitors, and build your blueprint.
                       </p>
                     </div>
 
@@ -582,17 +397,17 @@ const Index = () => {
                       value={idea}
                       onChange={handleTextareaChange}
                       onFocus={handleTextareaFocus}
-                      className="min-h-[200px] text-lg bg-[#0A0A0A] border-white/5 focus:border-primary transition-colors resize-none text-white placeholder:text-[#888888]/50"
+                      className="min-h-[180px] text-base bg-background/60 border-border focus:border-[hsl(var(--neon-indigo)/0.5)] focus:ring-1 focus:ring-[hsl(var(--neon-indigo)/0.2)] transition-all resize-none text-foreground placeholder:text-muted-foreground/50 rounded-xl"
                     />
 
                     <Button
                       onClick={handleAnalyze}
                       disabled={loading || !idea.trim()}
-                      className="w-full bg-white hover:bg-gray-100 text-black font-semibold py-6 text-lg rounded-full transition-all"
+                      className="w-full bg-foreground hover:bg-foreground/90 text-background font-semibold py-6 text-base rounded-full transition-all"
                     >
                       {loading ? (
                         <>
-                          <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                          <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
                           Analyzing...
                         </>
                       ) : (
@@ -605,8 +420,7 @@ const Index = () => {
                   </div>
                 </Card>
 
-                {/* Project Templates */}
-                <div className="mt-12">
+                <div className="mt-14">
                   <ProjectTemplates 
                     onSelectTemplate={(templateIdea) => {
                       if (!user) {
@@ -622,288 +436,291 @@ const Index = () => {
               </div>
             </section>
 
-            {/* Features Section */}
-            <section id="features" className="py-32 relative">
+            {/* ═══════════ FEATURES (BENTO) ═══════════ */}
+            <section id="features" className="py-28 relative">
               <div className="max-w-7xl mx-auto px-6">
-                <div className="mb-20 md:text-center max-w-3xl mx-auto">
-                  <h2 className="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">Build smarter, not harder.</h2>
-                  <p className="text-[#888888] text-lg font-light leading-relaxed">
-                    Every feature you need to go from "what if" to "hello world". We handle the research so you can focus on execution.
-                  </p>
+                <div className="text-center max-w-3xl mx-auto mb-20">
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                    <p className="text-xs font-medium text-[hsl(var(--neon-indigo))] uppercase tracking-[0.2em] mb-4">Capabilities</p>
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-5">
+                      Everything you need to ship
+                    </h2>
+                    <p className="text-muted-foreground text-lg font-light">
+                      From "what if" to "hello world" — we handle the research so you can focus on execution.
+                    </p>
+                  </motion.div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
-
-                  {/* Feature 1 (Large) */}
-                  <div className="md:col-span-2 bg-gradient-to-b from-[rgba(20,20,20,0.6)] to-[rgba(10,10,10,0.4)] backdrop-blur-[12px] border border-white/6 rounded-3xl p-8 relative overflow-hidden group hover:border-white/15 transition-all duration-400">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] group-hover:bg-indigo-500/20 transition-all duration-500" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[280px]">
+                  {/* Feature 1 — large */}
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                    className="md:col-span-2 glass-card glass-card-hover rounded-2xl p-8 relative overflow-hidden group transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--neon-indigo)/0.08)] rounded-full blur-[80px] group-hover:bg-[hsl(var(--neon-indigo)/0.15)] transition-all duration-500" />
                     <div className="relative z-10 h-full flex flex-col justify-between">
                       <div>
-                        <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6 border border-indigo-500/20">
+                        <div className="w-10 h-10 rounded-xl bg-[hsl(var(--neon-indigo)/0.15)] flex items-center justify-center text-[hsl(var(--neon-indigo))] mb-5 border border-[hsl(var(--neon-indigo)/0.2)]">
                           <BrainCircuit className="w-5 h-5" />
                         </div>
-                        <h3 className="text-2xl font-medium text-white mb-2">Deep Market Intelligence</h3>
-                        <p className="text-[#888888] font-light max-w-md">Our AI analyzes thousands of data points to give you a realistic view of your idea's potential before you write a single line of code.</p>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">Deep Market Intelligence</h3>
+                        <p className="text-sm text-muted-foreground font-light max-w-md">Analyzes thousands of data points to give you a realistic view of your idea's potential before you write a single line of code.</p>
                       </div>
-                      {/* Decorative Graph */}
-                      <div className="w-full h-32 mt-6 border border-white/5 rounded-lg bg-black/40 p-4 relative overflow-hidden">
-                        <div className="absolute bottom-0 left-0 right-0 h-full flex items-end justify-around px-4 pb-0 opacity-50">
-                          <div className="w-8 bg-indigo-500/40 h-[30%] rounded-t" />
-                          <div className="w-8 bg-indigo-500/60 h-[50%] rounded-t" />
-                          <div className="w-8 bg-indigo-500/80 h-[40%] rounded-t" />
-                          <div className="w-8 bg-indigo-500 h-[75%] rounded-t shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
-                          <div className="w-8 bg-indigo-500/50 h-[60%] rounded-t" />
-                        </div>
+                      <div className="w-full h-20 mt-4 rounded-lg bg-background/40 border border-border/40 p-3 flex items-end gap-1.5">
+                        {[30, 50, 40, 75, 60, 85, 70].map((h, i) => (
+                          <div key={i} className="flex-1 rounded-sm bg-[hsl(var(--neon-indigo))]" style={{ height: `${h}%`, opacity: 0.3 + (i * 0.1) }} />
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Feature 2 */}
-                  <div className="bg-gradient-to-b from-[rgba(20,20,20,0.6)] to-[rgba(10,10,10,0.4)] backdrop-blur-[12px] border border-white/6 rounded-3xl p-8 relative overflow-hidden group hover:border-white/15 transition-all duration-400">
-                    <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400 mb-6 border border-pink-500/20">
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+                    className="glass-card glass-card-hover rounded-2xl p-8 relative overflow-hidden group transition-all duration-300">
+                    <div className="w-10 h-10 rounded-xl bg-[hsl(var(--neon-emerald)/0.15)] flex items-center justify-center text-[hsl(var(--neon-emerald))] mb-5 border border-[hsl(var(--neon-emerald)/0.2)]">
                       <Target className="w-5 h-5" />
                     </div>
-                    <h3 className="text-xl font-medium text-white mb-2">Competitor Analysis</h3>
-                    <p className="text-sm text-[#888888] font-light leading-relaxed">Instantly spot gaps in the market by analyzing what existing solutions are missing.</p>
-                  </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Competitor Analysis</h3>
+                    <p className="text-sm text-muted-foreground font-light">Spot gaps in the market by analyzing what existing solutions are missing.</p>
+                  </motion.div>
 
                   {/* Feature 3 */}
-                  <div className="bg-gradient-to-b from-[rgba(20,20,20,0.6)] to-[rgba(10,10,10,0.4)] backdrop-blur-[12px] border border-white/6 rounded-3xl p-8 relative overflow-hidden group hover:border-white/15 transition-all duration-400">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 mb-6 border border-emerald-500/20">
-                      <CheckCircle className="w-5 h-5" />
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
+                    className="glass-card glass-card-hover rounded-2xl p-8 relative overflow-hidden group transition-all duration-300">
+                    <div className="w-10 h-10 rounded-xl bg-[hsl(var(--neon-violet)/0.15)] flex items-center justify-center text-[hsl(var(--neon-violet))] mb-5 border border-[hsl(var(--neon-violet)/0.2)]">
+                      <BarChart3 className="w-5 h-5" />
                     </div>
-                    <h3 className="text-xl font-medium text-white mb-2">Demand Scoring</h3>
-                    <p className="text-sm text-[#888888] font-light leading-relaxed">Get a 0-100% viability score based on search volume trends and social sentiment.</p>
-                  </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Demand Scoring</h3>
+                    <p className="text-sm text-muted-foreground font-light">0–100% viability score based on real market signals and social sentiment.</p>
+                  </motion.div>
 
-                  {/* Feature 4 (Large) */}
-                  <div className="md:col-span-2 bg-gradient-to-b from-[rgba(20,20,20,0.6)] to-[rgba(10,10,10,0.4)] backdrop-blur-[12px] border border-white/6 rounded-3xl p-8 relative overflow-hidden group hover:border-white/15 transition-all duration-400 flex items-center">
-                    <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] group-hover:bg-blue-500/20 transition-all duration-500" />
-                    <div className="relative z-10 w-1/2 pr-6">
-                      <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 mb-6 border border-blue-500/20">
+                  {/* Feature 4 — large */}
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
+                    className="md:col-span-2 glass-card glass-card-hover rounded-2xl p-8 relative overflow-hidden group transition-all duration-300 flex items-center gap-8">
+                    <div className="absolute top-0 left-0 w-64 h-64 bg-[hsl(var(--neon-cyan)/0.06)] rounded-full blur-[80px] group-hover:bg-[hsl(var(--neon-cyan)/0.12)] transition-all duration-500" />
+                    <div className="relative z-10 flex-1">
+                      <div className="w-10 h-10 rounded-xl bg-[hsl(var(--neon-cyan)/0.15)] flex items-center justify-center text-[hsl(var(--neon-cyan))] mb-5 border border-[hsl(var(--neon-cyan)/0.2)]">
                         <FileCode2 className="w-5 h-5" />
                       </div>
-                      <h3 className="text-2xl font-medium text-white mb-2">Detailed Blueprints</h3>
-                      <p className="text-[#888888] font-light">Export comprehensive technical specs compatible with V0, Bolt, and Lovable.</p>
+                      <h3 className="text-xl font-semibold text-foreground mb-2">Build Blueprints</h3>
+                      <p className="text-sm text-muted-foreground font-light">Export technical specs compatible with V0, Bolt, Lovable, and Replit.</p>
                     </div>
-                    <div className="w-1/2 h-full bg-[#050505] border border-white/5 rounded-xl p-4 font-mono text-[10px] text-gray-400 overflow-hidden shadow-inner">
+                    <div className="hidden md:block flex-1 h-full bg-background/60 border border-border/40 rounded-xl p-4 font-mono text-[11px] text-muted-foreground overflow-hidden">
                       <div className="flex gap-1.5 mb-3">
-                        <div className="w-2 h-2 rounded-full bg-red-500/50" />
-                        <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
-                        <div className="w-2 h-2 rounded-full bg-green-500/50" />
+                        <div className="w-2 h-2 rounded-full bg-destructive/40" />
+                        <div className="w-2 h-2 rounded-full bg-[hsl(40_80%_50%/0.4)]" />
+                        <div className="w-2 h-2 rounded-full bg-[hsl(var(--neon-emerald)/0.4)]" />
                       </div>
-                      <p><span className="text-blue-400">const</span> <span className="text-yellow-300">stack</span> = {'{'}</p>
-                      <p className="pl-4">frontend: <span className="text-green-400">"Next.js 14"</span>,</p>
-                      <p className="pl-4">styling: <span className="text-green-400">"Tailwind"</span>,</p>
-                      <p className="pl-4">db: <span className="text-green-400">"Postgres"</span>,</p>
-                      <p className="pl-4">auth: <span className="text-green-400">"Supabase"</span></p>
+                      <p><span className="text-[hsl(var(--neon-indigo))]">const</span> <span className="text-[hsl(40_80%_60%)]">stack</span> = {'{'}</p>
+                      <p className="pl-4">frontend: <span className="text-[hsl(var(--neon-emerald))]">"Next.js 14"</span>,</p>
+                      <p className="pl-4">styling: <span className="text-[hsl(var(--neon-emerald))]">"Tailwind"</span>,</p>
+                      <p className="pl-4">db: <span className="text-[hsl(var(--neon-emerald))]">"Postgres"</span>,</p>
+                      <p className="pl-4">auth: <span className="text-[hsl(var(--neon-emerald))]">"Supabase"</span></p>
                       <p>{'}'}</p>
-                      <p className="mt-2 text-gray-600">// Ready to deploy</p>
                     </div>
-                  </div>
-
+                  </motion.div>
                 </div>
               </div>
             </section>
 
-            {/* How It Works */}
-            <section id="how-it-works" className="py-32 relative border-t border-white/5">
-              <div className="max-w-4xl mx-auto px-6">
-                <div className="text-center mb-24">
-                  <h2 className="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">How it works</h2>
-                </div>
-
-                <div className="relative">
-                  {/* Vertical Line */}
-                  <div className="absolute left-[20px] md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-
-                  {/* Step 1 */}
-                  <div className="relative flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center mb-16 group">
-                    <div className="md:w-1/2 md:pr-12 pl-12 md:pl-0 text-left md:text-right">
-                      <h3 className="text-xl font-medium text-white mb-2 group-hover:text-indigo-400 transition-colors">1. Describe Idea</h3>
-                      <p className="text-sm text-[#888888]">Input a simple sentence about your concept. No complex forms.</p>
-                    </div>
-                    <div className="absolute left-[11px] md:left-1/2 md:-translate-x-1/2 w-[18px] h-[18px] rounded-full bg-[#020202] border-2 border-white/20 z-10 group-hover:border-indigo-500 group-hover:scale-125 transition-all duration-300 shadow-[0_0_10px_black]" />
-                    <div className="md:w-1/2 md:pl-12 pl-12" />
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="relative flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center mb-16 group">
-                    <div className="md:w-1/2 md:pr-12 text-left md:text-right order-1 md:order-none hidden md:block" />
-                    <div className="absolute left-[11px] md:left-1/2 md:-translate-x-1/2 w-[18px] h-[18px] rounded-full bg-[#020202] border-2 border-white/20 z-10 group-hover:border-indigo-500 group-hover:scale-125 transition-all duration-300 shadow-[0_0_10px_black]" />
-                    <div className="md:w-1/2 md:pl-12 pl-12">
-                      <h3 className="text-xl font-medium text-white mb-2 group-hover:text-indigo-400 transition-colors">2. AI Analysis</h3>
-                      <p className="text-sm text-[#888888]">Our engine scrapes the web, checks competitors, and scores demand.</p>
-                    </div>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div className="relative flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center mb-16 group">
-                    <div className="md:w-1/2 md:pr-12 pl-12 md:pl-0 text-left md:text-right">
-                      <h3 className="text-xl font-medium text-white mb-2 group-hover:text-indigo-400 transition-colors">3. Blueprint Generation</h3>
-                      <p className="text-sm text-[#888888]">Receive a step-by-step tech spec tailored to your preferred stack.</p>
-                    </div>
-                    <div className="absolute left-[11px] md:left-1/2 md:-translate-x-1/2 w-[18px] h-[18px] rounded-full bg-[#020202] border-2 border-white/20 z-10 group-hover:border-indigo-500 group-hover:scale-125 transition-all duration-300 shadow-[0_0_10px_black]" />
-                    <div className="md:w-1/2 md:pl-12 pl-12" />
-                  </div>
-
-                  {/* Step 4 */}
-                  <div className="relative flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center group">
-                    <div className="md:w-1/2 md:pr-12 text-left md:text-right hidden md:block" />
-                    <div className="absolute left-[11px] md:left-1/2 md:-translate-x-1/2 w-[18px] h-[18px] rounded-full bg-[#020202] border-2 border-white/20 z-10 group-hover:border-indigo-500 group-hover:scale-125 transition-all duration-300 shadow-[0_0_10px_black]" />
-                    <div className="md:w-1/2 md:pl-12 pl-12">
-                      <h3 className="text-xl font-medium text-white mb-2 group-hover:text-indigo-400 transition-colors">4. Start Building</h3>
-                      <p className="text-sm text-[#888888]">Copy prompts into V0 or Lovable and watch your app come to life.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Pricing */}
-            <section id="pricing" className="py-32 relative">
-              <div className="max-w-7xl mx-auto px-6">
+            {/* ═══════════ HOW IT WORKS ═══════════ */}
+            <section id="how-it-works" className="py-28 relative">
+              {/* Separator line */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px glow-line" />
+              
+              <div className="max-w-5xl mx-auto px-6">
                 <div className="text-center mb-20">
-                  <h2 className="text-3xl md:text-5xl font-medium text-white tracking-tight mb-6">Simple pricing</h2>
-                  <p className="text-[#888888] text-lg font-light">Pay only for what you need. No subscriptions.</p>
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                    <p className="text-xs font-medium text-[hsl(var(--neon-indigo))] uppercase tracking-[0.2em] mb-4">Process</p>
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight">How it works</h2>
+                  </motion.div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                  {/* Free Tier */}
-                  <div className="bg-gradient-to-b from-[rgba(20,20,20,0.6)] to-[rgba(10,10,10,0.4)] backdrop-blur-[12px] border border-white/6 rounded-2xl p-8 flex flex-col hover:border-white/10 transition-all">
-                    <div className="mb-4">
-                      <span className="text-sm font-medium text-[#888888] border border-white/10 px-3 py-1 rounded-full">Free</span>
-                    </div>
-                    <div className="text-4xl font-medium text-white tracking-tight mb-2">₹0</div>
-                    <p className="text-sm text-[#888888] mb-8">Try it out for free.</p>
-
-                    <ul className="space-y-4 mb-8 flex-1">
-                      <li className="flex items-center gap-3 text-sm text-[#888888]">
-                        <Check className="text-white w-4 h-4" /> 1 Free Generation
-                      </li>
-                      <li className="flex items-center gap-3 text-sm text-[#888888]">
-                        <Check className="text-white w-4 h-4" /> Basic Analytics
-                      </li>
-                      <li className="flex items-center gap-3 text-sm text-[#888888]">
-                        <Check className="text-white w-4 h-4" /> Standard Blueprints
-                      </li>
-                    </ul>
-                    <Button
-                      onClick={() => navigate("/auth")}
-                      variant="outline"
-                      className="w-full py-3 rounded-lg border border-white/10 text-center text-sm font-medium text-white hover:bg-white/5 transition-colors"
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  {[
+                    { icon: Layers, title: "Describe", desc: "Share your raw app idea in plain language. No forms, no friction.", num: "01", color: "--neon-indigo" },
+                    { icon: BrainCircuit, title: "Analyze", desc: "AI researches competitors, scores demand, and identifies market gaps.", num: "02", color: "--neon-violet" },
+                    { icon: Target, title: "Select", desc: "Choose your preferred platform — Lovable, Bolt, V0, or Replit.", num: "03", color: "--neon-cyan" },
+                    { icon: Rocket, title: "Build", desc: "Get a phased blueprint with copy-paste-ready prompts.", num: "04", color: "--neon-emerald" },
+                  ].map((step, idx) => (
+                    <motion.div
+                      key={step.num}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="glass-card glass-card-hover rounded-2xl p-6 relative group transition-all duration-300"
                     >
+                      <span className={`text-[80px] font-black absolute -top-2 -right-1 leading-none text-[hsl(var(${step.color})/0.06)] group-hover:text-[hsl(var(${step.color})/0.12)] transition-colors select-none`}>
+                        {step.num}
+                      </span>
+                      <div className="relative z-10">
+                        <div className={`w-10 h-10 rounded-xl bg-[hsl(var(${step.color})/0.15)] flex items-center justify-center text-[hsl(var(${step.color}))] mb-5 border border-[hsl(var(${step.color})/0.2)]`}>
+                          <step.icon className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">{step.title}</h3>
+                        <p className="text-sm text-muted-foreground font-light leading-relaxed">{step.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ═══════════ PRICING ═══════════ */}
+            <section id="pricing" className="py-28 relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px glow-line" />
+              
+              <div className="max-w-6xl mx-auto px-6">
+                <div className="text-center mb-20">
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                    <p className="text-xs font-medium text-[hsl(var(--neon-indigo))] uppercase tracking-[0.2em] mb-4">Pricing</p>
+                    <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-5">Simple, transparent pricing</h2>
+                    <p className="text-muted-foreground text-lg font-light">Pay only for what you need. No subscriptions. Credits never expire.</p>
+                  </motion.div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Free */}
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                    className="glass-card glass-card-hover rounded-2xl p-8 flex flex-col transition-all duration-300">
+                    <span className="text-xs font-medium text-muted-foreground border border-border px-3 py-1 rounded-full w-fit mb-6">Free</span>
+                    <div className="text-4xl font-bold text-foreground tracking-tight mb-1">₹0</div>
+                    <p className="text-sm text-muted-foreground mb-8">Try it out, no strings attached.</p>
+                    <ul className="space-y-3 mb-8 flex-1">
+                      {["1 Free Generation", "Basic Analytics", "Standard Blueprints"].map((f) => (
+                        <li key={f} className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <Check className="text-foreground/60 w-4 h-4 shrink-0" /> {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button onClick={() => navigate("/auth")} variant="outline" className="w-full rounded-xl border-border text-foreground hover:bg-secondary/60">
                       Get Started
                     </Button>
-                  </div>
+                  </motion.div>
 
-                  {/* Basic Pack */}
-                  <div className="bg-gradient-to-b from-[rgba(20,20,20,0.6)] to-[rgba(10,10,10,0.4)] backdrop-blur-[12px] border border-white/6 rounded-2xl p-8 flex flex-col hover:border-white/10 transition-all">
-                    <div className="mb-4 flex justify-between items-center">
-                      <span className="text-sm font-medium text-[#888888] border border-white/10 px-3 py-1 rounded-full">Basic Pack</span>
-                      <span className="text-xs text-green-400 font-medium">Save 87%</span>
+                  {/* Basic */}
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+                    className="glass-card glass-card-hover rounded-2xl p-8 flex flex-col transition-all duration-300">
+                    <div className="flex justify-between items-center mb-6">
+                      <span className="text-xs font-medium text-muted-foreground border border-border px-3 py-1 rounded-full">Basic Pack</span>
+                      <span className="text-xs text-[hsl(var(--neon-emerald))] font-semibold">Save 87%</span>
                     </div>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <div className="text-4xl font-medium text-white tracking-tight">₹10</div>
-                      <span className="text-lg text-[#888888] line-through">₹75</span>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-4xl font-bold text-foreground tracking-tight">₹10</span>
+                      <span className="text-lg text-muted-foreground line-through">₹75</span>
                     </div>
-                    <p className="text-sm text-[#888888] mb-8">5 AI Generations</p>
-
-                    <ul className="space-y-4 mb-8 flex-1">
-                      <li className="flex items-center gap-3 text-sm text-white">
-                        <Check className="text-white w-4 h-4" /> 5 AI Generations
-                      </li>
-                      <li className="flex items-center gap-3 text-sm text-white">
-                        <Check className="text-white w-4 h-4" /> Standard Analytics
-                      </li>
-                      <li className="flex items-center gap-3 text-sm text-white">
-                        <Check className="text-white w-4 h-4" /> Email Support
-                      </li>
+                    <p className="text-sm text-muted-foreground mb-8">5 AI Generations</p>
+                    <ul className="space-y-3 mb-8 flex-1">
+                      {["5 AI Generations", "Standard Analytics", "Email Support", "PDF Export"].map((f) => (
+                        <li key={f} className="flex items-center gap-3 text-sm text-foreground/80">
+                          <Check className="text-foreground/60 w-4 h-4 shrink-0" /> {f}
+                        </li>
+                      ))}
                     </ul>
-                    <Button
-                      onClick={() => navigate("/pricing")}
-                      variant="outline"
-                      className="w-full py-3 rounded-lg border border-white/10 text-center text-sm font-medium text-white hover:bg-white/5 transition-colors"
-                    >
-                      Buy Basic Pack
+                    <Button onClick={() => navigate("/pricing")} variant="outline" className="w-full rounded-xl border-border text-foreground hover:bg-secondary/60">
+                      Buy Basic
                     </Button>
-                  </div>
+                  </motion.div>
 
-                  {/* Premium Pack */}
-                  <div className="bg-gradient-to-b from-[rgba(20,20,20,0.6)] to-[rgba(10,10,10,0.4)] backdrop-blur-[12px] border border-indigo-500/30 rounded-2xl p-8 flex flex-col relative">
-                    <div className="absolute -top-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-                    <div className="absolute -bottom-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-
-                    <div className="mb-4 flex justify-between items-center">
-                      <span className="text-sm font-medium text-indigo-400 border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 rounded-full">Premium Pack</span>
-                      <span className="text-xs text-indigo-300 font-medium">Save 85%</span>
+                  {/* Premium */}
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
+                    className="glass-card rounded-2xl p-8 flex flex-col relative border-[hsl(var(--neon-indigo)/0.3)] transition-all duration-300 glow-indigo">
+                    <div className="absolute -top-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--neon-indigo))] to-transparent" />
+                    <div className="flex justify-between items-center mb-6">
+                      <span className="text-xs font-medium text-[hsl(var(--neon-indigo))] border border-[hsl(var(--neon-indigo)/0.3)] bg-[hsl(var(--neon-indigo)/0.1)] px-3 py-1 rounded-full">Premium</span>
+                      <span className="text-xs text-[hsl(var(--neon-indigo))] font-semibold">Save 85%</span>
                     </div>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <div className="text-4xl font-medium text-white tracking-tight">₹15</div>
-                      <span className="text-lg text-[#888888] line-through">₹100</span>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-4xl font-bold text-foreground tracking-tight">₹15</span>
+                      <span className="text-lg text-muted-foreground line-through">₹100</span>
                     </div>
-                    <p className="text-sm text-[#888888] mb-8">10 AI Generations</p>
-
-                    <ul className="space-y-4 mb-8 flex-1">
-                      <li className="flex items-center gap-3 text-sm text-white">
-                        <Check className="text-indigo-400 w-4 h-4" /> 10 AI Generations
-                      </li>
-                      <li className="flex items-center gap-3 text-sm text-white">
-                        <Check className="text-indigo-400 w-4 h-4" /> Advanced Analytics
-                      </li>
-                      <li className="flex items-center gap-3 text-sm text-white">
-                        <Check className="text-indigo-400 w-4 h-4" /> Priority Support
-                      </li>
+                    <p className="text-sm text-muted-foreground mb-8">10 AI Generations</p>
+                    <ul className="space-y-3 mb-8 flex-1">
+                      {["10 AI Generations", "Advanced Analytics", "Priority Support", "Compare Projects"].map((f) => (
+                        <li key={f} className="flex items-center gap-3 text-sm text-foreground">
+                          <Check className="text-[hsl(var(--neon-indigo))] w-4 h-4 shrink-0" /> {f}
+                        </li>
+                      ))}
                     </ul>
-                    <Button
-                      onClick={() => navigate("/pricing")}
-                      className="w-full py-3 rounded-lg bg-white text-center text-sm font-semibold text-black hover:bg-gray-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-                    >
-                      Buy Premium Pack
+                    <Button onClick={() => navigate("/pricing")}
+                      className="w-full rounded-xl bg-foreground text-background font-semibold hover:bg-foreground/90 shadow-[0_0_20px_hsl(var(--neon-indigo)/0.2)]">
+                      Buy Premium
                     </Button>
-                  </div>
+                  </motion.div>
                 </div>
+
+                <p className="text-center text-sm text-muted-foreground mt-10">
+                  All payments processed securely via Razorpay. Credits are added instantly.
+                </p>
               </div>
             </section>
 
-            {/* Footer */}
-            <footer className="border-t border-white/5 bg-[#020202] pt-20 pb-10 relative">
+            {/* ═══════════ CTA ═══════════ */}
+            <section className="py-28 relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px glow-line" />
+              <div className="max-w-3xl mx-auto px-6 text-center">
+                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                  <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-6">
+                    Ready to validate<br />your next idea?
+                  </h2>
+                  <p className="text-muted-foreground text-lg font-light mb-10 max-w-xl mx-auto">
+                    Join 1,200+ founders who save 40+ hours of research and launch with confidence.
+                  </p>
+                  <Button
+                    onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
+                    className="h-14 px-10 rounded-full bg-foreground text-background text-sm font-semibold hover:scale-[1.03] transition-transform glow-indigo"
+                  >
+                    Get Started Free
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                  <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-muted-foreground">
+                    {["No credit card required", "Results in 5 min", "Export to PDF"].map((t) => (
+                      <span key={t} className="flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-[hsl(var(--neon-emerald))]" /> {t}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              </div>
+            </section>
+
+            {/* ═══════════ FOOTER ═══════════ */}
+            <footer className="border-t border-border/40 pt-16 pb-8">
               <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-16">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-12">
                   <div className="max-w-xs">
-                    <div className="flex items-center gap-2 mb-6">
-                      <div className="w-5 h-5 bg-white rounded-sm flex items-center justify-center">
-                        <span className="text-black font-semibold text-[10px]">IB</span>
-                      </div>
-                      <span className="text-white font-medium">IdeaBoard</span>
+                    <div className="flex items-center gap-2 mb-4">
+                      <img src="/logo.png" alt="IdeaBoard" className="w-5 h-5" />
+                      <span className="text-foreground font-semibold text-sm">IdeaBoard</span>
                     </div>
-                    <p className="text-sm text-[#888888] font-light">Accelerating the journey from idea to product.</p>
+                    <p className="text-sm text-muted-foreground font-light">Accelerating the journey from idea to product.</p>
                   </div>
                   <div className="flex gap-16">
                     <div>
-                      <h4 className="text-white font-medium text-sm mb-4">Product</h4>
-                      <ul className="space-y-3 text-sm text-[#888888] font-light">
-                        <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                        <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                        <li><a href="/about-us" className="hover:text-white transition-colors">About</a></li>
+                      <h4 className="text-foreground font-medium text-xs uppercase tracking-wider mb-4">Product</h4>
+                      <ul className="space-y-2.5 text-sm text-muted-foreground">
+                        <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
+                        <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
+                        <li><a href="/about-us" className="hover:text-foreground transition-colors">About</a></li>
+                        <li><a href="/faq" className="hover:text-foreground transition-colors">FAQ</a></li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="text-white font-medium text-sm mb-4">Legal</h4>
-                      <ul className="space-y-3 text-sm text-[#888888] font-light">
-                        <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy</a></li>
-                        <li><a href="/terms-and-conditions" className="hover:text-white transition-colors">Terms</a></li>
+                      <h4 className="text-foreground font-medium text-xs uppercase tracking-wider mb-4">Legal</h4>
+                      <ul className="space-y-2.5 text-sm text-muted-foreground">
+                        <li><a href="/privacy-policy" className="hover:text-foreground transition-colors">Privacy</a></li>
+                        <li><a href="/terms-and-conditions" className="hover:text-foreground transition-colors">Terms</a></li>
+                        <li><a href="/cancellations-and-refunds" className="hover:text-foreground transition-colors">Refunds</a></li>
                       </ul>
                     </div>
                   </div>
                 </div>
-                <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                  <p className="text-xs text-[#888888]/60">© 2024 IdeaBoard Inc. All rights reserved.</p>
+                <div className="border-t border-border/40 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                  <p className="text-xs text-muted-foreground/50">© {new Date().getFullYear()} IdeaBoard. All rights reserved.</p>
                   <div className="flex gap-4">
-                    <a href="https://twitter.com/ideaboard_ai" className="text-[#888888] hover:text-white transition-colors">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                    <a href="https://twitter.com/ideaboard_ai" className="text-muted-foreground hover:text-foreground transition-colors">
+                      <Twitter className="w-4 h-4" />
                     </a>
-                    <a href="https://github.com" className="text-[#888888] hover:text-white transition-colors">
+                    <a href="https://github.com" className="text-muted-foreground hover:text-foreground transition-colors">
                       <Github className="w-4 h-4" />
                     </a>
                   </div>
