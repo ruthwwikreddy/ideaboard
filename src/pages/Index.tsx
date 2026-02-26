@@ -28,11 +28,12 @@ import {
   Github,
   Twitter,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { ResearchResults } from "@/components/ResearchResults";
 import { PlatformSelector } from "@/components/PlatformSelector";
 import { BuildPlan } from "@/components/BuildPlan";
 import { ProgressStepper } from "@/components/ProgressStepper";
-import { OrganizationSchema, SoftwareApplicationSchema, HowToSchema } from "@/components/SEOJsonLd";
+import { OrganizationSchema, SoftwareApplicationSchema, HowToSchema, FAQSchema } from "@/components/SEOJsonLd";
 import { ProjectTemplates } from "@/components/ProjectTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -181,11 +182,21 @@ const Index = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="IdeaBoard - AI-Powered App Idea Validation" />
         <meta name="twitter:description" content="Transform your app idea into reality with AI-powered market validation and build planning." />
+        <html lang="en" />
+        <link rel="alternate" hrefLang="en" href="https://ideaboard.live/" />
+        <link rel="alternate" hrefLang="x-default" href="https://ideaboard.live/" />
       </Helmet>
       
       <OrganizationSchema />
       <SoftwareApplicationSchema />
-      <HowToSchema 
+      <FAQSchema faqs={[
+        { question: "What is IdeaBoard?", answer: "IdeaBoard is an AI-powered platform that helps you validate your startup ideas, conduct market research, analyze competitors, and generate a comprehensive build plan for your app." },
+        { question: "How does the AI analysis work?", answer: "Our platform uses large language models and proprietary algorithms to analyze your idea, research the market, and generate insights including competitor analysis and demand scoring." },
+        { question: "Is my idea secure?", answer: "Yes, your ideas are not shared with anyone and are not used to train our models. We take data privacy and security very seriously." },
+        { question: "What do I get in a build plan?", answer: "A build plan includes a summary of your app, core features, recommended tech stack, and a phased development roadmap with detailed prompts for platforms like Lovable, Bolt, V0, and Replit." },
+        { question: "How much does it cost?", answer: "IdeaBoard offers a free tier with 1 generation. Paid plans start at ₹10 for 5 generations. No subscriptions required — credits never expire." },
+      ]} />
+      <HowToSchema
         name="How to Validate Your App Idea with IdeaBoard" 
         description="Use AI to validate your app idea and get a detailed build plan"
         steps={howToSteps}
@@ -233,7 +244,7 @@ const Index = () => {
             <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
               <nav className="pointer-events-auto backdrop-blur-xl bg-background/50 rounded-full pl-5 pr-2 py-2 flex items-center justify-between gap-6 border border-border/60 shadow-[0_8px_32px_hsl(0_0%_0%/0.5)] transition-all duration-300 hover:border-border">
                 <a href="/" className="flex items-center gap-2.5">
-                  <img src="/logo.png" alt="IdeaBoard Logo" className="w-6 h-6" />
+                  <img src="/logo.png" alt="IdeaBoard - AI Idea Validation Platform Logo" className="w-6 h-6" width={24} height={24} />
                   <span className="text-foreground font-semibold tracking-tight text-sm hidden sm:block">IdeaBoard</span>
                 </a>
                 <div className="hidden md:flex items-center gap-0.5">
@@ -351,9 +362,9 @@ const Index = () => {
                   className="flex flex-wrap justify-center gap-x-12 gap-y-4 text-sm"
                 >
                   {[
-                    { value: "1,200+", label: "Ideas Validated" },
+                    { value: "500+", label: "Ideas Validated" },
                     { value: "40hrs", label: "Avg. Time Saved" },
-                    { value: "92%", label: "PMF Success Rate" },
+                    { value: "4.8★", label: "User Rating" },
                   ].map((stat) => (
                     <div key={stat.label} className="flex items-center gap-3">
                       <span className="text-2xl font-bold text-foreground">{stat.value}</span>
@@ -663,7 +674,7 @@ const Index = () => {
                     Ready to validate<br />your next idea?
                   </h2>
                   <p className="text-muted-foreground text-lg font-light mb-10 max-w-xl mx-auto">
-                    Join 1,200+ founders who save 40+ hours of research and launch with confidence.
+                    Join 500+ founders who save 40+ hours of research and launch with confidence.
                   </p>
                   <Button
                     onClick={() => document.getElementById("idea-panel")?.scrollIntoView({ behavior: "smooth" })}
@@ -689,7 +700,7 @@ const Index = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-12">
                   <div className="max-w-xs">
                     <div className="flex items-center gap-2 mb-4">
-                      <img src="/logo.png" alt="IdeaBoard" className="w-5 h-5" />
+                      <img src="/logo.png" alt="IdeaBoard - AI-powered idea validation platform" className="w-5 h-5" width={20} height={20} />
                       <span className="text-foreground font-semibold text-sm">IdeaBoard</span>
                     </div>
                     <p className="text-sm text-muted-foreground font-light">Accelerating the journey from idea to product.</p>
@@ -700,16 +711,17 @@ const Index = () => {
                       <ul className="space-y-2.5 text-sm text-muted-foreground">
                         <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
                         <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
-                        <li><a href="/about-us" className="hover:text-foreground transition-colors">About</a></li>
-                        <li><a href="/faq" className="hover:text-foreground transition-colors">FAQ</a></li>
+                        <li><Link to="/about-us" className="hover:text-foreground transition-colors">About</Link></li>
+                        <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
+                        <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="text-foreground font-medium text-xs uppercase tracking-wider mb-4">Legal</h4>
                       <ul className="space-y-2.5 text-sm text-muted-foreground">
-                        <li><a href="/privacy-policy" className="hover:text-foreground transition-colors">Privacy</a></li>
-                        <li><a href="/terms-and-conditions" className="hover:text-foreground transition-colors">Terms</a></li>
-                        <li><a href="/cancellations-and-refunds" className="hover:text-foreground transition-colors">Refunds</a></li>
+                        <li><Link to="/privacy-policy" className="hover:text-foreground transition-colors">Privacy</Link></li>
+                        <li><Link to="/terms-and-conditions" className="hover:text-foreground transition-colors">Terms</Link></li>
+                        <li><Link to="/cancellations-and-refunds" className="hover:text-foreground transition-colors">Refunds</Link></li>
                       </ul>
                     </div>
                   </div>
